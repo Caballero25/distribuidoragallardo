@@ -1,0 +1,51 @@
+{% load static %}
+<nav class="app-header navbar navbar-expand bg-body">
+    <!--begin::Container-->
+    <div class="container-fluid">
+      <!--begin::Start Navbar Links-->
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+            <i class="bi bi-list"></i>
+          </a>
+        </li>
+        <li class="nav-item d-none d-md-block"><a href="{% url 'home-url' %}" class="nav-link">Inicio</a></li>
+        <li class="nav-item d-none d-md-block"><a href="https://wa.me/593969761579?text=" target="_blank" class="nav-link">Contacto</a></li>
+      </ul>
+      <!--end::Start Navbar Links-->
+      <!--begin::End Navbar Links-->
+      <ul class="navbar-nav ms-auto">
+        <!--begin::Navbar Search-->
+
+        <li class="nav-item dropdown user-menu">
+          <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+            <img
+              src="{% static 'lib/adminlte-4.0/assets/img/logo_empresa_no_letters.jpg' %}"
+              class="user-image rounded-circle shadow"
+              alt="User Image"
+            />
+            <span class="d-none d-md-inline">Alexander Pierce</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end" style="background-color: #343440;">
+            <!--begin::User Image-->
+            <li class="user-header" style="color: white;">
+              <img
+                src="{% static 'lib/adminlte-4.0/assets/img/logo_empresa_no_letters.jpg' %}"
+                class="rounded-circle shadow"
+                alt="User Image"
+              />
+              <p>
+                {{request.user.username}} - 
+                {{request.user.email}}
+                <small>Miembro desde: {{request.user.date_joined|date:"d/m/Y"}}</small>
+              </p>
+            </li>
+            <!--end::User Image-->
+          </ul>
+        </li>
+        <!--end::User Menu Dropdown-->
+      </ul>
+      <!--end::End Navbar Links-->
+    </div>
+    <!--end::Container-->
+  </nav>
