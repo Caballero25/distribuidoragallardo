@@ -1,3 +1,35 @@
-distribuidoragallardo/pyaw.py
-distribuidoragallardo/__pychache__
-terceros/migrations
+# Ignorar migraciones
+**/migrations/*
+!**/migrations/__init__.py
+
+# Archivos compilados de Python
+*.pyc
+__pycache__/
+
+# Entornos virtuales
+.venv/
+venv/
+
+# Archivos de configuración y de entorno
+.env
+*.env
+
+# Archivos de registro
+*.log
+
+# Archivos y carpetas generados por IDEs
+.vscode/
+.idea/
+
+# Otros archivos y carpetas innecesarios
+*.pot
+*.py[co]
+*.so
+*.egg-info
+.eggs
+dist/
+build/
+.DS_Store
+Thumbs.db
+.gitignore
+**/pyaw.py
