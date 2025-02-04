@@ -1,0 +1,246 @@
+{% extends 'base/base_adminlte.html' %}
+{% load static %}
+{% block title %} Crear Tercero {% endblock %}
+{% block extra_head %}
+{% endblock %}
+
+{% block content %}
+<h1>Nueva Compra</h1>
+
+<form method="POST">
+  {% csrf_token %}
+
+  <div class="form-group">
+    <label for="id_fecha">Fecha de Compra:</label>
+    {{ form.fecha }}
+  </div>
+
+  <div class="form-group">
+    <label for="id_tercero">Tercero:</label>
+    <input type="text" id="buscar_tercero" placeholder="Buscar tercero por nombre" autocomplete="off">
+    <select name="tercero" id="tercero_select">
+      <option value="">-- Selecciona un tercero --</option>
+      {% for tercero in terceros %}
+      <option value="{{ tercero.id }}">{{ tercero.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="id_valor_unitario">Valor Unitario:</label>
+    {{ form.valor_unitario }}
+  </div>
+
+  <div class="form-group">
+    <label for="id_valor_total">Valor Total:</label>
+    {{ form.valor_total }}
+  </div>
+
+  <div class="form-group">
+    <label for="id_descripcion">Descripción:</label>
+    {{ form.descripcion }}
+  </div>
+
+  <div class="form-group">
+    <label for="id_cuenta_por_pagar">Cuenta por Pagar:</label>
+    {{ form.cuenta_por_pagar }}
+  </div>
+
+  <div class="form-group">
+    <label for="productos_agregados">Productos Agregados:</label>
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#agregarProductoModal">
+      + Agregar Producto
+    </button>
+    <table id="productos_agregados" class="table table-bordered">
+      <thead>
+      <tr>
+        <th>Código</th>
+        <th>Nombre</th>
+        <th>Valor Unitario</th>
+        <th>Cantidad</th>
+        <th>Total</th>
+        <th>Eliminar</th>
+      </tr>
+      </thead>
+      <tbody>
+      <!-- Los productos agregados se insertarán aquí -->
+      </tbody>
+    </table>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Crear Compra</button>
+</form>
+
+<!-- Modal para agregar producto -->
+<div class="modal fade" id="agregarProductoModal" tabindex="-1" role="dialog" aria-labelledby="agregarProductoModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="agregarProductoModalLabel">Agregar Producto</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="formProducto">
+          <div class="form-group">
+            <label for="producto_nombre">Nombre del Producto</label>
+            <input type="text" id="producto_nombre" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="producto_codigo">Código del Producto</label>
+            <input type="text" id="producto_codigo" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="producto_cantidad">Cantidad (Entradas)</label>
+            <input type="number" id="producto_cantidad" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="producto_valor_unitario">Valor Unitario</label>
+            <input type="number" id="producto_valor_unitario" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="producto_subtotal">Subtotal</label>
+            <input type="text" id="producto_subtotal" class="form-control" readonly>
+          </div>
+        </form>
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#productosExistentesModal">Productos Existentes</button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" id="agregarProductoBtn">Agregar Producto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para seleccionar producto existente -->
+<div class="modal fade" id="productosExistentesModal" tabindex="-1" role="dialog" aria-labelledby="productosExistentesModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="productosExistentesModalLabel">Seleccionar Producto Existente</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="buscar_producto" class="form-control" placeholder="Buscar producto por nombre" autocomplete="off">
+        <ul id="productos_list" class="list-group mt-3">
+          <!-- Lista de productos será cargada aquí -->
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Función para formatear como moneda en USD (signo antes del valor)
+  function formatoMoneda(valor) {
+    return '$' + valor.toFixed(2);  // Formatea como dólar con dos decimales
+  }
+
+  // Función para agregar producto a la tabla de productos agregados
+  function agregarProducto() {
+    const nombre = document.getElementById("producto_nombre").value;
+    const codigo = document.getElementById("producto_codigo").value;
+    const cantidad = parseFloat(document.getElementById("producto_cantidad").value);
+    const valorUnitario = parseFloat(document.getElementById("producto_valor_unitario").value);
+    const subtotal = cantidad * valorUnitario;
+
+    const productosAgregadosTableBody = document.getElementById("productos_agregados").querySelector("tbody");
+
+    let tr = document.createElement("tr");
+
+    // Código del producto
+    let tdCodigo = document.createElement("td");
+    tdCodigo.textContent = codigo;  // Muestra el código
+    tr.appendChild(tdCodigo);
+
+    // Nombre del producto
+    let tdNombre = document.createElement("td");
+    tdNombre.textContent = nombre;
+    tr.appendChild(tdNombre);
+
+    // Valor unitario
+    let tdValorUnitario = document.createElement("td");
+    tdValorUnitario.textContent = formatoMoneda(valorUnitario);  // Muestra el valor unitario como moneda
+    tr.appendChild(tdValorUnitario);
+
+    // Cantidad
+    let tdCantidad = document.createElement("td");
+    tdCantidad.textContent = cantidad;
+    tr.appendChild(tdCantidad);
+
+    // Total (Subtotal)
+    let tdTotal = document.createElement("td");
+    tdTotal.textContent = formatoMoneda(subtotal);  // Muestra el subtotal como moneda
+    tr.appendChild(tdTotal);
+
+    // Eliminar botón
+    let tdEliminar = document.createElement("td");
+    let btnEliminar = document.createElement("button");
+    btnEliminar.textContent = "Eliminar";
+    btnEliminar.classList.add("btn", "btn-danger");
+    btnEliminar.onclick = function() {
+      tr.remove();  // Elimina la fila de la tabla
+    };
+    tdEliminar.appendChild(btnEliminar);
+    tr.appendChild(tdEliminar);
+
+    productosAgregadosTableBody.appendChild(tr);
+
+    // Cierra el modal
+    $('#agregarProductoModal').modal('hide');
+
+    // Limpiar campos del formulario
+    document.getElementById("formProducto").reset();
+  }
+
+  // Calcula el subtotal en el modal cuando la cantidad o valor unitario cambien
+  document.getElementById("producto_cantidad").addEventListener("input", calcularSubtotal);
+  document.getElementById("producto_valor_unitario").addEventListener("input", calcularSubtotal);
+
+  function calcularSubtotal() {
+    const cantidad = parseFloat(document.getElementById("producto_cantidad").value);
+    const valorUnitario = parseFloat(document.getElementById("producto_valor_unitario").value);
+    const subtotal = cantidad * valorUnitario;
+
+    document.getElementById("producto_subtotal").value = formatoMoneda(subtotal);
+  }
+
+  // Evento para agregar el producto al hacer clic en el botón del modal
+  document.getElementById("agregarProductoBtn").addEventListener("click", agregarProducto);
+
+  // Buscar productos existentes con AJAX
+  $('#buscar_producto').on('keyup', function() {
+    const query = $(this).val();
+    $.ajax({
+      url: '{% url "get_producto" %}',
+      data: {
+        'q': query
+      },
+      success: function(data) {
+        const productosList = $('#productos_list');
+        productosList.empty();
+        data.productos.forEach(function(producto) {
+          productosList.append(`<li class="list-group-item" data-id="${producto.id}" data-nombre="${producto.nombre}" data-codigo="${producto.codigo}">${producto.nombre} - ${producto.codigo}</li>`);
+        });
+      }
+    });
+  });
+
+  // Cargar producto seleccionado en el modal
+  $('#productos_list').on('dblclick', 'li', function() {
+    const nombre = $(this).data('nombre');
+    const codigo = $(this).data('codigo');
+
+    $('#producto_nombre').val(nombre);
+    $('#producto_codigo').val(codigo);
+    $('#productosExistentesModal').modal('hide');
+  });
+</script>
+{% endblock %}

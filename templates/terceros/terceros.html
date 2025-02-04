@@ -1,0 +1,132 @@
+{% extends 'base/base_adminlte.html' %}
+{% load static %}
+{% block title %} Terceros {% endblock %}
+{% block extra_head %}
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
+{% endblock %}
+
+{% block content %}
+<h1>Terceros</h1>
+
+<form method="get" action="{% url 'get_tercero_by_name' %}">
+    <label for="nombre">Buscar por nombre:</label>
+    <input type="text" name="nombre" value="{{ query }}" placeholder="Escriba el nombre">
+    <button type="submit">Buscar</button>
+</form>
+
+<table>
+    <thead>
+    <tr>
+        <th>Nombre</th>
+        <th>Tipo</th>
+        <th>Teléfono</th>
+        <th>Dirección</th>
+        <th>Editar</th>
+        <th>Eliminar</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for tercero in terceros %}
+    <tr>
+        <td>{{ tercero.nombre }}</td>
+        <td>{{ tercero.tipo }}</td>
+        <td>{{ tercero.telefono }}</td>
+        <td>{{ tercero.direccion }}</td>
+        <td>
+            <!-- Ícono de editar (lápiz) -->
+            <a href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ tercero.id }}">
+                <i class="fi fi-rr-pencil"></i> <!-- Lápiz -->
+            </a>
+        </td>
+        <td>
+            <!-- Ícono de eliminar (caneca de basura) -->
+            <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ tercero.id }}">
+                <i class="fi fi-rs-trash-can-slash"></i> <!-- Caneca de basura -->
+            </a>
+        </td>
+    </tr>
+
+    <!-- Modal de Editar -->
+    <div class="modal" id="editModal{{ tercero.id }}" style="display: none;">
+        <div class="modal-content" style="background-color: #fff; padding: 20px; border-radius: 5px;">
+            <div class="modal-header">
+                <h5>Editando Tercero: {{ tercero.nombre }}</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulario de Edición -->
+                <form method="post" action="{% url 'update_tercero' tercero.id %}">
+                    {% csrf_token %}
+                    <div>
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" id="nombre" name="nombre" value="{{ tercero.nombre }}" required>
+                    </div>
+                    <div>
+                        <label for="tipo">Tipo:</label>
+                        <select id="tipo" name="tipo" required>
+                            <option value="CLIENTE" {% if tercero.tipo == "CLIENTE" %}selected{% endif %}>Cliente</option>
+                            <option value="PROVEEDOR" {% if tercero.tipo == "PROVEEDOR" %}selected{% endif %}>Proveedor</option>
+                            <option value="CLIENTE/PROVEEDOR" {% if tercero.tipo == "CLIENTE/PROVEEDOR" %}selected{% endif %}>Cliente/Proveedor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="telefono">Teléfono:</label>
+                        <input type="text" id="telefono" name="telefono" value="{{ tercero.telefono }}" required>
+                    </div>
+                    <div>
+                        <label for="direccion">Dirección:</label>
+                        <input type="text" id="direccion" name="direccion" value="{{ tercero.direccion }}" required>
+                    </div>
+                    <button type="submit">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Eliminar -->
+    <div class="modal" id="deleteModal{{ tercero.id }}" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Confirmar Eliminación</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar a {{ tercero.nombre }}?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" style="background-color: #ccc;">Cancelar</button>
+                <form action="{% url 'delete_tercero' tercero.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-delete" style="background-color: #f00; color: white;">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(item => {
+        item.addEventListener('click', event => {
+            const targetModal = document.querySelector(item.getAttribute('data-bs-target'));
+            targetModal.style.display = 'block';
+        });
+    });
+
+    document.querySelectorAll('.close').forEach(item => {
+        item.addEventListener('click', event => {
+            const modal = item.closest('.modal');
+            modal.style.display = 'none';
+        });
+    });
+
+    // Cerrar el modal al hacer clic fuera de él
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}
