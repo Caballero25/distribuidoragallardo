@@ -17,7 +17,7 @@
             <th>Fecha</th>
             <th>Tercero</th>
             <th>Valor</th>
-            <th>Usuario</th>
+            <th>Creado Por</th>
             <th>Método de Pago</th>
             <th>Cuenta por Pagar</th>
             <th>Eliminar</th>
@@ -29,7 +29,7 @@
             <td>{{ egreso.fecha }}</td>
             <td>{{ egreso.tercero.nombre }}</td>
             <td>{{ egreso.valor }}</td>
-            <td>{{ egreso.usuario }}</td>
+            <td>{{ egreso.creado_por.username }}</td>
             <td>{{ egreso.metodo_de_pago|capfirst }}</td>
             <td>{{ egreso.cuenta_por_pagar }}</td>
             <td>
