@@ -24,7 +24,7 @@
               class="user-image rounded-circle shadow"
               alt="User Image"
             />
-            <span class="d-none d-md-inline">Alexander Pierce</span>
+            <span class="d-none d-md-inline">{{request.user.username}}</span>
           </a>
           <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end" style="background-color: #343440;">
             <!--begin::User Image-->
@@ -39,6 +39,7 @@
                 {{request.user.email}}
                 <small>Miembro desde: {{request.user.date_joined|date:"d/m/Y"}}</small>
               </p>
+              <a class="btn btn-danger btn-sm mt-2" href="{% url 'logout-url' %}">Cerrar sesión</a>
             </li>
             <!--end::User Image-->
           </ul>

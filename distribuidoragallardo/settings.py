@@ -33,6 +33,12 @@ ALLOWED_HOSTS = []
 
 OUR_APPS = [
     'home',
+    'terceros',
+    'egresos',
+    'cuentasporpagar',
+    'compras',
+    'productos',
+    'user'
 ]
 
 DEFAULT_APPS = [
@@ -42,13 +48,6 @@ DEFAULT_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'terceros',
-    'egresos',
-    'cuentasporpagar',
-    'compras',
-    'productos'
-
-
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + OUR_APPS
@@ -138,3 +137,4 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGIN_URL = 'login-url'
