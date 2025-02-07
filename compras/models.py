@@ -15,6 +15,6 @@ class Compra(models.Model):
     cuenta_por_pagar = models.ForeignKey(
         'cuentasporpagar.CuentaPorPagar',
         on_delete=models.CASCADE,
-        related_name='compras_asociadas'  # Evita conflicto con el campo `compra` en `CuentaPorPagar`
+        related_name='compras_asociadas',
     )
     usuario = models.CharField(max_length=255)

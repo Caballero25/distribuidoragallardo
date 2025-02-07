@@ -23,23 +23,28 @@ def create_compra(request):
         producto = request.POST.get('producto')
         valor_unitario = request.POST.get('valor_unitario')
         valor_total = request.POST.get('valor_total')
+        cuenta_por_pagar_id = request.POST.get('cuenta_por_pagar')
         descripcion = request.POST.get('descripcion')
         usuario = request.POST.get('usuario')
 
+        cuenta_por_pagar_val = CuentaPorPagar.objects.get(id=cuenta_por_pagar_id) if cuenta_por_pagar_id else None
+
         # Crear la compra
-        compra = Compra.objects.create(
+        compra = Compra(
             fecha=fecha,
             tercero_id=tercero_id,
             producto=producto,
             valor_unitario=valor_unitario,
             valor_total=valor_total,
+            cuenta_por_pagar=cuenta_por_pagar_val,
             descripcion=descripcion,
-            cuenta_por_pagar=cuenta_por_pagar,
             usuario=usuario
         )
 
+        compra.save()
+
         # Crear automáticamente la cuenta por pagar
-        cuenta_por_pagar = CuentaPorPagar.objects.create(
+        cuenta_por_pagar = CuentaPorPagar(
             fecha=fecha,
             tercero_id=tercero_id,
             compra=compra,  # Relación con la compra recién creada
@@ -48,8 +53,12 @@ def create_compra(request):
             estado='PENDIENTE'
         )
 
+        cuenta_por_pagar.save()
+        compra.cuenta_por_pagar = cuenta_por_pagar
+        compra.save()
+
         messages.success(request, "Compra y cuenta por pagar creadas exitosamente.")
-        return redirect('lista_compras')  # Redirigir a la lista de compras
+        return redirect('get_all_compras')  # Redirigir a la lista de compras
 
     return render(request, 'compras/create_compra.html')
 
