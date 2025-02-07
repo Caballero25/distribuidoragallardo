@@ -2,6 +2,8 @@
 {% load static %}
 {% block title %} Productos {% endblock %}
 {% block extra_head %}
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
 {% endblock %}
 
 {% block content %}
@@ -41,79 +43,60 @@
     <td>{{ producto.salidas }}</td>
     <td>{{ producto.costo_unitario }}</td>
     <td>
-      <!-- Botón para abrir el modal de edición -->
-      <button onclick="openEditModal('{{ producto.id }}', '{{ producto.nombre }}', '{{ producto.codigo }}', '{{ producto.valor_unitario }}')">
-        <i class="fas fa-pencil-alt"></i>
-      </button>
-    </td>
+
     <td>
-      <!-- Botón para abrir el modal de eliminación -->
-      <button onclick="openDeleteModal('{{ producto.id }}', '{{ producto.nombre }}')">
-        <i class="fas fa-trash-alt"></i>
-      </button>
+      <!-- Ícono de eliminar (caneca de basura) -->
+      <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ producto.id }}">
+        <i class="fi fi-rs-trash-can-slash"></i> <!-- Caneca de basura -->
+      </a>
     </td>
   </tr>
+
+  <!-- MODAL PARA ELIMINAR PRODUCTO-->
+  <div class="modal" id="deleteModal{{ producto.id }}" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5>Confirmar Eliminación</h5>
+        <button type="button" class="close" data-bs-dismiss="modal">X</button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que deseas eliminar el producto {{ producto.nombre }}?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" style="background-color: #ccc;">Cancelar</button>
+        <form action="{% url 'delete_producto' producto.id %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn-delete" style="background-color: #f00; color: white;">Eliminar</button>
+        </form>
+      </div>
+    </div>
+  </div>
   {% endfor %}
   </tbody>
 </table>
 
-<!-- MODAL PARA EDITAR PRODUCTO -->
-<div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);">
-  <div style="background: white; padding: 20px; margin: 10% auto; width: 50%;">
-    <h2>Editar Producto</h2>
-    <form id="editForm" method="post">
-      {% csrf_token %}
-      <label for="editNombre">Nombre:</label>
-      <input type="text" id="editNombre" name="nombre" required><br>
 
-      <label for="editCodigo">Código:</label>
-      <input type="text" id="editCodigo" name="codigo" required><br>
-
-      <label for="editValor">Valor Unitario:</label>
-      <input type="number" id="editValor" name="valor_unitario" step="0.01" required><br>
-
-      <button type="submit">Guardar</button>
-      <button type="button" onclick="closeEditModal()">Cancelar</button>
-    </form>
-  </div>
-</div>
-
-<!-- MODAL PARA ELIMINAR PRODUCTO -->
-<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);">
-  <div style="background: white; padding: 20px; margin: 10% auto; width: 30%;">
-    <h2>¿Eliminar Producto?</h2>
-    <p id="deleteMessage"></p>
-    <button onclick="confirmDelete()">Sí, eliminar</button>
-    <button onclick="closeDeleteModal()">Cancelar</button>
-  </div>
-</div>
 
 <script>
-  function openEditModal(id, nombre, codigo, valor) {
-    document.getElementById("editNombre").value = nombre;
-    document.getElementById("editCodigo").value = codigo;
-    document.getElementById("editValor").value = valor;
-    document.getElementById("editForm").action = "/productos/" + "/update/" + id ;
-    document.getElementById("editModal").style.display = "block";
-  }
+  document.querySelectorAll('[data-bs-toggle="modal"]').forEach(item => {
+    item.addEventListener('click', event => {
+      const targetModal = document.querySelector(item.getAttribute('data-bs-target'));
+      targetModal.style.display = 'block';
+    });
+  });
 
-  function closeEditModal() {
-    document.getElementById("editModal").style.display = "none";
-  }
+  document.querySelectorAll('.close').forEach(item => {
+    item.addEventListener('click', event => {
+      const modal = item.closest('.modal');
+      modal.style.display = 'none';
+    });
+  });
 
-  function openDeleteModal(id, nombre) {
-    document.getElementById("deleteMessage").innerText = "¿Estás seguro de que deseas eliminar el producto " + nombre + "?";
-    document.getElementById("deleteModal").dataset.productoId = id;
-    document.getElementById("deleteModal").style.display = "block";
-  }
-
-  function closeDeleteModal() {
-    document.getElementById("deleteModal").style.display = "none";
-  }
-
-  function confirmDelete() {
-    let productoId = document.getElementById("deleteModal").dataset.productoId;
-    window.location.href = "/productos/" + "/eliminar/" + productoId ;
+  // Cerrar el modal al hacer clic fuera de él
+  window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+      event.target.style.display = 'none';
+    }
   }
 </script>
 {% endblock %}

@@ -22,33 +22,41 @@
         <div class="form-group">
             <label for="tercero_nombre">Tercero</label>
             <input type="text" id="tercero_nombre" class="form-control" placeholder="Buscar tercero..." required>
-            <input type="hidden" name="tercero" id="tercero_id"> <!-- Campo oculto para enviar el ID -->
+            <input type="hidden" name="tercero" id="tercero_id">
         </div>
 
+        <!-- Sección del Producto -->
+        <h3>Información del Producto</h3>
 
         <div class="form-group">
-            <label for="producto">Producto</label>
-            <input type="text" name="producto" class="form-control" required>
+            <label for="producto_nombre">Nombre del Producto</label>
+            <input type="text" name="producto_nombre" id="producto_nombre" class="form-control" required>
+            <input type="hidden" name="producto_id" id="producto_id">
+        </div>
+
+        <div class="form-group">
+            <label for="producto_codigo">Código del Producto</label>
+            <input type="text" name="producto_codigo" id="producto_codigo" maxlength="4" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="cantidad">Cantidad</label>
+            <input type="number" name="cantidad" id="cantidad" min="1" class="form-control" required>
         </div>
 
         <div class="form-group">
             <label for="valor_unitario">Valor Unitario</label>
-            <input type="number" name="valor_unitario" step="0.01" class="form-control" required>
+            <input type="number" name="valor_unitario" id="valor_unitario" step="0.01" class="form-control" required>
         </div>
 
         <div class="form-group">
             <label for="valor_total">Valor Total</label>
-            <input type="number" name="valor_total" step="0.01" class="form-control" required>
+            <input type="number" name="valor_total" id="valor_total" step="0.01" class="form-control" readonly>
         </div>
 
         <div class="form-group">
             <label for="descripcion">Descripción</label>
             <textarea name="descripcion" class="form-control"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="usuario">Usuario</label>
-            <input type="text" name="usuario" class="form-control" required>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block mt-4">Crear Compra</button>
@@ -60,29 +68,69 @@
 
 <script>
     $(document).ready(function() {
+        // Autocompletar Tercero
         $("#tercero_nombre").autocomplete({
             source: function(request, response) {
                 $.ajax({
                     url: "{% url 'get_tercero_by_name_din' %}",
                     dataType: "json",
-                    data: {
-                        term: request.term  // Parámetro de búsqueda
-                    },
+                    data: { term: request.term },
                     success: function(data) {
                         response($.map(data, function(item) {
-                            return {
-                                label: item.text,
-                                value: item.text,
-                                id: item.id
-                            };
+                            return { label: item.text, value: item.text, id: item.id };
                         }));
                     }
                 });
             },
-            minLength: 2,  // Iniciar búsqueda después de 2 caracteres
+            minLength: 2,
             select: function(event, ui) {
-                $("#tercero_id").val(ui.item.id);  // Guardar el ID en el campo oculto
+                $("#tercero_id").val(ui.item.id);
             }
+        });
+
+        // Autocompletar Producto
+        $("#producto_nombre").autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'get_producto_by_name_din' %}",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function(data) {
+                        response($.map(data, function(item) {
+                            return { label: item.nombre, value: item.nombre, id: item.id };
+                        }));
+                    }
+                });
+            },
+            minLength: 2,
+            select: function(event, ui) {
+                $("#producto_id").val(ui.item.id); // Guardar ID del producto
+
+                // Hacer petición AJAX para obtener el código del producto
+                $.ajax({
+                    url: "{% url 'get_codigo_producto' %}",
+                    dataType: "json",
+                    data: { producto_id: ui.item.id },
+                    success: function(response) {
+                        if (response.codigo) {
+                            $("#producto_codigo").val(response.codigo).prop("readonly", true);
+                        }
+                    }
+                });
+            }
+        });
+
+        // Si se cambia el nombre del producto, desbloquear el campo de código y limpiar ID
+        $("#producto_nombre").on("input", function() {
+            $("#producto_id").val(""); // Eliminar ID del producto seleccionado
+            $("#producto_codigo").val("").prop("readonly", false); // Habilitar campo de código
+        });
+
+        // Calcular automáticamente el valor total
+        $("#cantidad, #valor_unitario").on("input", function () {
+            let cantidad = parseFloat($("#cantidad").val()) || 0;
+            let valorUnitario = parseFloat($("#valor_unitario").val()) || 0;
+            $("#valor_total").val((cantidad * valorUnitario).toFixed(2));
         });
     });
 </script>

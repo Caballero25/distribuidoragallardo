@@ -1,0 +1,20 @@
+{% extends 'base/base_adminlte.html' %}
+{% load static %}
+{% block title %} Crear Tercero {% endblock %}
+{% block extra_head %}
+{% endblock %}
+{% block content %}
+<h1>Crear Nuevo Tercero</h1>
+<form method="post" action="{% url 'create_tercero' %}">
+    {% csrf_token %}
+    <label for="nombre">Nombre:</label>
+    {{ form.nombre }}
+    <label for="tipo">Tipo:</label>
+    {{ form.tipo }}
+    <label for="telefono">Teléfono:</label>
+    {{ form.telefono }}
+    <label for="direccion">Dirección:</label>
+    {{ form.direccion }}
+    <button type="submit">Crear Tercero</button>
+</form>
+{% endblock %}

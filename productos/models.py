@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
@@ -9,3 +10,5 @@ class Producto(models.Model):
     entradas = models.IntegerField()
     salidas = models.IntegerField()
     costo_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    costo_historico = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)

@@ -1,79 +1,85 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
 from .models import Compra
 from productos.models import Producto
 from django.contrib import messages
 from cuentasporpagar.models import CuentaPorPagar
-from terceros.models import Tercero
-"""from django.contrib.auth.decorators import login_required"""
+from django.contrib.auth.decorators import login_required
+from decimal import Decimal
+
 # Create your views here.
 
-"""@login_required"""
+@login_required
 def get_all_compras(request):
     compras = Compra.objects.all()
     context = {'compras': compras}
     if request.method == 'GET':
         return render(request, 'compras/compras.html', context)
 
-"""@login_required"""
+@login_required
 def create_compra(request):
     if request.method == 'POST':
         fecha = request.POST.get('fecha')
         tercero_id = request.POST.get('tercero')
-        producto = request.POST.get('producto')
-        valor_unitario = request.POST.get('valor_unitario')
-        valor_total = request.POST.get('valor_total')
-        cuenta_por_pagar_id = request.POST.get('cuenta_por_pagar')
+        nombre_producto = request.POST.get('producto_nombre')
+        codigo_producto = request.POST.get('producto_codigo')
+        cantidad = int(request.POST.get('cantidad'))
+        valor_unitario = Decimal(request.POST.get('valor_unitario'))
+        valor_total = cantidad * valor_unitario
         descripcion = request.POST.get('descripcion')
-        usuario = request.POST.get('usuario')
 
-        cuenta_por_pagar_val = CuentaPorPagar.objects.get(id=cuenta_por_pagar_id) if cuenta_por_pagar_id else None
+        user = request.user
 
-        # Crear la compra
+        producto = Producto.objects.filter(codigo=codigo_producto).first()
+
+        if producto:
+            producto.costo_historico += Decimal(str(valor_total))
+            producto.existencia += cantidad
+            producto.entradas += cantidad
+            if producto.entradas > 0:
+                producto.costo_unitario = producto.costo_historico / Decimal(producto.entradas)
+            producto.save()
+        else:
+            producto = Producto(
+                nombre=nombre_producto,
+                codigo=codigo_producto,
+                existencia=cantidad,
+                valor_unitario=valor_unitario,
+                entradas=cantidad,
+                salidas=0,
+                costo_historico=valor_total,
+                costo_unitario=valor_unitario,
+                creado_por=user
+            )
+            producto.save()
+
         compra = Compra(
             fecha=fecha,
             tercero_id=tercero_id,
             producto=producto,
             valor_unitario=valor_unitario,
             valor_total=valor_total,
-            cuenta_por_pagar=cuenta_por_pagar_val,
             descripcion=descripcion,
-            usuario=usuario
+            creado_por=user
         )
-
         compra.save()
 
-        # Crear automáticamente la cuenta por pagar
         cuenta_por_pagar = CuentaPorPagar(
             fecha=fecha,
             tercero_id=tercero_id,
-            compra=compra,  # Relación con la compra recién creada
-            saldo=valor_total,  # Mismo valor que el total de la compra
-            usuario=usuario,
+            compra=compra,
+            saldo=valor_total,
+            creado_por=user,
             estado='PENDIENTE'
         )
-
         cuenta_por_pagar.save()
+
         compra.cuenta_por_pagar = cuenta_por_pagar
         compra.save()
 
         messages.success(request, "Compra y cuenta por pagar creadas exitosamente.")
-        return redirect('get_all_compras')  # Redirigir a la lista de compras
+        return redirect('get_all_compras')
 
     return render(request, 'compras/create_compra.html')
-
-def get_tercero_by_name_din(request):
-    if request.method == "GET":
-        query = request.GET.get("q", "")
-        terceros = Compra.objects.filter(tercero__icontains=query).values_list("tercero", flat=True).distinct()
-        return JsonResponse(list(terceros), safe=False)
-
-def get_producto_by_name_din(request):
-    query = request.GET.get('q', '')
-    productos = Producto.objects.filter(nombre__icontains=query)[:5]  # Limitar a 5 resultados
-    data = [{'id': producto.id, 'nombre': producto.nombre} for producto in productos]
-    return JsonResponse(data, safe=False)
-
 
 def delete_compra(request, id):
     try:
@@ -86,11 +92,9 @@ def delete_compra(request, id):
         })
 
     if request.method == "POST":
-        # Restar la cantidad de las existencias del producto
         #producto.existencia -= cantidad
         #producto.save()  # Guardamos los cambios en el producto
 
-        # Borrar la compra
         compra.delete()
 
         return redirect('get_all_compras')
