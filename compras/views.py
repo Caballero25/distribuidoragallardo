@@ -1,69 +1,89 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from django.core.paginator import Paginator
 from .models import Compra
-from .forms import CompraForm
 from productos.models import Producto
+from django.contrib import messages
+from cuentasporpagar.models import CuentaPorPagar
 from terceros.models import Tercero
 """from django.contrib.auth.decorators import login_required"""
 # Create your views here.
 
-
 """@login_required"""
 def get_all_compras(request):
-    compras = Compra.objects.all().select_related('tercero', 'producto', 'cuenta_por_pagar').order_by('-fecha_creacion')
+    compras = Compra.objects.all()
     context = {'compras': compras}
-    return render(request, 'compras/compras.html', context)
+    if request.method == 'GET':
+        return render(request, 'compras/compras.html', context)
 
 """@login_required"""
 def create_compra(request):
-    if request.method == "POST":
-        form = CompraForm(request.POST)
-        nuevo_producto = request.POST.get("nuevo_producto", "").strip()
+    if request.method == 'POST':
+        fecha = request.POST.get('fecha')
+        tercero_id = request.POST.get('tercero')
+        producto = request.POST.get('producto')
+        valor_unitario = request.POST.get('valor_unitario')
+        valor_total = request.POST.get('valor_total')
+        descripcion = request.POST.get('descripcion')
+        usuario = request.POST.get('usuario')
 
-        if form.is_valid():
-            compra = form.save(commit=False)
-            compra.usuario = request.user
+        # Crear la compra
+        compra = Compra.objects.create(
+            fecha=fecha,
+            tercero_id=tercero_id,
+            producto=producto,
+            valor_unitario=valor_unitario,
+            valor_total=valor_total,
+            descripcion=descripcion,
+            cuenta_por_pagar=cuenta_por_pagar,
+            usuario=usuario
+        )
 
-            # Si el usuario ingresa un nuevo producto, créalo
-            if not compra.producto and nuevo_producto:
-                producto, created = Producto.objects.get_or_create(nombre=nuevo_producto, defaults={'codigo': 'N/A', 'existencia': 0, 'valor_unitario': 0, 'entradas': 0, 'salidas': 0, 'costo_unitario': 0})
-                compra.producto = producto
+        # Crear automáticamente la cuenta por pagar
+        cuenta_por_pagar = CuentaPorPagar.objects.create(
+            fecha=fecha,
+            tercero_id=tercero_id,
+            compra=compra,  # Relación con la compra recién creada
+            saldo=valor_total,  # Mismo valor que el total de la compra
+            usuario=usuario,
+            estado='PENDIENTE'
+        )
 
-            compra.save()
-            return redirect("lista_compras")  # Redirige a la lista de compras
+        messages.success(request, "Compra y cuenta por pagar creadas exitosamente.")
+        return redirect('lista_compras')  # Redirigir a la lista de compras
 
-    else:
-        form = CompraForm()
+    return render(request, 'compras/create_compra.html')
 
-    productos = Producto.objects.all()
-    terceros = Tercero.objects.all()
-    return render(request, "compras/create_compra.html", {"form": form, "productos": productos, "terceros": terceros})
+def get_tercero_by_name_din(request):
+    if request.method == "GET":
+        query = request.GET.get("q", "")
+        terceros = Compra.objects.filter(tercero__icontains=query).values_list("tercero", flat=True).distinct()
+        return JsonResponse(list(terceros), safe=False)
 
-def get_terceros(request):
-    if request.GET.get("q"):
-        query = request.GET.get("q").strip()
-        terceros = Tercero.objects.filter(nombre__icontains=query)[:5]  # Limitar los resultados a 5
+def get_producto_by_name_din(request):
+    query = request.GET.get('q', '')
+    productos = Producto.objects.filter(nombre__icontains=query)[:5]  # Limitar a 5 resultados
+    data = [{'id': producto.id, 'nombre': producto.nombre} for producto in productos]
+    return JsonResponse(data, safe=False)
 
-        terceros_data = list(terceros.values("id", "nombre"))
-        return JsonResponse({
-            "terceros": terceros_data,
+
+def delete_compra(request, id):
+    try:
+        compra = Compra.objects.get(id=id)
+        producto = compra.producto  # Obtenemos el producto relacionado con la compra
+        cantidad = compra.valor_total / compra.valor_unitario  # Calculamos la cantidad, suponiendo que valor_total = cantidad * valor_unitario
+    except Compra.DoesNotExist:
+        return render(request, 'compras/error.html', {
+            'error_message': f"No se encontró la compra con ID {id}."
         })
-    return JsonResponse({"terceros": []})
 
-def get_producto(request):
-    if request.GET.get("q"):
-        query = request.GET.get("q").strip()
-        productos = Producto.objects.filter(nombre__icontains=query)
+    if request.method == "POST":
+        # Restar la cantidad de las existencias del producto
+        #producto.existencia -= cantidad
+        #producto.save()  # Guardamos los cambios en el producto
 
-        # Paginación: 5 productos por página
-        paginator = Paginator(productos, 5)
-        page_number = request.GET.get("page", 1)
-        page_obj = paginator.get_page(page_number)
+        # Borrar la compra
+        compra.delete()
 
-        productos_data = list(page_obj.object_list.values("id", "nombre"))
-        return JsonResponse({
-            "productos": productos_data,
-            "has_next": page_obj.has_next(),
-        }, safe=False)
-    return JsonResponse({"productos": [], "has_next": False}, safe=False)
+        return redirect('get_all_compras')
+
+    return render(request, 'compras/delete_confirm.html', {'compra': compra})

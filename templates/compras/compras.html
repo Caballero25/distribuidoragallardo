@@ -1,10 +1,102 @@
 {% extends 'base/base_adminlte.html' %}
 {% load static %}
-{% block title %} Crear Tercero {% endblock %}
+{% block title %} Compras {% endblock %}
 {% block extra_head %}
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
 {% endblock %}
 
 {% block content %}
 <h1>Compras</h1>
 
+<form method="get" action="{% url 'get_all_compras' %}">
+    <label for="fecha">Buscar por fecha:</label>
+    <input type="date" name="fecha" value="{{ query }}" placeholder="Escriba la fecha">
+    <button type="submit">Buscar</button>
+</form>
+
+<table>
+    <thead>
+    <tr>
+        <th>Fecha</th>
+        <th>Tercero</th>
+        <th>Producto</th>
+        <th>Valor Unitario</th>
+        <th>Valor Total</th>
+        <th>Descripción</th>
+        <th>Cuenta por Pagar</th>
+        <th>Usuario</th>
+        <th>Editar</th>
+        <th>Eliminar</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for compra in compras %}
+    <tr>
+        <td>{{ compra.fecha }}</td>
+        <td>{{ compra.tercero.nombre }}</td>
+        <td>{{ compra.producto.nombre }}</td>
+        <td>{{ compra.valor_unitario }}</td>
+        <td>{{ compra.valor_total }}</td>
+        <td>{{ compra.descripcion }}</td>
+        <td>{{ compra.cuenta_por_pagar }}</td>
+        <td>{{ compra.usuario }}</td>
+        <td>
+            <!-- Ícono de editar (lápiz) -->
+            <a href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ compra.id }}">
+                <i class="fi fi-rr-pencil"></i> <!-- Lápiz -->
+            </a>
+        </td>
+        <td>
+            <!-- Ícono de eliminar (caneca de basura) -->
+            <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ compra.id }}">
+                <i class="fi fi-rs-trash-can-slash"></i> <!-- Caneca de basura -->
+            </a>
+        </td>
+    </tr>
+
+    <div class="modal" id="deleteModal{{ compra.id }}" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Confirmar Eliminación</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar a {{ compra.nombre }}?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" style="background-color: #ccc;">Cancelar</button>
+                <form action="{% url 'delete_compra' compra.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-delete" style="background-color: #f00; color: white;">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(item => {
+        item.addEventListener('click', event => {
+            const targetModal = document.querySelector(item.getAttribute('data-bs-target'));
+            targetModal.style.display = 'block';
+        });
+    });
+
+    document.querySelectorAll('.close').forEach(item => {
+        item.addEventListener('click', event => {
+            const modal = item.closest('.modal');
+            modal.style.display = 'none';
+        });
+    });
+
+    // Cerrar el modal al hacer clic fuera de él
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    }
+</script>
 {% endblock %}

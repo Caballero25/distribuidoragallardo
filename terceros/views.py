@@ -1,9 +1,6 @@
 from django.shortcuts import render, redirect
-from django.views import View
-from django.http import HttpResponse
 from .models import Tercero
 from .forms import TerceroForm
-from django.http import HttpResponse
 
 # Create your views here.
 def get_all_terceros(request):
@@ -31,6 +28,8 @@ def get_tercero_by_name(request):
         'query': query
     }
     return render(request, 'terceros/terceros.html', context)
+
+
 
 def create_tercero(request):
         if request.method == 'POST':

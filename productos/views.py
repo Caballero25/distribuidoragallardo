@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 
 from productos.forms import ProductoForm
-from productos.forms import ProductoPrecioForm
 from productos.models import Producto
 
 # Create your views here.
@@ -16,6 +15,16 @@ def get_producto_by_id(request, id):
         producto = Producto.objects.get(id=id)
         context = {'producto': producto}
         return render(request, 'productos/producto.html', context)
+
+def create_producto(request):
+    if request.method == 'POST':
+        form = ProductoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('get_all_productos')
+    else:
+        form = ProductoForm()
+    return render(request, 'terceros/create_producto.html', {'form': form})
 
 def get_producto_by_name(request):
     query = request.GET.get('nombre', '')

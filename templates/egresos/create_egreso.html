@@ -1,19 +1,18 @@
 {% extends 'base/base_adminlte.html' %}
 {% load static %}
 
-{% block title %} Crear Compra {% endblock %}
+{% block title %} Nuevo Egreso {% endblock %}
 
 {% block extra_head %}
+<!-- Estilos de jQuery UI -->
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-center">Crear Compra</h1>
-
+    <h1 class="text-center">Nuevo Egreso</h1>
     <form method="POST">
         {% csrf_token %}
-
         <div class="form-group">
             <label for="fecha">Fecha</label>
             <input type="date" name="fecha" class="form-control" required>
@@ -25,25 +24,9 @@
             <input type="hidden" name="tercero" id="tercero_id"> <!-- Campo oculto para enviar el ID -->
         </div>
 
-
         <div class="form-group">
-            <label for="producto">Producto</label>
-            <input type="text" name="producto" class="form-control" required>
-        </div>
-
-        <div class="form-group">
-            <label for="valor_unitario">Valor Unitario</label>
-            <input type="number" name="valor_unitario" step="0.01" class="form-control" required>
-        </div>
-
-        <div class="form-group">
-            <label for="valor_total">Valor Total</label>
-            <input type="number" name="valor_total" step="0.01" class="form-control" required>
-        </div>
-
-        <div class="form-group">
-            <label for="descripcion">Descripción</label>
-            <textarea name="descripcion" class="form-control"></textarea>
+            <label for="valor">Valor</label>
+            <input type="number" step="0.01" name="valor" class="form-control" required>
         </div>
 
         <div class="form-group">
@@ -51,7 +34,20 @@
             <input type="text" name="usuario" class="form-control" required>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block mt-4">Crear Compra</button>
+        <div class="form-group">
+            <label for="metodo_de_pago">Método de Pago</label>
+            <select name="metodo_de_pago" class="form-control" required>
+                <option value="EFECTIVO">Efectivo</option>
+                <option value="TRANSFERENCIA">Transferencia</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="cuenta_por_pagar">Cuenta por Pagar</label>
+            <input type="text" name="cuenta_por_pagar" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mt-4">Crear Egreso</button>
     </form>
 </div>
 
@@ -71,9 +67,9 @@
                     success: function(data) {
                         response($.map(data, function(item) {
                             return {
-                                label: item.text,
-                                value: item.text,
-                                id: item.id
+                                label: item.text,  // Nombre del tercero
+                                value: item.text,  // Lo que se muestra en el input
+                                id: item.id        // ID real del tercero
                             };
                         }));
                     }
@@ -86,5 +82,4 @@
         });
     });
 </script>
-
 {% endblock %}

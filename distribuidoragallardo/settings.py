@@ -43,8 +43,12 @@ DEFAULT_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'terceros',
-    'productos',
-    'compras'
+    'egresos',
+    'cuentasporpagar',
+    'compras',
+    'productos'
+
+
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + OUR_APPS
