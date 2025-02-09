@@ -38,7 +38,10 @@ OUR_APPS = [
     'cuentasporpagar',
     'compras',
     'productos',
-    'user'
+    'user',
+    'ventas',
+    'ingresos',
+    'cuentasporcobrar'
 ]
 
 DEFAULT_APPS = [

@@ -1,0 +1,175 @@
+{% extends 'base/base_adminlte.html' %}
+{% load static %}
+
+{% block title %} Crear Venta {% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Crear Venta</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="fecha">Fecha</label>
+            <input type="date" name="fecha" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="tercero_nombre">Cliente</label>
+            <input type="text" id="tercero_nombre" class="form-control" placeholder="Buscar cliente..." required>
+            <input type="hidden" name="tercero" id="tercero_id">
+        </div>
+
+        <!-- Sección del Producto -->
+        <h3>Información del Producto</h3>
+
+        <div class="form-group">
+            <label for="producto_nombre">Nombre del Producto</label>
+            <input type="text" name="producto_nombre" id="producto_nombre" class="form-control" required>
+            <input type="hidden" name="producto_id" id="producto_id">
+        </div>
+
+        <div class="form-group">
+            <label for="producto_codigo">Código del Producto</label>
+            <input type="text" name="producto_codigo" id="producto_codigo" maxlength="4" class="form-control" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="existencia_actual">Existencia Disponible</label>
+            <input type="number" id="existencia_actual" class="form-control" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="valor_unitario">Valor Unitario</label>
+            <input type="number" name="valor_unitario" id="valor_unitario" step="0.01" class="form-control" required readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="cantidad">Cantidad</label>
+            <input type="number" name="cantidad" id="cantidad" min="1" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="valor_total">Valor Total</label>
+            <input type="number" name="valor_total" id="valor_total" step="0.01" class="form-control" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="descripcion">Descripción</label>
+            <textarea name="descripcion" class="form-control"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mt-4">Crear Venta</button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Autocompletar Cliente (Tercero)
+        $("#tercero_nombre").autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'get_tercero_by_name_din' %}",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function(data) {
+                        response($.map(data, function(item) {
+                            return { label: item.text, value: item.text, id: item.id };
+                        }));
+                    }
+                });
+            },
+            minLength: 2,
+            select: function(event, ui) {
+                $("#tercero_id").val(ui.item.id);
+            }
+        });
+
+        // Autocompletar Producto Disponible
+        $("#producto_nombre").autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'get_producto_by_name_din' %}",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function(data) {
+                        response($.map(data, function(item) {
+                            return { label: item.nombre, value: item.nombre, id: item.id };
+                        }));
+                    }
+                });
+            },
+            minLength: 2,
+            select: function(event, ui) {
+                $("#producto_id").val(ui.item.id);
+
+                // Obtener detalles del producto (Código, Existencia y Valor Unitario)
+                $.ajax({
+                    url: "{% url 'get_codigo_producto' %}",
+                    dataType: "json",
+                    data: { producto_id: ui.item.id },
+                    success: function(response) {
+                        if (response.codigo) {
+                            $("#producto_codigo").val(response.codigo);
+                        }
+                    }
+                });
+
+                $.ajax({
+                    url: "{% url 'get_existencia_producto' %}",
+                    dataType: "json",
+                    data: { producto_id: ui.item.id },
+                    success: function(response) {
+                        if (response.existencia !== undefined) {
+                            $("#existencia_actual").val(response.existencia);
+                        }
+                    }
+                });
+
+                $.ajax({
+                    url: "{% url 'get_valor_unitario_producto' %}",
+                    dataType: "json",
+                    data: { producto_id: ui.item.id },
+                    success: function(response) {
+                        if (response.valor_unitario !== undefined) {
+                            $("#valor_unitario").val(response.valor_unitario);
+                        }
+                    }
+                });
+            }
+        });
+
+        // Si se cambia el nombre del producto, limpiar ID y detalles
+        $("#producto_nombre").on("input", function() {
+            $("#producto_id").val("");
+            $("#producto_codigo").val("");
+            $("#existencia_actual").val("");
+            $("#valor_unitario").val("");
+        });
+
+        // Calcular automáticamente el valor total y validar existencia
+        $("#cantidad, #valor_unitario").on("input", function () {
+            let cantidad = parseFloat($("#cantidad").val()) || 0;
+            let valorUnitario = parseFloat($("#valor_unitario").val()) || 0;
+            let existencia = parseFloat($("#existencia_actual").val()) || 0;
+
+            if (cantidad > existencia) {
+                alert("No puedes vender más de la existencia disponible.");
+                $("#cantidad").val(existencia);
+                cantidad = existencia;
+            }
+
+            $("#valor_total").val((cantidad * valorUnitario).toFixed(2));
+        });
+    });
+</script>
+
+{% endblock %}

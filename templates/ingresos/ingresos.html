@@ -1,0 +1,104 @@
+{% extends 'base/base_adminlte.html' %}
+{% load static %}
+
+{% block title %} Ingresos {% endblock %}
+
+{% block extra_head %}
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
+{% endblock %}
+
+{% block content %}
+<h1>Ingresos</h1>
+
+<!-- Filtro de búsqueda por fecha -->
+<form method="get" action="{% url 'get_all_ingresos' %}">
+    <label for="fecha">Buscar por fecha:</label>
+    <input type="date" name="fecha" value="{{ query }}" placeholder="Escriba la fecha">
+    <button type="submit">Buscar</button>
+</form>
+
+<!-- Tabla de Ingresos -->
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>Fecha</th>
+        <th>Tercero</th>
+        <th>Valor</th>
+        <th>Creado Por</th>
+        <th>Método de Pago</th>
+        <th>Cuenta por Cobrar</th>
+        <th>Eliminar</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for ingreso in ingresos %}
+    <tr>
+        <td>{{ ingreso.fecha }}</td>
+        <td>{{ ingreso.tercero.nombre }}</td>
+        <td>{{ ingreso.valor }}</td>
+        <td>{{ ingreso.creado_por.username }}</td>
+        <td>{{ ingreso.metodo_de_pago|capfirst }}</td>
+        <td>{{ ingreso.cuenta_por_cobrar }}</td>
+        <td>
+            <!-- Ícono de eliminar (caneca de basura) -->
+            <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ ingreso.id }}">
+                <i class="fi fi-rs-trash-can-slash"></i> <!-- Caneca de basura -->
+            </a>
+        </td>
+    </tr>
+
+    <!-- Modal de Eliminación -->
+    <div class="modal" id="deleteModal{{ ingreso.id }}" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Confirmar Eliminación</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar este ingreso?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" style="background-color: #ccc;">Cancelar</button>
+                <form action="{% url 'delete_ingreso' ingreso.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-delete" style="background-color: #f00; color: white;">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% empty %}
+    <tr>
+        <td colspan="7" class="text-center">No hay ingresos registrados.</td>
+    </tr>
+
+    {% endfor %}
+    </tbody>
+</table>
+
+<!-- Script para manejar los modales -->
+<script>
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(item => {
+        item.addEventListener('click', event => {
+            const targetModal = document.querySelector(item.getAttribute('data-bs-target'));
+            targetModal.style.display = 'block';
+        });
+    });
+
+    document.querySelectorAll('.close').forEach(item => {
+        item.addEventListener('click', event => {
+            const modal = item.closest('.modal');
+            modal.style.display = 'none';
+        });
+    });
+
+    // Cerrar el modal al hacer clic fuera de él
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    }
+</script>
+
+{% endblock %}

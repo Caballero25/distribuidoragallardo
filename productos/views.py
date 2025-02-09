@@ -76,3 +76,21 @@ def get_codigo_producto(request):
         if producto:
             return JsonResponse({"codigo": producto.codigo})
     return JsonResponse({"codigo": ""})
+
+@login_required
+def get_existencia_producto(request):
+    producto_id = request.GET.get("producto_id")
+    if producto_id:
+        producto = Producto.objects.filter(id=producto_id).first()
+        if producto:
+            return JsonResponse({"existencia": producto.existencia})
+    return JsonResponse({"existencia": ""})
+
+@login_required
+def get_valor_unitario_producto(request):
+    producto_id = request.GET.get("producto_id")
+    if producto_id:
+        producto = Producto.objects.filter(id=producto_id).first()
+        if producto:
+            return JsonResponse({"valor_unitario": producto.valor_unitario})
+    return JsonResponse({"valor_unitario": ""})

@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
-class CuentaPorPagar(models.Model):
+class CuentaPorCobrar(models.Model):
     ESTADO_CHOICES = [
         ('PENDIENTE', 'PENDIENTE'),
         ('PAGADO', 'PAGADO')
@@ -10,14 +10,14 @@ class CuentaPorPagar(models.Model):
 
     fecha = models.DateField(auto_now=False)
     tercero = models.ForeignKey('terceros.Tercero', on_delete=models.SET_NULL, null=True, blank=True)
-    compra = models.ForeignKey(
-        'compras.Compra',
+    venta = models.ForeignKey(
+        'ventas.Venta',
         on_delete=models.CASCADE,
-        related_name='cuentas_por_pagar_relacionadas'
+        related_name='cuentas_por_cobrar_relacionadas'
     )
     saldo = models.DecimalField(max_digits=10, decimal_places=2)
-    egresos = models.ForeignKey(
-        'egresos.Egreso',
+    ingresos = models.ForeignKey(
+        'ingresos.Ingreso',
         on_delete=models.SET_NULL,
         null=True, blank=True
     )

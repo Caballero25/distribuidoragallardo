@@ -43,7 +43,7 @@ def create_compra(request):
                 nombre=nombre_producto,
                 codigo=codigo_producto,
                 existencia=cantidad,
-                valor_unitario=valor_unitario,
+                valor_unitario=0,
                 entradas=cantidad,
                 salidas=0,
                 costo_historico=valor_total,
@@ -81,6 +81,7 @@ def create_compra(request):
 
     return render(request, 'compras/create_compra.html')
 
+@login_required
 def delete_compra(request, id):
     try:
         compra = Compra.objects.get(id=id)
@@ -92,8 +93,8 @@ def delete_compra(request, id):
         })
 
     if request.method == "POST":
-        #producto.existencia -= cantidad
-        #producto.save()  # Guardamos los cambios en el producto
+        producto.existencia -= cantidad
+        producto.save() 
 
         compra.delete()
 

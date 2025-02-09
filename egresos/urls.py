@@ -3,5 +3,6 @@ from . import views
 
 urlpatterns = [
     path('', views.get_all_egresos, name="get_all_egresos"),
-    path('delete/<int:id>/', views.delete_egreso, name="delete_egreso"),
+    path('create_egreso/<int:cuenta_id>/', views.create_egreso, name='create_egreso'),
+    path('delete/<int:id>/', views.delete_egreso, name="delete_egreso")
 ]

@@ -1,0 +1,174 @@
+{% extends 'base/base_adminlte.html' %}
+{% load static %}
+
+{% block title %} Cuentas por Cobrar {% endblock %}
+
+{% block extra_head %}
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
+{% endblock %}
+
+{% block content %}
+<h1>Cuentas por Cobrar</h1>
+
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>Fecha</th>
+        <th>Tercero</th>
+        <th>Saldo</th>
+        <th>Creado Por</th>
+        <th>Estado</th>
+        <th>Ver</th>
+        <th>Eliminar</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for cuenta_por_cobrar in cuentas_por_cobrar %}
+    <tr>
+        <td>{{ cuenta_por_cobrar.fecha }}</td>
+        <td>{{ cuenta_por_cobrar.tercero.nombre }}</td>
+        <td>{{ cuenta_por_cobrar.saldo }}</td>
+        <td>{{ cuenta_por_cobrar.creado_por.username }}</td>
+        <td>{{ cuenta_por_cobrar.estado|capfirst }}</td>
+
+        <!-- Columna Ver -->
+        <td>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#viewModal{{ cuenta_por_cobrar.id }}">
+                <i class="fi fi-rs-eye"></i> Ver
+            </a>
+        </td>
+
+        <!-- Columna Eliminar -->
+        <td>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ cuenta_por_cobrar.id }}">
+                <i class="fi fi-rs-trash-can-slash"></i> <!-- Icono de basura -->
+            </a>
+        </td>
+    </tr>
+
+    <!-- Modal Ver Detalles -->
+    <div class="modal" id="viewModal{{ cuenta_por_cobrar.id }}" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Detalles de la Cuenta por Cobrar</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Fecha:</strong> {{ cuenta_por_cobrar.fecha }}</p>
+                <p><strong>Tercero:</strong> {{ cuenta_por_cobrar.tercero.nombre }}</p>
+                <p><strong>Venta:</strong> {{ cuenta_por_cobrar.venta }}</p>
+                <p><strong>Saldo:</strong> {{ cuenta_por_cobrar.saldo }}</p>
+                <p><strong>Estado:</strong> {{ cuenta_por_cobrar.estado|capfirst }}</p>
+
+                {% if cuenta_por_cobrar.ingresos %}
+                <p><strong>Ingreso:</strong> {{ cuenta_por_cobrar.ingresos.valor }}</p>
+                <p><strong>Fecha Ingreso:</strong> {{ cuenta_por_cobrar.ingresos.fecha }}</p>
+                <p><strong>Método de Pago:</strong> {{ cuenta_por_cobrar.ingresos.metodo_de_pago }}</p>
+                {% else %}
+                <p><strong>No se ha registrado un ingreso para esta cuenta.</strong></p>
+                {% endif %}
+
+                <!-- Botón para registrar un ingreso -->
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#pagarModal{{ cuenta_por_cobrar.id }}">
+                    Registrar Ingreso
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" style="background-color: #ccc;" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Registrar Ingreso -->
+    <div class="modal" id="pagarModal{{ cuenta_por_cobrar.id }}" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Registrar Ingreso</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'create_ingreso' cuenta_por_cobrar.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="fecha">Fecha del Ingreso</label>
+                        <input type="date" name="fecha" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="valor">Valor del Ingreso</label>
+                        <input type="number" step="0.01" name="valor" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="metodo_de_pago">Método de Pago</label>
+                        <select name="metodo_de_pago" class="form-control" required>
+                            <option value="EFECTIVO">Efectivo</option>
+                            <option value="TRANSFERENCIA">Transferencia</option>
+                        </select>
+                    </div>
+
+                    <!-- Tercero se llena automáticamente -->
+                    <input type="hidden" name="tercero" value="{{ cuenta_por_cobrar.tercero.id }}">
+
+                    <button type="submit" class="btn btn-success btn-block mt-4">Registrar Ingreso</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" style="background-color: #ccc;" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Eliminación -->
+    <div class="modal" id="deleteModal{{ cuenta_por_cobrar.id }}" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Confirmar Eliminación</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar la cuenta por cobrar?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" style="background-color: #ccc;">Cancelar</button>
+                <form action="{% url 'delete_cuenta_por_cobrar' cuenta_por_cobrar.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-delete" style="background-color: #f00; color: white;">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% empty %}
+    <tr>
+        <td colspan="6" class="text-center">No hay cuentas por cobrar registradas.</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(item => {
+        item.addEventListener('click', event => {
+            const targetModal = document.querySelector(item.getAttribute('data-bs-target'));
+            targetModal.style.display = 'block';
+        });
+    });
+
+    document.querySelectorAll('.close').forEach(item => {
+        item.addEventListener('click', event => {
+            const modal = item.closest('.modal');
+            modal.style.display = 'none';
+        });
+    });
+
+    // Cerrar el modal al hacer clic fuera de él
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    }
+</script>
+
+{% endblock %}
