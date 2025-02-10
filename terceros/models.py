@@ -8,7 +8,7 @@ class Tercero(models.Model):
         PROVEEDOR = "PROVEEDOR", "Proveedor"
         CLIENTE_PROVEEDOR = "CLIENTE/PROVEEDOR", "Cliente/Proveedor"
 
-    nombre = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=100, unique=True)
     tipo = models.CharField(
         max_length=20,
         choices=TipoTercero.choices,
@@ -25,4 +25,4 @@ class Tercero(models.Model):
         ],
         unique=True
     )
-    direccion = models.CharField(max_length=100)
+    direccion = models.CharField(max_length=100, unique=True)

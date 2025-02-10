@@ -23,6 +23,7 @@
             <label for="tercero_nombre">Tercero</label>
             <input type="text" id="tercero_nombre" class="form-control" placeholder="Buscar tercero..." required>
             <input type="hidden" name="tercero" id="tercero_id">
+            <span id="tercero_error" style="color: red; display: none;"></span>
         </div>
 
         <!-- Sección del Producto -->
@@ -30,36 +31,38 @@
 
         <div class="form-group">
             <label for="producto_nombre">Nombre del Producto</label>
-            <input type="text" name="producto_nombre" id="producto_nombre" class="form-control" required>
+            <input type="text" name="producto_nombre" id="producto_nombre" class="form-control">
             <input type="hidden" name="producto_id" id="producto_id">
         </div>
 
         <div class="form-group">
             <label for="producto_codigo">Código del Producto</label>
-            <input type="text" name="producto_codigo" id="producto_codigo" maxlength="4" class="form-control" required>
+            <input type="text" name="producto_codigo" id="producto_codigo" maxlength="4" class="form-control">
         </div>
 
         <div class="form-group">
             <label for="cantidad">Cantidad</label>
-            <input type="number" name="cantidad" id="cantidad" min="1" class="form-control" required>
+            <input type="number" name="cantidad" id="cantidad" min="1" class="form-control" disabled>
+            <span id="cantidad_error" style="color: red; display: none;">La cantidad no puede ser cero</span>
         </div>
 
         <div class="form-group">
             <label for="valor_unitario">Valor Unitario</label>
-            <input type="number" name="valor_unitario" id="valor_unitario" step="0.01" class="form-control" required>
+            <input type="number" name="valor_unitario" id="valor_unitario" step="0.01" class="form-control" disabled>
+            <span id="valor_unitario_error" style="color: red; display: none;">El valor unitario no puede ser cero</span>
         </div>
 
         <div class="form-group">
             <label for="valor_total">Valor Total</label>
-            <input type="number" name="valor_total" id="valor_total" step="0.01" class="form-control" readonly>
+            <input type="number" name="valor_total" id="valor_total" step="0.01" class="form-control">
         </div>
 
         <div class="form-group">
             <label for="descripcion">Descripción</label>
-            <textarea name="descripcion" class="form-control"></textarea>
+            <textarea name="descripcion" id="descripcion" class="form-control" required></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block mt-4">Crear Compra</button>
+        <button type="submit" id="submit_btn" class="btn btn-primary btn-block mt-4">Crear Compra</button>
     </form>
 </div>
 
@@ -68,6 +71,32 @@
 
 <script>
     $(document).ready(function() {
+        function actualizarEstadoCampos() {
+            let productoSeleccionado = $("#producto_id").val() !== "";
+            let nombreProductoEscrito = $("#producto_nombre").val().trim() !== "";
+
+            if (productoSeleccionado || nombreProductoEscrito) {
+                $("#cantidad, #valor_unitario").prop("disabled", false);
+                $("#valor_total").prop("readonly", true);
+                $("#descripcion").prop("required", false);
+            } else {
+                $("#cantidad, #valor_unitario").prop("disabled", true).val("");
+                $("#valor_total").prop("readonly", false);
+                $("#descripcion").prop("required", true);
+            }
+        }
+
+        function hayErrores() {
+            return $("#tercero_id").val() === "" || $("#tercero_error").is(":visible") ||
+                $("#cantidad_error").is(":visible") || $("#valor_unitario_error").is(":visible");
+        }
+
+        $("form").on("submit", function(event) {
+            if (hayErrores()) {
+                event.preventDefault(); // Evita el envío del formulario si hay errores
+            }
+        });
+
         // Autocompletar Tercero
         $("#tercero_nombre").autocomplete({
             source: function(request, response) {
@@ -76,6 +105,12 @@
                     dataType: "json",
                     data: { term: request.term },
                     success: function(data) {
+                        if (data.length === 0) {
+                            $("#tercero_error").text("El tercero no existe").show();
+                            $("#tercero_id").val("");
+                        } else {
+                            $("#tercero_error").hide();
+                        }
                         response($.map(data, function(item) {
                             return { label: item.text, value: item.text, id: item.id };
                         }));
@@ -85,7 +120,19 @@
             minLength: 2,
             select: function(event, ui) {
                 $("#tercero_id").val(ui.item.id);
+                $("#tercero_error").hide();
             }
+        });
+
+        $("#tercero_nombre").on("input", function() {
+            $("#tercero_id").val("");
+            $("#tercero_error").hide();
+        });
+
+        // Ocultar el mensaje de error al escribir
+        $("#tercero_nombre").on("input", function() {
+            $("#tercero_id").val("");
+            $("#tercero_error").hide();
         });
 
         // Autocompletar Producto
@@ -119,6 +166,80 @@
                 });
             }
         });
+
+        function hayErrores() {
+            return $("#tercero_id").val() === "" || $("#tercero_error").is(":visible") ||
+                $("#cantidad_error").is(":visible") || $("#valor_unitario_error").is(":visible");
+        }
+
+        function validarCantidad() {
+            let cantidad = $("#cantidad").val();
+            if (cantidad && parseFloat(cantidad) <= 0) {
+                $("#cantidad_error").show();
+            } else {
+                $("#cantidad_error").hide();
+            }
+        }
+
+        function validarValorUnitario() {
+            let valorUnitario = $("#valor_unitario").val();
+            if (valorUnitario && parseFloat(valorUnitario) <= 0) {
+                $("#valor_unitario_error").show();
+            } else {
+                $("#valor_unitario_error").hide();
+            }
+        }
+
+        $("#producto_nombre").on("input", function() {
+            $("#producto_id").val(""); // Limpiar ID del producto seleccionado
+            $("#producto_codigo").val("").prop("readonly", false);
+            actualizarEstadoCampos();
+        });
+
+        $("#producto_nombre").autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'get_producto_by_name_din' %}",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function(data) {
+                        response($.map(data, function(item) {
+                            return { label: item.nombre, value: item.nombre, id: item.id };
+                        }));
+                    }
+                });
+            },
+            minLength: 2,
+            select: function(event, ui) {
+                $("#producto_id").val(ui.item.id);
+                actualizarEstadoCampos();
+
+                // Obtener código del producto
+                $.ajax({
+                    url: "{% url 'get_codigo_producto' %}",
+                    dataType: "json",
+                    data: { producto_id: ui.item.id },
+                    success: function(response) {
+                        if (response.codigo) {
+                            $("#producto_codigo").val(response.codigo).prop("readonly", true);
+                        }
+                    }
+                });
+            }
+        });
+
+        $("#cantidad").on("input", validarCantidad);
+        $("#valor_unitario").on("input", validarValorUnitario);
+
+        $("form").on("submit", function(event) {
+            validarCantidad();
+            validarValorUnitario();
+            if (hayErrores()) {
+                event.preventDefault();
+            }
+        });
+
+        actualizarEstadoCampos();
 
         // Si se cambia el nombre del producto, desbloquear el campo de código y limpiar ID
         $("#producto_nombre").on("input", function() {

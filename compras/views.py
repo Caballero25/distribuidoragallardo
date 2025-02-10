@@ -22,21 +22,27 @@ def create_compra(request):
         tercero_id = request.POST.get('tercero')
         nombre_producto = request.POST.get('producto_nombre')
         codigo_producto = request.POST.get('producto_codigo')
-        cantidad = int(request.POST.get('cantidad'))
-        valor_unitario = Decimal(request.POST.get('valor_unitario'))
-        valor_total = cantidad * valor_unitario
-        descripcion = request.POST.get('descripcion')
 
+        cantidad = request.POST.get('cantidad')
+        valor_unitario = request.POST.get('valor_unitario')
+        valor_total = request.POST.get('valor_total')  # Obtener el valor total desde el formulario
+
+        # Manejo de valores nulos o vacíos
+        cantidad = Decimal(cantidad) if cantidad else Decimal(0)
+        valor_unitario = Decimal(valor_unitario) if valor_unitario else Decimal(0)
+        valor_total = Decimal(valor_total) if valor_total else cantidad * valor_unitario  # Prioriza el valor enviado
+
+        descripcion = request.POST.get('descripcion')
         user = request.user
 
+        # Buscar o crear el producto
         producto = Producto.objects.filter(codigo=codigo_producto).first()
-
         if producto:
-            producto.costo_historico += Decimal(str(valor_total))
+            producto.costo_historico += valor_total
             producto.existencia += cantidad
             producto.entradas += cantidad
             if producto.entradas > 0:
-                producto.costo_unitario = producto.costo_historico / Decimal(producto.entradas)
+                producto.costo_unitario = producto.costo_historico / producto.entradas
             producto.save()
         else:
             producto = Producto(
@@ -52,6 +58,7 @@ def create_compra(request):
             )
             producto.save()
 
+        # Crear la compra
         compra = Compra(
             fecha=fecha,
             tercero_id=tercero_id,
@@ -63,6 +70,7 @@ def create_compra(request):
         )
         compra.save()
 
+        # Crear la cuenta por pagar
         cuenta_por_pagar = CuentaPorPagar(
             fecha=fecha,
             tercero_id=tercero_id,
@@ -76,7 +84,7 @@ def create_compra(request):
         compra.cuenta_por_pagar = cuenta_por_pagar
         compra.save()
 
-        messages.success(request, "Compra y cuenta por pagar creadas exitosamente.")
+        messages.success(request, "Compra creada exitosamente.")
         return redirect('get_all_compras')
 
     return render(request, 'compras/create_compra.html')

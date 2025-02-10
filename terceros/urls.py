@@ -9,4 +9,5 @@ urlpatterns = [
     path('create/', views.create_tercero, name="create_tercero"),
     path('update/<int:id>/', views.update_tercero, name="update_tercero"),
     path('delete/<int:id>/', views.delete_tercero, name="delete_tercero"),
+    path('validate/', views.validate_tercero, name="validate_tercero")
 ]

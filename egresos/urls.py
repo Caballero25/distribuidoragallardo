@@ -4,5 +4,6 @@ from . import views
 urlpatterns = [
     path('', views.get_all_egresos, name="get_all_egresos"),
     path('create_egreso/<int:cuenta_id>/', views.create_egreso, name='create_egreso'),
-    path('delete/<int:id>/', views.delete_egreso, name="delete_egreso")
+    path('delete/<int:id>/', views.delete_egreso, name="delete_egreso"),
+    path('<int:id>/', views.get_egreso_by_id, name="get_egreso_by_id")
 ]

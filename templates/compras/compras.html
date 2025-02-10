@@ -9,6 +9,14 @@
 {% block content %}
 <h1>Compras</h1>
 
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-success">
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+
 <form method="get" action="{% url 'get_all_compras' %}">
     <label for="fecha">Buscar por fecha:</label>
     <input type="date" name="fecha" value="{{ query }}" placeholder="Escriba la fecha">
@@ -40,17 +48,15 @@
         <td>{{ compra.valor_total }}</td>
         <td>{{ compra.descripcion }}</td>
         <td>{{ compra.cuenta_por_pagar }}</td>
-        <td>{{ compra.usuario }}</td>
+        <td>{{ compra.creado_por.username }}</td>
         <td>
-            <!-- Ícono de editar (lápiz) -->
             <a href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ compra.id }}">
-                <i class="fi fi-rr-pencil"></i> <!-- Lápiz -->
+                <i class="fi fi-rr-pencil"></i>
             </a>
         </td>
         <td>
-            <!-- Ícono de eliminar (caneca de basura) -->
             <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ compra.id }}">
-                <i class="fi fi-rs-trash-can-slash"></i> <!-- Caneca de basura -->
+                <i class="fi fi-rs-trash-can-slash"></i>
             </a>
         </td>
     </tr>
@@ -77,6 +83,25 @@
     </tbody>
 </table>
 
+<!-- Paginación -->
+<div class="pagination">
+    <span class="step-links">
+        {% if compras.has_previous %}
+            <a href="?page=1">&laquo; Primera</a>
+            <a href="?page={{ compras.previous_page_number }}">Anterior</a>
+        {% endif %}
+
+        <span class="current">
+            Página {{ compras.number }} de {{ compras.paginator.num_pages }}.
+        </span>
+
+        {% if compras.has_next %}
+            <a href="?page={{ compras.next_page_number }}">Siguiente</a>
+            <a href="?page={{ compras.paginator.num_pages }}">Última &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
 <script>
     document.querySelectorAll('[data-bs-toggle="modal"]').forEach(item => {
         item.addEventListener('click', event => {
@@ -92,7 +117,6 @@
         });
     });
 
-    // Cerrar el modal al hacer clic fuera de él
     window.onclick = function(event) {
         if (event.target.classList.contains('modal')) {
             event.target.style.display = 'none';

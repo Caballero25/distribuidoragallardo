@@ -1,20 +1,113 @@
 {% extends 'base/base_adminlte.html' %}
 {% load static %}
+
 {% block title %} Crear Tercero {% endblock %}
-{% block extra_head %}
-{% endblock %}
+
 {% block content %}
 <h1>Crear Nuevo Tercero</h1>
-<form method="post" action="{% url 'create_tercero' %}">
+<form id="tercero-form">
     {% csrf_token %}
+
     <label for="nombre">Nombre:</label>
     {{ form.nombre }}
+    <span id="error-nombre" style="color: red;"></span>
+
     <label for="tipo">Tipo:</label>
     {{ form.tipo }}
+
     <label for="telefono">Teléfono:</label>
     {{ form.telefono }}
+    <span id="error-telefono" style="color: red;"></span>
+
     <label for="direccion">Dirección:</label>
     {{ form.direccion }}
+    <span id="error-direccion" style="color: red;"></span>
+
     <button type="submit">Crear Tercero</button>
 </form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let nombreInput = document.getElementById("{{ form.nombre.id_for_label }}");
+        let telefonoInput = document.getElementById("{{ form.telefono.id_for_label }}");
+        let direccionInput = document.getElementById("{{ form.direccion.id_for_label }}");
+
+        function validarCampo(input, errorSpanId, campo) {
+            input.addEventListener("keyup", function() { validar(input, errorSpanId, campo); });
+            input.addEventListener("blur", function() { validar(input, errorSpanId, campo); });
+        }
+
+        function validar(input, errorSpanId, campo) {
+            let valor = input.value.trim();
+            let errorSpan = document.getElementById(errorSpanId);
+
+            if (valor === "") {
+                errorSpan.innerText = ""; // Limpiar el error si el campo está vacío
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append(campo, valor);
+
+            fetch("{% url 'validate_tercero' %}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        errorSpan.innerText = data.error;
+                    } else {
+                        errorSpan.innerText = "";  // Borra el mensaje si ya no hay error
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+        validarCampo(nombreInput, "error-nombre", "nombre");
+        validarCampo(telefonoInput, "error-telefono", "telefono");
+        validarCampo(direccionInput, "error-direccion", "direccion");
+
+        // Solo permitir números en teléfono
+        telefonoInput.addEventListener("input", function() {
+            this.value = this.value.replace(/\D/g, '');
+            if (this.value.length > 10) {
+                this.value = this.value.slice(0, 10);
+            }
+        });
+    });
+
+    document.getElementById("tercero-form").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let formData = new FormData(this);
+
+        fetch("{% url 'create_tercero' %}", {
+            method: "POST",
+            body: formData,
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect_url;  // Redirige a la lista de terceros
+                } else {
+                    if (data.errors.nombre) {
+                        document.getElementById("error-nombre").innerText = data.errors.nombre[0];
+                    }
+                    if (data.errors.telefono) {
+                        document.getElementById("error-telefono").innerText = data.errors.telefono[0];
+                    }
+                    if (data.errors.direccion) {
+                        document.getElementById("error-direccion").innerText = data.errors.direccion[0];
+                    }
+                }
+            })
+            .catch(error => console.error("Error en la solicitud:", error));
+    });
+</script>
 {% endblock %}

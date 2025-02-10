@@ -6,11 +6,20 @@ from cuentasporpagar.models import CuentaPorPagar
 from .models import Egreso
 from django.contrib import messages
 
+
+@login_required
+def get_egreso_by_id(request, id):
+    if request.method == 'GET':
+        egreso = Egreso.objects.get(id=id)
+        context = {'egreso': egreso}
+        return render(request, 'productos/producto.html', context)
+
 @login_required
 def create_egreso(request, cuenta_id):
     if request.method == 'POST':
         valor = Decimal(request.POST.get('valor'))
         metodo_de_pago = request.POST.get('metodo_de_pago')
+        fecha = request.POST.get('fecha')
 
         cuenta_por_pagar = CuentaPorPagar.objects.get(id=cuenta_id)
         tercero = cuenta_por_pagar.tercero
@@ -19,8 +28,9 @@ def create_egreso(request, cuenta_id):
             messages.error(request, "El valor del pago no puede ser mayor al saldo pendiente.")
             return redirect('get_all_cuentas_por_pagar')
 
+        # Crear y guardar el egreso
         egreso = Egreso(
-            fecha=request.POST.get('fecha'),
+            fecha=fecha,
             tercero=tercero,
             valor=valor,
             creado_por=request.user,
@@ -28,15 +38,22 @@ def create_egreso(request, cuenta_id):
             cuenta_por_pagar=cuenta_por_pagar
         )
 
+        egreso.save()
+
+        cuenta_por_pagar.egresos.add(egreso)
+
+        # Restar el valor del egreso al saldo de la cuenta
         cuenta_por_pagar.saldo -= valor
 
         # Si el saldo llega a 0, cambiar estado a "Pagado"
         if cuenta_por_pagar.saldo == 0:
-            cuenta_por_pagar.estado = "Pagado"
+            cuenta_por_pagar.estado = "PAGADO"
 
+        # Guardar los cambios en la cuenta por pagar
         cuenta_por_pagar.save()
-        egreso.save()
+
         messages.success(request, "Pago registrado correctamente.")
+
         return redirect('get_all_cuentas_por_pagar')
 
     return HttpResponse("Método no permitido", status=405)
