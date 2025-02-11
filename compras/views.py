@@ -105,7 +105,7 @@ def delete_compra(request, id):
         producto.save() 
 
         compra.delete()
-
+        messages.success(request, "Compra eliminada correctamente.")
         return redirect('get_all_compras')
 
     return render(request, 'compras/delete_confirm.html', {'compra': compra})

@@ -16,10 +16,6 @@ class CuentaPorCobrar(models.Model):
         related_name='cuentas_por_cobrar_relacionadas'
     )
     saldo = models.DecimalField(max_digits=10, decimal_places=2)
-    ingresos = models.ForeignKey(
-        'ingresos.Ingreso',
-        on_delete=models.SET_NULL,
-        null=True, blank=True
-    )
+    ingresos = models.ManyToManyField('ingresos.Ingreso', blank=True)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     estado = models.CharField(max_length=255, choices=ESTADO_CHOICES)

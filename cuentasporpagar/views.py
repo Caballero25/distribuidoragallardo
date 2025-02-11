@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import CuentaPorPagar
+from django.contrib import messages
 
 # Create your views here.
 def get_all_cuentas_por_pagar(request):
@@ -12,4 +13,5 @@ def delete_cuenta_por_pagar(request, id):
     cuenta_por_pagar = CuentaPorPagar.objects.get(id=id)
     if request.method == "POST":
         cuenta_por_pagar.delete()
+        messages.success(request, "Cuenta por pagar eliminada correctamente.")
         return redirect('get_all_cuentas_por_pagar')

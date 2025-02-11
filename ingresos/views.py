@@ -1,5 +1,6 @@
 from decimal import Decimal
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from cuentasporcobrar.models import CuentaPorCobrar
@@ -34,8 +35,9 @@ def create_ingreso(request, cuenta_id):
 
         # Si el saldo llega a 0, cambiar estado a "Pagado"
         if cuenta_por_cobrar.saldo == 0:
-            cuenta_por_cobrar.estado = "Pagado"
+            cuenta_por_cobrar.estado = "PAGADO"
 
+        cuenta_por_cobrar.ingresos.add(ingreso)
         cuenta_por_cobrar.save()
         ingreso.save()
         messages.success(request, "Pago registrado correctamente.")
@@ -51,7 +53,11 @@ def get_all_ingresos(request):
     if fecha_query:
         ingresos = ingresos.filter(fecha=fecha_query)
 
-    context = {'ingresos': ingresos, 'query': fecha_query}
+    paginator = Paginator(ingresos, 20)
+    page_number = request.GET.get('page')  # Obtiene el número de página de la URL
+    page_obj = paginator.get_page(page_number)  # Obtiene la página actual
+    context = {'ingresos': page_obj, 'query': fecha_query}
+
     return render(request, 'ingresos/ingresos.html', context)
 
 @login_required
@@ -59,4 +65,5 @@ def delete_ingreso(request, id):
     ingreso = Ingreso.objects.get(id=id)
     if request.method == "POST":
         ingreso.delete()
+        messages.success(request, "Ingreso eliminado correctamente.")
         return redirect('get_all_ingresos')

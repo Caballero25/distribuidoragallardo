@@ -88,7 +88,8 @@
 
         function hayErrores() {
             return $("#tercero_id").val() === "" || $("#tercero_error").is(":visible") ||
-                $("#cantidad_error").is(":visible") || $("#valor_unitario_error").is(":visible");
+                $("#cantidad_error").is(":visible") || $("#valor_unitario_error").is(":visible") ||
+            $("#valor_total_error").is(":visible");
         }
 
         $("form").on("submit", function(event) {

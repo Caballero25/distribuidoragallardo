@@ -12,15 +12,12 @@
 <h1>Terceros</h1>
 
 <!-- Banner de éxito -->
-{% if request.GET.success == "true" %}
-<div id="success-banner" style="background-color: green; color: white; padding: 10px; margin-bottom: 15px;">
-    Tercero creado exitosamente
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-success" id="success-message" role="alert">
+    {{ message }}
 </div>
-<script>
-    setTimeout(() => {
-        document.getElementById("success-banner").style.display = "none";
-    }, 3000);
-</script>
+{% endfor %}
 {% endif %}
 
 <!-- Formulario de Búsqueda -->
@@ -132,6 +129,8 @@
     {% endif %}
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
     // Restablecer búsqueda al presionar "Limpiar"
     document.getElementById("limpiar-busqueda").addEventListener("click", function() {
@@ -159,6 +158,12 @@
             event.target.style.display = 'none';
         }
     }
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $(".alert-success").fadeOut(500);
+        }, 3000); // 3 segundos
+    });
 </script>
 
 {% endblock %}

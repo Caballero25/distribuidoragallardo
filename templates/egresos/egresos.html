@@ -11,63 +11,78 @@
 {% block content %}
 <h1>Egresos</h1>
 
-    <table class="table table-bordered table-striped">
-        <thead>
-        <tr>
-            <th>Fecha</th>
-            <th>Tercero</th>
-            <th>Valor</th>
-            <th>Creado Por</th>
-            <th>Método de Pago</th>
-            <th>Cuenta por Pagar</th>
-            <th>Eliminar</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for egreso in egresos %}
-        <tr>
-            <td>{{ egreso.fecha }}</td>
-            <td>{{ egreso.tercero.nombre }}</td>
-            <td>{{ egreso.valor }}</td>
-            <td>{{ egreso.creado_por.username }}</td>
-            <td>{{ egreso.metodo_de_pago|capfirst }}</td>
-            <td>{{ egreso.cuenta_por_pagar }}</td>
-            <td>
-                <!-- Ícono de eliminar (caneca de basura) -->
-                <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ egreso.id }}">
-                    <i class="fi fi-rs-trash-can-slash"></i> <!-- Caneca de basura -->
-                </a>
-            </td>
-        </tr>
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>Fecha</th>
+        <th>Tercero</th>
+        <th>Valor</th>
+        <th>Creado Por</th>
+        <th>Método de Pago</th>
+        <th>Cuenta por Pagar</th>
+        <th>Eliminar</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for egreso in egresos %}
+    <tr>
+        <td>{{ egreso.fecha }}</td>
+        <td>{{ egreso.tercero.nombre }}</td>
+        <td>{{ egreso.valor }}</td>
+        <td>{{ egreso.creado_por.username }}</td>
+        <td>{{ egreso.metodo_de_pago|capfirst }}</td>
+        <td>{{ egreso.cuenta_por_pagar }}</td>
+        <td>
+            <!-- Ícono de eliminar (caneca de basura) -->
+            <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ egreso.id }}">
+                <i class="fi fi-rs-trash-can-slash"></i> <!-- Caneca de basura -->
+            </a>
+        </td>
+    </tr>
 
-        <div class="modal" id="deleteModal{{ egreso.id }}" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5>Confirmar Eliminación</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal">X</button>
-                </div>
-                <div class="modal-body">
-                    ¿Estás seguro de que deseas eliminar el egreso?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-cancel" style="background-color: #ccc;">Cancelar</button>
-                    <form action="{% url 'delete_egreso' egreso.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-delete" style="background-color: #f00; color: white;">Eliminar</button>
-                    </form>
-                </div>
+    <div class="modal" id="deleteModal{{ egreso.id }}" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Confirmar Eliminación</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar el egreso?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" style="background-color: #ccc;">Cancelar</button>
+                <form action="{% url 'delete_egreso' egreso.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-delete" style="background-color: #f00; color: white;">Eliminar</button>
+                </form>
             </div>
         </div>
+    </div>
 
-        {% empty %}
-        <tr>
-            <td colspan="6" class="text-center">No hay egresos registrados.</td>
-        </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6" class="text-center">No hay egresos registrados.</td>
+    </tr>
 
-        {% endfor %}
-        </tbody>
-    </table>
+    {% endfor %}
+    </tbody>
+</table>
 
+<nav>
+    <ul class="pagination">
+        {% if cuentas_por_pagar.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">Primero</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ cuentas_por_pagar.previous_page_number }}">Anterior</a></li>
+        {% endif %}
+
+        <li class="page-item disabled"><a class="page-link">Página {{ cuentas_por_pagar.number }} de {{ cuentas_por_pagar.paginator.num_pages }}</a></li>
+
+        {% if cuentas_por_pagar.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ cuentas_por_pagar.next_page_number }}">Siguiente</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ cuentas_por_pagar.paginator.num_pages }}">Último</a></li>
+        {% endif %}
+    </ul>
+</nav>
 <script>
     document.querySelectorAll('[data-bs-toggle="modal"]').forEach(item => {
         item.addEventListener('click', event => {

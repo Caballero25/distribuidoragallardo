@@ -1,5 +1,6 @@
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from cuentasporcobrar.models import CuentaPorCobrar
@@ -10,8 +11,15 @@ from ventas.models import Venta
 @login_required
 def get_all_ventas(request):
     ventas = Venta.objects.all()
-    context = {'ventas': ventas}
     if request.method == 'GET':
+        paginator = Paginator(ventas, 20)
+        page_number = request.GET.get('page')  # Obtiene el número de página de la URL
+        page_obj = paginator.get_page(page_number)  # Obtiene la página actual
+
+        context = {
+            'ventas': page_obj,
+        }
+
         return render(request, 'ventas/ventas.html', context)
 
 @login_required
@@ -67,7 +75,7 @@ def create_venta(request):
         venta.cuenta_por_cobrar = cuenta_por_cobrar
         venta.save()
 
-        messages.success(request, "Venta y cuenta por cobrar creadas exitosamente.")
+        messages.success(request, "Venta creada exitosamente.")
         return redirect('get_all_ventas')
 
     return render(request, 'ventas/create_venta.html')

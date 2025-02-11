@@ -11,6 +11,14 @@
 {% block content %}
 <h1>Ventas</h1>
 
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-success" id="success-message" role="alert">
+  {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+
 <!-- Filtro de búsqueda por fecha -->
 <form method="get" action="{% url 'get_all_ventas' %}">
   <label for="fecha">Buscar por fecha:</label>
@@ -80,7 +88,23 @@
   </tbody>
 </table>
 
+<div class="pagination">
+  {% if ventas.has_previous %}
+  <a href="?page=1">Primero</a>
+  <a href="?page={{ ventas.previous_page_number }}">Anterior</a>
+  {% endif %}
+
+  <span>Página {{ ventas.number }} de {{ ventas.paginator.num_pages }}</span>
+
+  {% if ventas.has_next %}
+  <a href="?page={{ ventas.next_page_number }}">Siguiente</a>
+  <a href="?page={{ ventas.paginator.num_pages }}">Último</a>
+  {% endif %}
+</div>
+
 <!-- Script para manejar los modales -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
   document.querySelectorAll('[data-bs-toggle="modal"]').forEach(item => {
     item.addEventListener('click', event => {
@@ -97,11 +121,17 @@
   });
 
   // Cerrar el modal al hacer clic fuera de él
-  window.onclick = function(event) {
+  window.onclick = function (event) {
     if (event.target.classList.contains('modal')) {
       event.target.style.display = 'none';
     }
   }
+
+  $(document).ready(function () {
+    setTimeout(function () {
+      $(".alert-success").fadeOut(500);
+    }, 3000); // 3 segundos
+  });
 </script>
 
 {% endblock %}

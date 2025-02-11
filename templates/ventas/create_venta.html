@@ -20,9 +20,10 @@
         </div>
 
         <div class="form-group">
-            <label for="tercero_nombre">Cliente</label>
-            <input type="text" id="tercero_nombre" class="form-control" placeholder="Buscar cliente..." required>
+            <label for="tercero_nombre">Tercero</label>
+            <input type="text" id="tercero_nombre" class="form-control" placeholder="Buscar tercero..." required>
             <input type="hidden" name="tercero" id="tercero_id">
+            <span id="tercero_error" style="color: red; display: none;"></span>
         </div>
 
         <!-- Sección del Producto -->
@@ -47,16 +48,19 @@
         <div class="form-group">
             <label for="valor_unitario">Valor Unitario</label>
             <input type="number" name="valor_unitario" id="valor_unitario" step="0.01" class="form-control" required readonly>
+            <span id="valor_unitario_error" style="color: red; display: none;"></span>
         </div>
 
         <div class="form-group">
             <label for="cantidad">Cantidad</label>
             <input type="number" name="cantidad" id="cantidad" min="1" class="form-control" required>
+            <span id="cantidad_error" style="color: red; display: none;">La cantidad debe ser mayor a 0</span>
         </div>
 
         <div class="form-group">
             <label for="valor_total">Valor Total</label>
             <input type="number" name="valor_total" id="valor_total" step="0.01" class="form-control" readonly>
+            <span id="valor_total_error" style="color: red; display: none;"></span>
         </div>
 
         <div class="form-group">
@@ -73,6 +77,20 @@
 
 <script>
     $(document).ready(function() {
+
+        function hayErrores() {
+            return $("#tercero_id").val() === "" || $("#tercero_error").is(":visible") ||
+                $("#cantidad_error").is(":visible") || $("#valor_unitario_error").is(":visible") ||
+                $("#valor_total_error").is(":visible");
+        }
+
+
+        $("form").on("submit", function(event) {
+            if (hayErrores()) {
+                event.preventDefault(); // Evita el envío del formulario si hay errores
+            }
+        });
+
         // Autocompletar Cliente (Tercero)
         $("#tercero_nombre").autocomplete({
             source: function(request, response) {
@@ -81,6 +99,12 @@
                     dataType: "json",
                     data: { term: request.term },
                     success: function(data) {
+                        if (data.length === 0) {
+                            $("#tercero_error").text("El tercero no existe").show();
+                            $("#tercero_id").val("");
+                        } else {
+                            $("#tercero_error").hide();
+                        }
                         response($.map(data, function(item) {
                             return { label: item.text, value: item.text, id: item.id };
                         }));
@@ -90,7 +114,19 @@
             minLength: 2,
             select: function(event, ui) {
                 $("#tercero_id").val(ui.item.id);
+                $("#tercero_error").hide();
             }
+        });
+
+        $("#tercero_nombre").on("input", function() {
+            $("#tercero_id").val("");
+            $("#tercero_error").hide();
+        });
+
+        // Ocultar el mensaje de error al escribir
+        $("#tercero_nombre").on("input", function() {
+            $("#tercero_id").val("");
+            $("#tercero_error").hide();
         });
 
         // Autocompletar Producto Disponible
@@ -159,15 +195,57 @@
         $("#cantidad, #valor_unitario").on("input", function () {
             let cantidad = parseFloat($("#cantidad").val()) || 0;
             let valorUnitario = parseFloat($("#valor_unitario").val()) || 0;
-            let existencia = parseFloat($("#existencia_actual").val()) || 0;
-
-            if (cantidad > existencia) {
-                alert("No puedes vender más de la existencia disponible.");
-                $("#cantidad").val(existencia);
-                cantidad = existencia;
-            }
 
             $("#valor_total").val((cantidad * valorUnitario).toFixed(2));
+        });
+
+        $("#cantidad").on("input", function () {
+            let cantidad = parseFloat($(this).val());
+            let existencia = parseFloat($("#existencia_actual").val()) || 0;
+
+            if ($(this).val().trim() === "") {
+                $("#cantidad_error").hide();
+                return;
+            }
+
+            if (cantidad <= 0 || isNaN(cantidad)) {
+                $("#cantidad_error").text("La cantidad debe ser mayor a 0").show();
+            } else if (cantidad > existencia) {
+                $("#cantidad_error").text("La cantidad a vender no puede ser mayor que la existencia").show();
+            } else {
+                $("#cantidad_error").hide();
+            }
+        });
+
+        // Validación de valor unitario
+        $("#valor_unitario").on("input", function () {
+            let valorUnitario = parseFloat($(this).val());
+
+            if ($(this).val().trim() === "") {
+                $("#valor_unitario_error").hide();
+                return;
+            }
+
+            if (valorUnitario <= 0 || isNaN(valorUnitario)) {
+                $("#valor_unitario_error").text("El valor unitario debe ser mayor a 0").show();
+            } else {
+                $("#valor_unitario_error").hide();
+            }
+        });
+
+        // Validación de valor total
+        $("#cantidad, #valor_unitario").on("input", function () {
+            let cantidad = parseFloat($("#cantidad").val()) || 0;
+            let valorUnitario = parseFloat($("#valor_unitario").val()) || 0;
+            let valorTotal = cantidad * valorUnitario;
+
+            $("#valor_total").val(valorTotal.toFixed(2));
+
+            if (valorTotal <= 0 || isNaN(valorTotal)) {
+                $("#valor_total_error").text("El valor total debe ser mayor a 0").show();
+            } else {
+                $("#valor_total_error").hide();
+            }
         });
     });
 </script>

@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from productos.forms import ProductoForm
 from productos.models import Producto
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 # Create your views here.
 @login_required
@@ -44,14 +45,28 @@ def get_producto_by_name_din(request):
 @login_required
 def update_producto(request, id):
     producto = Producto.objects.get(id=id)
+
     if request.method == 'POST':
-        form = ProductoForm(request.POST, instance=producto)
-        if form.is_valid():
-            form.save()
-            return redirect('get_all_productos')
-    else:
-        form = ProductoForm(instance=producto)
-    return render(request, 'productos/productos.html', {'form': form})
+        nuevo_valor_unitario = request.POST.get('valor_unitario')
+
+        # Validar que el valor ingresado sea un número válido
+        try:
+            nuevo_valor_unitario = float(nuevo_valor_unitario)
+            if nuevo_valor_unitario <= 0:
+                messages.error(request, "El valor unitario debe ser mayor a 0.")
+                return redirect('get_all_productos')
+
+            # Actualizar solo el campo valor_unitario
+            producto.valor_unitario = nuevo_valor_unitario
+            producto.save()
+
+            messages.success(request, "Producto actualizado correctamente.")
+        except ValueError:
+            messages.error(request, "Ingrese un valor numérico válido.")
+
+        return redirect('get_all_productos')
+
+    return render(request, 'productos/productos.html', {'producto': producto})
 
 @login_required
 def delete_producto(request, id):
@@ -64,6 +79,7 @@ def delete_producto(request, id):
 
     if request.method == "POST":
         producto.delete()
+        messages.success(request, "Producto eliminado correctamente.")
         return redirect('get_all_productos')
 
     return render(request, 'compras/delete_confirm.html', {'producto': producto})

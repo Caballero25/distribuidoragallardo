@@ -9,6 +9,14 @@
 {% block content %}
 <h1>Productos</h1>
 
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-success" id="success-message" role="alert">
+  {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+
 <!-- Formulario de búsqueda -->
 <form method="GET" action="{% url 'get_producto_by_name' %}">
   <label for="buscar">Buscar por nombre:</label>
@@ -42,7 +50,13 @@
     <td>{{ producto.entradas }}</td>
     <td>{{ producto.salidas }}</td>
     <td>{{ producto.costo_unitario }}</td>
+
     <td>
+      <!-- Ícono de edición -->
+      <a href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ producto.id }}">
+        <i class="fi-rr-pencil"></i> <!-- Icono de edición -->
+      </a>
+    </td>
 
     <td>
       <!-- Ícono de eliminar (caneca de basura) -->
@@ -51,6 +65,38 @@
       </a>
     </td>
   </tr>
+
+  <!-- MODAL PARA EDITAR PRODUCTO -->
+  <div class="modal" id="editModal{{ producto.id }}" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5>Editando Producto: {{ producto.nombre }}</h5>
+        <button type="button" class="close" data-bs-dismiss="modal">X</button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm{{ producto.id }}" method="post" action="{% url 'update_producto' producto.id %}">
+          {% csrf_token %}
+
+          <label for="nombre">Nombre:</label>
+          <input type="text" value="{{ producto.nombre }}" readonly>
+
+          <label for="codigo">Código:</label>
+          <input type="text" value="{{ producto.codigo }}" readonly>
+
+          <label for="existencia">Existencia:</label>
+          <input type="text" value="{{ producto.existencia }}" readonly>
+
+          <label for="valor_unitario">Valor Unitario:</label>
+          <input type="number" name="valor_unitario" id="valor_unitario_{{ producto.id }}" min="0.01" step="0.01" required>
+          <p id="error_msg_{{ producto.id }}" style="color: red; display: none;">El valor debe ser mayor a 0.</p>
+
+          <button type="submit" id="saveButton_{{ producto.id }}">Guardar Cambios</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
 
   <!-- MODAL PARA ELIMINAR PRODUCTO-->
   <div class="modal" id="deleteModal{{ producto.id }}" style="display: none;">
@@ -75,7 +121,8 @@
   </tbody>
 </table>
 
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
   document.querySelectorAll('[data-bs-toggle="modal"]').forEach(item => {
@@ -98,5 +145,32 @@
       event.target.style.display = 'none';
     }
   }
+
+  $(document).ready(function () {
+    setTimeout(function () {
+      $(".alert-success").fadeOut(500);
+    }, 3000); // 3 segundos
+  });
+
+  document.querySelectorAll('[id^="valor_unitario_"]').forEach(input => {
+    input.addEventListener('input', function() {
+      const productoId = this.id.split('_')[2];
+      const saveButton = document.getElementById(`saveButton_${productoId}`);
+      const errorMsg = document.getElementById(`error_msg_${productoId}`);
+
+      // Obtener el valor y convertirlo a número
+      const valor = parseFloat(this.value);
+
+      if (isNaN(valor) || valor <= 0) {
+        errorMsg.style.display = "block";  // Mostrar mensaje de error
+        saveButton.onclick = function(event) {
+          event.preventDefault(); // Evitar el envío del formulario
+        };
+      } else {
+        errorMsg.style.display = "none"; // Ocultar mensaje si es válido
+        saveButton.onclick = null; // Restablecer el botón para permitir envío
+      }
+    });
+  });
 </script>
 {% endblock %}

@@ -102,6 +102,7 @@ def delete_tercero(request, id):
 
     if request.method == "POST":
         tercero.delete()
+        messages.success(request, "Tercero eliminado correctamente.")
         return redirect('get_all_terceros')
 
 @login_required
