@@ -6,21 +6,43 @@ from django.contrib import messages
 from cuentasporcobrar.models import CuentaPorCobrar
 from productos.models import Producto
 from ventas.models import Venta
+from django.utils.dateparse import parse_date
 
 # Create your views here.
+
+@login_required
+def get_venta_by_id(request, id):
+    if request.method == 'GET':
+        venta = Venta.objects.get(id=id)
+        context = {'venta': venta}
+        return render(request, 'productos/producto.html', context)
+
 @login_required
 def get_all_ventas(request):
     ventas = Venta.objects.all()
-    if request.method == 'GET':
-        paginator = Paginator(ventas, 20)
-        page_number = request.GET.get('page')  # Obtiene el número de página de la URL
-        page_obj = paginator.get_page(page_number)  # Obtiene la página actual
 
-        context = {
-            'ventas': page_obj,
-        }
+    fecha_inicio = request.GET.get('fecha_inicio', '').strip()
+    fecha_fin = request.GET.get('fecha_fin', '').strip()
+    tercero = request.GET.get('tercero', '').strip()
 
-        return render(request, 'ventas/ventas.html', context)
+    if fecha_inicio and fecha_fin:
+        fecha_inicio = parse_date(fecha_inicio)
+        fecha_fin = parse_date(fecha_fin)
+        if fecha_inicio and fecha_fin:
+            ventas = ventas.filter(fecha__range=[fecha_inicio, fecha_fin])
+
+    if tercero:
+        ventas = ventas.filter(tercero__nombre__icontains=tercero)
+
+    paginator = Paginator(ventas, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Si es una solicitud AJAX, devolvemos solo la tabla
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'ventas/ventas_table.html', {'ventas': page_obj})
+
+    return render(request, 'ventas/ventas.html', {'ventas': page_obj})
 
 @login_required
 def create_venta(request):

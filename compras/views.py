@@ -1,4 +1,7 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
+from django.utils.dateparse import parse_date
+
 from .models import Compra
 from productos.models import Producto
 from django.contrib import messages
@@ -11,9 +14,29 @@ from decimal import Decimal
 @login_required
 def get_all_compras(request):
     compras = Compra.objects.all()
-    context = {'compras': compras}
-    if request.method == 'GET':
-        return render(request, 'compras/compras.html', context)
+
+    fecha_inicio = request.GET.get('fecha_inicio', '').strip()
+    fecha_fin = request.GET.get('fecha_fin', '').strip()
+    tercero = request.GET.get('tercero', '').strip()
+
+    if fecha_inicio and fecha_fin:
+        fecha_inicio = parse_date(fecha_inicio)
+        fecha_fin = parse_date(fecha_fin)
+        if fecha_inicio and fecha_fin:
+            compras = compras.filter(fecha__range=[fecha_inicio, fecha_fin])
+
+    if tercero:
+        compras = compras.filter(tercero__nombre__icontains=tercero)
+
+    paginator = Paginator(compras, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Si es una solicitud AJAX, devolvemos solo la tabla
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'ventas/ventas_table.html', {'ventas': page_obj})
+
+    return render(request, 'ventas/ventas.html', {'ventas': page_obj})
 
 @login_required
 def create_compra(request):
