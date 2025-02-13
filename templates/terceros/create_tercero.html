@@ -2,30 +2,131 @@
 {% load static %}
 
 {% block title %} Crear Tercero {% endblock %}
+{% block extra_head %}
+<style>
+    #submit_btn {
+        background: #007bff;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 18px;
+        font-weight: 500;
+        transition: all 0.3s;
+        width: 100%;
+        text-align: center;
+        display: block;
+    }
 
+    #submit_btn:hover {
+        background: #0056b3;
+    }
+
+    /* Título */
+    h1 {
+        font-size: 36px; /* Tamaño un poco más grande */
+        font-weight: bold;
+        color: #333;
+        margin-top: 20px; /* Mayor separación desde arriba */
+        margin-bottom: 20px;
+        text-align: left;
+    }
+    /* Contenedor principal */
+    .container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Estilos del título */
+    h1 {
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    /* Estilos de las etiquetas */
+    label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+        color: #555;
+    }
+
+    /* Estilos de los inputs */
+    input, select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: border 0.3s ease;
+    }
+
+    input:focus, select:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+
+    /* Mensajes de error */
+    span[id^="error-"] {
+        font-size: 14px;
+        color: red;
+        margin-top: 5px;
+        display: block;
+    }
+
+    /* Botón de envío */
+    #submit_btn {
+        background: #007bff;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 18px;
+        font-weight: 500;
+        width: 100%;
+        text-align: center;
+        display: block;
+        margin-top: 15px;
+        cursor: pointer;
+    }
+
+    #submit_btn:hover {
+        background: #0056b3;
+    }
+
+</style>
+{% endblock %}
 {% block content %}
-<h1>Crear Nuevo Tercero</h1>
-<form id="tercero-form">
-    {% csrf_token %}
+<div class="container mt-4">
+    <h1>Crear Nuevo Tercero</h1>
+    <form id="tercero-form">
+        {% csrf_token %}
 
-    <label for="nombre">Nombre:</label>
-    {{ form.nombre }}
-    <span id="error-nombre" style="color: red;"></span>
+        <label for="nombre">Nombre:</label>
+        {{ form.nombre }}
+        <span id="error-nombre" style="color: red;"></span>
 
-    <label for="tipo">Tipo:</label>
-    {{ form.tipo }}
+        <label for="tipo">Tipo:</label>
+        {{ form.tipo }}
 
-    <label for="telefono">Teléfono:</label>
-    {{ form.telefono }}
-    <span id="error-telefono" style="color: red;"></span>
+        <label for="telefono">Teléfono:</label>
+        {{ form.telefono }}
+        <span id="error-telefono" style="color: red;"></span>
 
-    <label for="direccion">Dirección:</label>
-    {{ form.direccion }}
-    <span id="error-direccion" style="color: red;"></span>
-
-    <button type="submit">Crear Tercero</button>
-</form>
-
+        <label for="direccion">Dirección:</label>
+        {{ form.direccion }}
+        <span id="error-direccion" style="color: red;"></span>
+        <button type="submit" id="submit_btn">Crear Tercero</button>
+    </form>
+</div>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         let nombreInput = document.getElementById("{{ form.nombre.id_for_label }}");

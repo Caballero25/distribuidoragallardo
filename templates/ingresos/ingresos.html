@@ -273,16 +273,19 @@ background: #0056b3;
         <input type="date" id="fecha_fin" name="fecha_fin" value="{{ request.GET.fecha_fin }}">
 
         <button type="submit">Buscar</button>
+        <button type="button" id="limpiar-fecha">Limpiar</button>
     </form>
 
     <!-- Filtro por cliente -->
     <form method="get" action="{% url 'get_all_ingresos' %}" class="filtros">
-        <label for="tercero">Buscar por Cliente:</label>
-        <input type="text" id="tercero" name="tercero" value="{{ request.GET.tercero }}" placeholder="Nombre del cliente">
+        <label for="tercero">Buscar por Tercero:</label>
+        <input type="text" id="tercero" name="tercero" value="{{ request.GET.tercero }}" placeholder="Nombre del tercero">
 
         <button type="submit">Buscar</button>
+        <button type="button" id="limpiar-tercero">Limpiar</button>
     </form>
 </div>
+
 
 <!-- Tabla de Ingresos -->
 <table>
@@ -378,6 +381,23 @@ background: #0056b3;
     </tbody>
 </table>
 
+<!-- Paginación -->
+<nav>
+    <ul class="pagination">
+        {% if ingresos.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">Primero</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ ingresos.previous_page_number }}">Anterior</a></li>
+        {% endif %}
+
+        <li class="page-item disabled"><a class="page-link">Página {{ ingresos.number }} de {{ ingresos.paginator.num_pages }}</a></li>
+
+        {% if ingresos.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ ingresos.next_page_number }}">Siguiente</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ ingresos.paginator.num_pages }}">Último</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <!-- Script para manejar los modales -->
@@ -434,11 +454,23 @@ background: #0056b3;
             cargarIngresos();
         });
 
-        // Si se borra el nombre del cliente, se recargan todas las cuentas por cobrar
         $("#tercero").on("keyup", function () {
             if ($(this).val().trim() === "") {
                 cargarIngresos();
             }
+        });
+
+        // Limpiar búsqueda de tercero
+        $("#limpiar-tercero").click(function () {
+            $("#tercero").val("");
+            window.location.href = "{% url 'get_all_ingresos' %}";
+        });
+
+        // Limpiar búsqueda por fecha
+        $("#limpiar-fecha").click(function () {
+            $("#fecha_inicio").val("");
+            $("#fecha_fin").val("");
+            window.location.href = "{% url 'get_all_ingresos' %}";
         });
     });
 

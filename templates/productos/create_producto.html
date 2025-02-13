@@ -1,16 +1,28 @@
 {% extends 'base/base_adminlte.html' %}
 {% load static %}
 
-{% block title %} Crear Producto {% endblock %}
+{% block title %} Nuevo Producto {% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style>
+    /* Título */
+    h1 {
+        font-size: 36px; /* Tamaño un poco más grande */
+        font-weight: bold;
+        color: #333;
+        margin-top: 20px; /* Mayor separación desde arriba */
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+</style>
 {% endblock %}
 
 {% block content %}
 
 <div class="container mt-4">
-    <h1 class="text-center">Crear Producto</h1>
+    <h1>Nuevo Producto</h1>
 
     <form method="POST">
         {% csrf_token %}

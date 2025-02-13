@@ -90,7 +90,7 @@
         function hayErrores() {
             return $("#tercero_id").val() === "" || $("#tercero_error").is(":visible") ||
                 $("#cantidad_error").is(":visible") || $("#valor_unitario_error").is(":visible") ||
-            $("#valor_total_error").is(":visible");
+                $("#valor_total_error").is(":visible");
         }
 
         $("form").on("submit", function(event) {
@@ -248,14 +248,9 @@
             $("#producto_id").val(""); // Eliminar ID del producto seleccionado
             $("#producto_codigo").val("").prop("readonly", false); // Habilitar campo de código
         });
-
-        // Calcular automáticamente el valor total
-        $("#cantidad, #valor_unitario").on("input", function () {
-            let cantidad = parseFloat($("#cantidad").val()) || 0;
-            let valorUnitario = parseFloat($("#valor_unitario").val()) || 0;
-            $("#valor_total").val((cantidad * valorUnitario).toFixed(2));
-        });
     });
+
+
 </script>
 
 {% endblock %}

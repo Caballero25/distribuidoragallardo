@@ -167,19 +167,20 @@ def update_venta(request, venta_id):
 def delete_venta(request, id):
     try:
         venta = Venta.objects.get(id=id)
-        producto = venta.producto
-        cantidad = venta.valor_total / venta.valor_unitario  # Calculamos la cantidad, suponiendo que valor_total = cantidad * valor_unitario
     except Venta.DoesNotExist:
         return render(request, 'compras/error.html', {
             'error_message': f"No se encontró la venta con ID {id}."
         })
 
     if request.method == "POST":
-        producto.existencia += cantidad
-        producto.save()
+        producto = venta.producto
+
+        if producto:  # Validar si la venta tiene un producto asociado
+            cantidad = venta.valor_total / venta.valor_unitario
+            producto.existencia += cantidad
+            producto.save()
 
         venta.delete()
-
         return redirect('get_all_ventas')
 
     return render(request, 'ventas/delete_confirm.html', {'venta': venta})

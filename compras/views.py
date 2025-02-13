@@ -49,43 +49,51 @@ def create_compra(request):
     if request.method == 'POST':
         fecha = request.POST.get('fecha')
         tercero_id = request.POST.get('tercero')
-        nombre_producto = request.POST.get('producto_nombre')
-        codigo_producto = request.POST.get('producto_codigo')
+        nombre_producto = request.POST.get('producto_nombre', '').strip()
+        codigo_producto = request.POST.get('producto_codigo', '').strip()
 
         cantidad = request.POST.get('cantidad')
         valor_unitario = request.POST.get('valor_unitario')
-        valor_total = request.POST.get('valor_total')  # Obtener el valor total desde el formulario
+        valor_total = request.POST.get('valor_total')  # Puede venir vacío
 
-        # Manejo de valores nulos o vacíos
-        cantidad = Decimal(cantidad) if cantidad else Decimal(0)
-        valor_unitario = Decimal(valor_unitario) if valor_unitario else Decimal(0)
-        valor_total = Decimal(valor_total) if valor_total else cantidad * valor_unitario  # Prioriza el valor enviado
+        # Asegurar que los valores sean numéricos o asignarles 0
+        cantidad = Decimal(cantidad) if cantidad and cantidad.isnumeric() else Decimal(0)
+        valor_unitario = Decimal(valor_unitario) if valor_unitario and valor_unitario.strip() else Decimal(0)
+        valor_total = Decimal(valor_total) if valor_total and valor_total.isnumeric() else cantidad * valor_unitario
 
         descripcion = request.POST.get('descripcion')
         user = request.user
 
-        # Buscar o crear el producto
-        producto = Producto.objects.filter(codigo=codigo_producto).first()
-        if producto:
-            producto.costo_historico += valor_total
-            producto.existencia += cantidad
-            producto.entradas += cantidad
-            if producto.entradas > 0:
-                producto.costo_unitario = producto.costo_historico / producto.entradas
-            producto.save()
-        else:
-            producto = Producto(
-                nombre=nombre_producto,
-                codigo=codigo_producto,
-                existencia=cantidad,
-                valor_unitario=0,
-                entradas=cantidad,
-                salidas=0,
-                costo_historico=valor_total,
-                costo_unitario=valor_unitario,
-                creado_por=user
-            )
-            producto.save()
+        # Si no se envía producto ni código, asignar valores específicos
+        if not nombre_producto and not codigo_producto:
+            cantidad = Decimal(0)
+            valor_unitario = Decimal(0)
+            # Mantener el valor total enviado en el formulario
+            valor_total = Decimal(request.POST.get('valor_total', 0))
+
+        producto = None
+        if codigo_producto:
+            producto = Producto.objects.filter(codigo=codigo_producto).first()
+            if producto:
+                producto.costo_historico += valor_total
+                producto.existencia += cantidad
+                producto.entradas += cantidad
+                if producto.entradas > 0:
+                    producto.costo_unitario = producto.costo_historico / producto.entradas
+                producto.save()
+            else:
+                producto = Producto(
+                    nombre=nombre_producto,
+                    codigo=codigo_producto,
+                    existencia=cantidad,
+                    valor_unitario=0,
+                    entradas=cantidad,
+                    salidas=0,
+                    costo_historico=valor_total,
+                    costo_unitario=valor_unitario,
+                    creado_por=user
+                )
+                producto.save()
 
         # Crear la compra
         compra = Compra(
@@ -117,6 +125,7 @@ def create_compra(request):
         return redirect('get_all_compras')
 
     return render(request, 'compras/create_compra.html')
+
 
 @login_required
 def update_compra(request, id):
@@ -196,16 +205,18 @@ def update_compra(request, id):
 def delete_compra(request, id):
     try:
         compra = Compra.objects.get(id=id)
-        producto = compra.producto  # Obtenemos el producto relacionado con la compra
-        cantidad = compra.valor_total / compra.valor_unitario  # Calculamos la cantidad, suponiendo que valor_total = cantidad * valor_unitario
     except Compra.DoesNotExist:
         return render(request, 'compras/error.html', {
             'error_message': f"No se encontró la compra con ID {id}."
         })
 
     if request.method == "POST":
-        producto.existencia -= cantidad
-        producto.save() 
+        producto = compra.producto
+
+        if producto:  # Validar si la compra tiene un producto asociado
+            cantidad = compra.valor_total / compra.valor_unitario if compra.valor_unitario else 0
+            producto.existencia -= cantidad
+            producto.save()
 
         compra.delete()
         messages.success(request, "Compra eliminada correctamente.")

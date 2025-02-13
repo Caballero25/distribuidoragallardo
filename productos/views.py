@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from productos.forms import ProductoForm
@@ -51,10 +52,22 @@ def create_producto(request):
 
 @login_required
 def get_all_productos(request):
+    query = request.GET.get('nombre', '')  # Obtiene el nombre si se envió en la búsqueda
     productos = Producto.objects.all()
-    context = {'productos': productos}
-    if request.method == 'GET':
-        return render(request, 'productos/productos.html', context)
+
+    if query:
+        productos = productos.filter(nombre__icontains=query)
+
+    # Paginación de 20 elementos por página
+    paginator = Paginator(productos, 20)
+    page_number = request.GET.get('page')  # Obtiene el número de página de la URL
+    page_obj = paginator.get_page(page_number)  # Obtiene la página actual
+
+    context = {
+        'productos': page_obj,
+        'query': query,
+    }
+    return render(request, 'productos/productos.html', context)
 
 @login_required
 def get_producto_by_id(request, id):

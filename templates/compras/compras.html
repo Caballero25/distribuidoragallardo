@@ -278,14 +278,16 @@
         <input type="date" id="fecha_fin" name="fecha_fin" value="{{ request.GET.fecha_fin }}">
 
         <button type="submit">Buscar</button>
+        <button type="button" id="limpiar-fecha">Limpiar</button>
     </form>
 
     <!-- Filtro por cliente -->
     <form method="get" action="{% url 'get_all_compras' %}" class="filtros">
-        <label for="tercero">Buscar por Cliente:</label>
-        <input type="text" id="tercero" name="tercero" value="{{ request.GET.tercero }}" placeholder="Nombre del cliente">
+        <label for="tercero">Buscar por Tercero:</label>
+        <input type="text" id="tercero" name="tercero" value="{{ request.GET.tercero }}" placeholder="Nombre del tercero">
 
         <button type="submit">Buscar</button>
+        <button type="button" id="limpiar-tercero">Limpiar</button>
     </form>
 </div>
 
@@ -408,23 +410,21 @@
 </table>
 
 <!-- Paginación -->
-<div class="pagination">
-    <span class="step-links">
+<nav>
+    <ul class="pagination">
         {% if compras.has_previous %}
-            <a href="?page=1">Primera</a>
-            <a href="?page={{ compras.previous_page_number }}">Anterior</a>
+        <li class="page-item"><a class="page-link" href="?page=1">Primero</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ compras.previous_page_number }}">Anterior</a></li>
         {% endif %}
 
-        <span class="current">
-            Página {{ compras.number }} de {{ compras.paginator.num_pages }}.
-        </span>
+        <li class="page-item disabled"><a class="page-link">Página {{ compras.number }} de {{ compras.paginator.num_pages }}</a></li>
 
         {% if compras.has_next %}
-            <a href="?page={{ compras.next_page_number }}">Siguiente</a>
-            <a href="?page={{ compras.paginator.num_pages }}">Última</a>
+        <li class="page-item"><a class="page-link" href="?page={{ compras.next_page_number }}">Siguiente</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ compras.paginator.num_pages }}">Último</a></li>
         {% endif %}
-    </span>
-</div>
+    </ul>
+</nav>
 
 <!-- Script para manejar los modales -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -465,14 +465,18 @@
             let valorUnitarioElement = row.querySelector(".valor-unitario");
             let cantidadVendidaElement = row.querySelector(".cantidad-vendida");
 
-            let valorTotal = parseFloat(valorTotalElement.textContent) || 0;
-            let valorUnitario = parseFloat(valorUnitarioElement.textContent) || 1;
+            let valorTotal = parseFloat(valorTotalElement.textContent.replace(/[^0-9,.]/g, "").replace(",", ".")) || 0;
+            let valorUnitario = parseFloat(valorUnitarioElement.textContent.replace(/[^0-9,.]/g, "").replace(",", ".")) || 0;
 
-            // Evitar divisiones por 0 y redondear hacia abajo
-            let cantidadVendida = valorUnitario !== 0 ? Math.floor(valorTotal / valorUnitario) : 0;
+            let cantidadVendida = 0; // Por defecto, cantidad en 0
 
-            // Formatear números con coma en decimales
-            let formatoMoneda = (valor) => `$${valor.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            if (valorUnitario > 0) {
+                cantidadVendida = Math.floor(valorTotal / valorUnitario);
+            }
+
+            // Función para formatear números como moneda
+            let formatoMoneda = (valor) =>
+                `$${valor.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
             valorTotalElement.textContent = formatoMoneda(valorTotal);
             valorUnitarioElement.textContent = formatoMoneda(valorUnitario);
@@ -511,6 +515,19 @@
                 cargarCompras();
             }
         });
+
+        // Limpiar búsqueda de tercero
+        $("#limpiar-tercero").click(function () {
+            $("#tercero").val("");
+            window.location.href = "{% url 'get_all_cuentas_por_pagar' %}";
+        });
+
+        // Limpiar búsqueda por fecha
+        $("#limpiar-fecha").click(function () {
+            $("#fecha_inicio").val("");
+            $("#fecha_fin").val("");
+            window.location.href = "{% url 'get_all_cuentas_por_pagar' %}";
+        });
     });
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -542,7 +559,7 @@
                 let valorUnitario = convertirANumero(valorUnitarioText);
 
                 // Calcular la cantidad
-                let cantidad = valorUnitario !== 0 ? (valorTotal / valorUnitario).toFixed(2) : 0;
+                let cantidad = valorUnitario !== 0 ? Math.floor(valorTotal / valorUnitario) : 0;
 
                 // Función para formatear los valores con $ y coma decimal
                 function formatoMoneda(valor) {

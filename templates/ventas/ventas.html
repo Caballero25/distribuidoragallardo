@@ -374,6 +374,26 @@ background: #0056b3;
         </div>
     </div>
 
+    <div class="modal fade" id="deleteModal{{ venta.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ venta.id }}" aria-hidden="true" data-bs-backdrop="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ venta.id }}">Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar la venta?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form action="{% url 'delete_venta' venta.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     {% endfor %}
     {% else %}
     <tr>
@@ -386,19 +406,21 @@ background: #0056b3;
 
 </table>
 
-<div class="pagination">
-  {% if ventas.has_previous %}
-  <a href="?page=1">Primero</a>
-  <a href="?page={{ ventas.previous_page_number }}">Anterior</a>
-  {% endif %}
+<nav>
+    <ul class="pagination">
+        {% if ventas.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">Primero</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ ventas.previous_page_number }}">Anterior</a></li>
+        {% endif %}
 
-  <span>Página {{ ventas.number }} de {{ ventas.paginator.num_pages }}</span>
+        <li class="page-item disabled"><a class="page-link">Página {{ ventas.number }} de {{ ventas.paginator.num_pages }}</a></li>
 
-  {% if ventas.has_next %}
-  <a href="?page={{ ventas.next_page_number }}">Siguiente</a>
-  <a href="?page={{ ventas.paginator.num_pages }}">Último</a>
-  {% endif %}
-</div>
+        {% if ventas.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ ventas.next_page_number }}">Siguiente</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ ventas.paginator.num_pages }}">Último</a></li>
+        {% endif %}
+    </ul>
+</nav>
 
 <!-- Script para manejar los modales -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -516,7 +538,7 @@ background: #0056b3;
               let valorUnitario = convertirANumero(valorUnitarioText);
 
               // Calcular la cantidad
-              let cantidad = valorUnitario !== 0 ? (valorTotal / valorUnitario).toFixed(2) : 0;
+              let cantidad = valorUnitario !== 0 ? Math.floor(valorTotal / valorUnitario) : 0;
 
               // Función para formatear los valores con $ y coma decimal
               function formatoMoneda(valor) {

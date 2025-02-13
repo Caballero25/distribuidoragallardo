@@ -325,19 +325,23 @@
 </table>
 
 <!-- Paginación -->
-<div class="pagination">
-    {% if terceros.has_previous %}
-    <a href="?page=1">Primero</a>
-    <a href="?page={{ terceros.previous_page_number }}">Anterior</a>
-    {% endif %}
+<nav>
+    <ul class="pagination">
+        {% if terceros.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">Primero</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ terceros.previous_page_number }}">Anterior</a></li>
+        {% endif %}
 
-    <span>Página {{ terceros.number }} de {{ terceros.paginator.num_pages }}</span>
+        <li class="page-item disabled"><a class="page-link">Página {{ terceros.number }} de {{ terceros.paginator.num_pages }}</a></li>
 
-    {% if terceros.has_next %}
-    <a href="?page={{ terceros.next_page_number }}">Siguiente</a>
-    <a href="?page={{ terceros.paginator.num_pages }}">Último</a>
-    {% endif %}
-</div>
+        {% if terceros.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ terceros.next_page_number }}">Siguiente</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ terceros.paginator.num_pages }}">Último</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 

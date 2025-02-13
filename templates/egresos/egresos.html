@@ -272,14 +272,16 @@ text-align: left;
         <input type="date" id="fecha_fin" name="fecha_fin" value="{{ request.GET.fecha_fin }}">
 
         <button type="submit">Buscar</button>
+        <button type="button" id="limpiar-fecha">Limpiar</button>
     </form>
 
     <!-- Filtro por cliente -->
     <form method="get" action="{% url 'get_all_egresos' %}" class="filtros">
-        <label for="tercero">Buscar por Cliente:</label>
-        <input type="text" id="tercero" name="tercero" value="{{ request.GET.tercero }}" placeholder="Nombre del cliente">
+        <label for="tercero">Buscar por Tercero:</label>
+        <input type="text" id="tercero" name="tercero" value="{{ request.GET.tercero }}" placeholder="Nombre del tercero">
 
         <button type="submit">Buscar</button>
+        <button type="button" id="limpiar-tercero">Limpiar</button>
     </form>
 </div>
 
@@ -377,16 +379,16 @@ text-align: left;
 
 <nav>
     <ul class="pagination">
-        {% if cuentas_por_pagar.has_previous %}
+        {% if egresos.has_previous %}
         <li class="page-item"><a class="page-link" href="?page=1">Primero</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ cuentas_por_pagar.previous_page_number }}">Anterior</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ egresos.previous_page_number }}">Anterior</a></li>
         {% endif %}
 
-        <li class="page-item disabled"><a class="page-link">Página {{ cuentas_por_pagar.number }} de {{ cuentas_por_pagar.paginator.num_pages }}</a></li>
+        <li class="page-item disabled"><a class="page-link">Página {{ egresos.number }} de {{ egresos.paginator.num_pages }}</a></li>
 
-        {% if cuentas_por_pagar.has_next %}
-        <li class="page-item"><a class="page-link" href="?page={{ cuentas_por_pagar.next_page_number }}">Siguiente</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ cuentas_por_pagar.paginator.num_pages }}">Último</a></li>
+        {% if egresos.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ egresos.next_page_number }}">Siguiente</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ egresos.paginator.num_pages }}">Último</a></li>
         {% endif %}
     </ul>
 </nav>
@@ -474,6 +476,52 @@ text-align: left;
         setTimeout(function () {
             $(".alert-success").fadeOut(500);
         }, 3000); // 3 segundos
+    });
+
+    $(document).ready(function () {
+        function cargarEgresos() {
+            let tercero = $("#tercero").val();
+            let fecha_inicio = $("#fecha_inicio").val();
+            let fecha_fin = $("#fecha_fin").val();
+
+            $.ajax({
+                url: "{% url 'get_all_egresos' %}",
+                data: {
+                    tercero: tercero,
+                    fecha_inicio: fecha_inicio,
+                    fecha_fin: fecha_fin
+                },
+                success: function (data) {
+                    let newTable = $(data).find("#ingresos-body").html();
+                    $("#ingresos-body").html(newTable);
+                }
+            });
+        }
+
+        // Buscar mientras escribe
+        $("#tercero").on("input", function () {
+            cargarEgresos();
+        });
+
+
+        $("#tercero").on("keyup", function () {
+            if ($(this).val().trim() === "") {
+                cargarEgresos();
+            }
+        });
+
+        // Limpiar búsqueda de tercero
+        $("#limpiar-tercero").click(function () {
+            $("#tercero").val("");
+            window.location.href = "{% url 'get_all_egresos' %}";
+        });
+
+        // Limpiar búsqueda por fecha
+        $("#limpiar-fecha").click(function () {
+            $("#fecha_inicio").val("");
+            $("#fecha_fin").val("");
+            window.location.href = "{% url 'get_all_egresos' %}";
+        });
     });
 </script>
 

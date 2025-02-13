@@ -339,6 +339,60 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
     text-align: right;
 }
 
+/* Estilos para la lista de ingresos */
+.venta-modal .modal-body ul {
+    list-style-type: none; /* Elimina los puntos de la lista */
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f9f9f9;
+}
+
+.venta-modal .modal-body ul li {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+    color: #444;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.3s ease;
+}
+
+.venta-modal .modal-body ul li:last-child {
+    border-bottom: none; /* Elimina el borde inferior del último elemento */
+}
+
+.venta-modal .modal-body ul li:hover {
+    background: #f1f1f1; /* Efecto hover para cada elemento de la lista */
+}
+
+.venta-modal .modal-body ul li a.btn {
+    padding: 6px 12px;
+    font-size: 14px;
+    background: #007bff;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.venta-modal .modal-body ul li a.btn:hover {
+    background: #0056b3; /* Efecto hover para el botón */
+}
+
+/* Estilos para el mensaje cuando no hay ingresos */
+.venta-modal .modal-body p.no-ingresos {
+    font-size: 16px;
+    color: #777;
+    text-align: center;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #f9f9f9;
+}
 </style>
 {% endblock %}
 
@@ -362,14 +416,16 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
         <input type="date" id="fecha_fin" name="fecha_fin" value="{{ request.GET.fecha_fin }}">
 
         <button type="submit">Buscar</button>
+        <button type="button" id="limpiar-fecha">Limpiar</button>
     </form>
 
     <!-- Filtro por cliente -->
     <form method="get" action="{% url 'get_all_cuentas_por_cobrar' %}" class="filtros">
-        <label for="tercero">Buscar por Cliente:</label>
-        <input type="text" id="tercero" name="tercero" value="{{ request.GET.tercero }}" placeholder="Nombre del cliente">
+        <label for="tercero">Buscar por Tercero:</label>
+        <input type="text" id="tercero" name="tercero" value="{{ request.GET.tercero }}" placeholder="Nombre del tercero">
 
         <button type="submit">Buscar</button>
+        <button type="button" id="limpiar-tercero">Limpiar</button>
     </form>
 </div>
 
@@ -457,13 +513,13 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
                 <ul>
                     {% for ingreso in cuenta_por_cobrar.ingresos.all %}
                     <li>
-                        {{ ingreso.fecha }} - {{ ingreso.valor }} - {{ ingreso.metodo_de_pago }}
-                        <a href="{% url 'get_ingreso_by_id' ingreso.id %}" class="btn btn-info">Ver Ingreso</a>
+                        <span>{{ ingreso.fecha|date:"d/m/Y" }} - ${{ ingreso.valor }} - {{ ingreso.metodo_de_pago }}</span>
+                        <a href="{% url 'get_ingreso_by_id' ingreso.id %}" class="btn">Ver Ingreso</a>
                     </li>
                     {% endfor %}
                 </ul>
                 {% else %}
-                <p>No hay ingresos registrados.</p>
+                <p class="no-ingresos">No hay ingresos registrados.</p>
                 {% endif %}
 
                 <!-- Botón Cobrar -->
@@ -480,36 +536,42 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
         </div>
     </div>
 
-    <!-- Modal Cobrar -->
-    <div class="modal cobrar-modal" id="cobrarModal{{ cuenta_por_cobrar.id }}" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>Registrar Cobro</h5>
-            </div>
-            <div class="modal-body">
-                <form action="{% url 'create_ingreso' cuenta_por_cobrar.id %}" method="post" onsubmit="return validarFormulario(this, {{ cuenta_por_cobrar.saldo }}, {{ cuenta_por_cobrar.id }})">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="fecha">Fecha de Cobro</label>
-                        <input type="date" name="fecha" class="form-control" required>
-                    </div>
+    <!-- Modal Registrar Cobro -->
+    <div class="modal fade" id="cobrarModal{{ cuenta_por_cobrar.id }}" tabindex="-1" aria-labelledby="cobrarModalLabel{{ cuenta_por_cobrar.id }}" aria-hidden="true" data-bs-backdrop="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cobrarModalLabel{{ cuenta_por_cobrar.id }}">Registrar Cobro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'create_ingreso' cuenta_por_cobrar.id %}" method="post" onsubmit="return validarFormulario(this, {{ cuenta_por_cobrar.saldo }}, {{ cuenta_por_cobrar.id }})">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="fecha">Fecha de Cobro</label>
+                            <input type="date" name="fecha" class="form-control" required>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="valor">Valor del Cobro</label>
-                        <input type="number" step="0.01" name="valor" class="form-control" required oninput="validarPago(this, {{ cuenta_por_cobrar.saldo }}, {{ cuenta_por_cobrar.id }})">
-                        <small id="errorPago{{ cuenta_por_cobrar.id }}" class="text-danger" style="display: none;"></small>
-                    </div>
+                        <div class="form-group">
+                            <label for="valor">Valor del Cobro</label>
+                            <input type="number" step="0.01" name="valor" class="form-control" required oninput="validarPago(this, {{ cuenta_por_cobrar.saldo }}, {{ cuenta_por_cobrar.id }})">
+                            <small id="errorPago{{ cuenta_por_cobrar.id }}" class="text-danger" style="display: none;"></small>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="metodo_de_pago">Método de Pago</label>
-                        <select name="metodo_de_pago" class="form-control" required>
-                            <option value="EFECTIVO">Efectivo</option>
-                            <option value="TRANSFERENCIA">Transferencia</option>
-                        </select>
-                    </div>
+                        <div class="form-group">
+                            <label for="metodo_de_pago">Método de Pago</label>
+                            <select name="metodo_de_pago" class="form-control" required>
+                                <option value="EFECTIVO">Efectivo</option>
+                                <option value="TRANSFERENCIA">Transferencia</option>
+                            </select>
+                        </div>
 
-                    <button type="submit" class="btn btn-success btn-block mt-4">Registrar Cobro</button>
-                </form>
+                        <button type="submit" class="btn btn-success btn-block mt-4">Registrar Cobro</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -629,6 +691,19 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
             if ($(this).val().trim() === "") {
                 cargarCuentasPorCobrar();
             }
+        });
+
+        // Limpiar búsqueda de tercero
+        $("#limpiar-tercero").click(function () {
+            $("#tercero").val("");
+            window.location.href = "{% url 'get_all_cuentas_por_cobrar' %}";
+        });
+
+        // Limpiar búsqueda por fecha
+        $("#limpiar-fecha").click(function () {
+            $("#fecha_inicio").val("");
+            $("#fecha_fin").val("");
+            window.location.href = "{% url 'get_all_cuentas_por_cobrar' %}";
         });
     });
 

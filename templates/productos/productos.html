@@ -4,6 +4,132 @@
 {% block extra_head %}
 <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
+<style>
+  /* Estilo general */
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Título */
+  h1 {
+    font-size: 36px; /* Tamaño un poco más grande */
+    font-weight: bold;
+    color: #333;
+    margin-top: 20px; /* Mayor separación desde arriba */
+    margin-bottom: 20px;
+    text-align: left;
+  }
+
+  /* Tabla */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  th {
+    background: #007bff;
+    color: white;
+    font-weight: bold;
+  }
+
+  tr:nth-child(even) {
+    background: #f9f9f9;
+  }
+
+  /* Íconos */
+  .actions a {
+    text-decoration: none;
+    font-size: 18px;
+    margin-right: 10px;
+  }
+
+  .actions .edit {
+    color: #007bff;
+  }
+
+  .actions .delete {
+    color: #ff4d4d;
+  }
+
+  .actions a:hover {
+    opacity: 0.7;
+  }
+
+  /* Paginación */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+  }
+
+  .pagination a {
+    padding: 8px 12px;
+    margin: 0 5px;
+    text-decoration: none;
+    background: #007bff;
+    color: white;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: 0.3s;
+  }
+
+  .pagination a:hover {
+    background: #0056b3;
+  }
+
+  /* Contenedor de filtros */
+  .filtros-container {
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+  }
+
+  /* Formularios de filtros */
+  .filtros {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 6px;
+    flex-grow: 1;
+  }
+
+  /* Inputs y botones */
+  .filtros input, .filtros button {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .filtros button {
+    background: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+    border: none;
+    font-weight: bold;
+  }
+
+  .filtros button:hover {
+    background: #0056b3;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -18,16 +144,18 @@
 {% endif %}
 
 <!-- Formulario de búsqueda -->
-<form method="GET" action="{% url 'get_producto_by_name' %}">
-  <label for="buscar">Buscar por nombre:</label>
-  <input type="text" name="buscar" id="buscar">
-  <button type="submit">Buscar</button>
-</form>
+<div class="filtros-container">
+  <form method="get" action="{% url 'get_all_productos' %}" class="filtros">
+    <label for="nombre">Buscar por nombre:</label>
+    <input type="text" name="nombre" id="buscar-producto" value="{{ query }}" placeholder="Escriba el nombre">
+    <button type="submit">Buscar</button>
+    <button type="button" id="limpiar-busqueda">Limpiar</button>
+  </form>
+</div>
 
 <table>
   <thead>
   <tr>
-    <th>ID</th>
     <th>Código</th>
     <th>Nombre</th>
     <th>Existencia</th>
@@ -42,14 +170,13 @@
   <tbody>
   {% for producto in productos %}
   <tr>
-    <td>{{ producto.id }}</td>
     <td>{{ producto.codigo }}</td>
     <td>{{ producto.nombre }}</td>
     <td>{{ producto.existencia }}</td>
-    <td>{{ producto.valor_unitario }}</td>
+    <td class="valor">{{ producto.valor_unitario }}</td>
     <td>{{ producto.entradas }}</td>
     <td>{{ producto.salidas }}</td>
-    <td>{{ producto.costo_unitario }}</td>
+    <td class="valor">{{ producto.costo_unitario }}</td>
 
     <td>
       <!-- Ícono de edición -->
@@ -123,6 +250,23 @@
   </tbody>
 </table>
 
+<!-- Paginación -->
+<nav>
+  <ul class="pagination">
+    {% if productos.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page=1">Primero</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ productos.previous_page_number }}">Anterior</a></li>
+    {% endif %}
+
+    <li class="page-item disabled"><a class="page-link">Página {{ productos.number }} de {{ productos.paginator.num_pages }}</a></li>
+
+    {% if productos.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ productos.next_page_number }}">Siguiente</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ productos.paginator.num_pages }}">Último</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
@@ -173,6 +317,26 @@
         saveButton.onclick = null; // Restablecer el botón para permitir envío
       }
     });
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    function formatCurrency(value) {
+      return "$" + value.toFixed(2).replace(".", ",");
+    }
+
+    // Formatear los saldos en la tabla
+    document.querySelectorAll(".valor").forEach(function (element) {
+      let valor = parseFloat(element.textContent.replace("$", "").trim());
+      if (!isNaN(valor)) {
+        element.textContent = formatCurrency(valor);
+      }
+    });
+  });
+
+  // Restablecer búsqueda al presionar "Limpiar"
+  document.getElementById("limpiar-busqueda").addEventListener("click", function() {
+    document.getElementById("buscar-producto").value = "";
+    window.location.href = "{% url 'get_all_productos' %}";
   });
 </script>
 {% endblock %}
