@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from productos.forms import ProductoForm
@@ -6,6 +8,47 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 # Create your views here.
+
+@login_required
+def create_producto(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        codigo = request.POST.get('codigo')
+        entradas = int(request.POST.get('entradas', 0))
+        salidas = 0  # Se inicializa en 0 porque es un nuevo producto
+        existencia = entradas - salidas
+        costo_unitario = Decimal(request.POST.get('costo_unitario', 0))
+        valor_unitario = Decimal(request.POST.get('valor_unitario', 0))
+        creado_por = request.user
+
+        # Validaciones básicas
+        if not nombre or not codigo or entradas < 0 or costo_unitario < 0 or valor_unitario < 0:
+            messages.error(request, "Los valores ingresados no pueden ser negativos o estar vacíos.")
+            return render(request, 'productos/create_producto.html')
+
+        # Verificar si el producto ya existe
+        if Producto.objects.filter(codigo=codigo).exists():
+            messages.error(request, "El código del producto ya existe.")
+            return render(request, 'productos/create_producto.html')
+
+        # Crear el producto
+        producto = Producto(
+            nombre=nombre,
+            codigo=codigo,
+            existencia=existencia,
+            valor_unitario=valor_unitario,
+            entradas=entradas,
+            salidas=salidas,
+            costo_unitario=costo_unitario,
+            creado_por=creado_por
+        )
+        producto.save()
+
+        messages.success(request, "Producto creado exitosamente.")
+        return redirect('get_all_productos')
+
+    return render(request, 'productos/create_producto.html')
+
 @login_required
 def get_all_productos(request):
     productos = Producto.objects.all()
@@ -110,3 +153,13 @@ def get_valor_unitario_producto(request):
         if producto:
             return JsonResponse({"valor_unitario": producto.valor_unitario})
     return JsonResponse({"valor_unitario": ""})
+
+def validate_nombre(request):
+    nombre = request.GET.get('nombre', '').strip()
+    existe = Producto.objects.filter(nombre__iexact=nombre).exists()
+    return JsonResponse({'existe': existe})
+
+def validate_codigo(request):
+    codigo = request.GET.get('codigo', '').strip()
+    existe = Producto.objects.filter(codigo__iexact=codigo).exists()
+    return JsonResponse({'existe': existe})

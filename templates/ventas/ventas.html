@@ -264,7 +264,7 @@ background: #0056b3;
 {% if messages %}
 {% for message in messages %}
 <div class="alert alert-success" id="success-message" role="alert">
-  {{ message }}
+    {{ message }}
 </div>
 {% endfor %}
 {% endif %}
@@ -295,7 +295,7 @@ background: #0056b3;
   <thead>
   <tr>
     <th>Fecha</th>
-    <th>Cliente</th>
+    <th>Tercero</th>
     <th>Producto</th>
     <th>Valor Unitario</th>
     <th>Cantidad</th>
@@ -333,7 +333,7 @@ background: #0056b3;
             <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ venta.id }}">
                 <i class="fi fi-rs-trash-can-slash"></i>
             </a>
-        </td>1
+        </td>
     </tr>
 
     <!-- Modal para ver detalles de la venta -->
@@ -344,7 +344,7 @@ background: #0056b3;
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ venta.fecha|date:"d/m/Y" }}</p>
-                <p><strong>Cliente:</strong> {{ venta.tercero.nombre }}</p>
+                <p><strong>Tercero:</strong> {{ venta.tercero.nombre }}</p>
                 <p><strong>Producto:</strong> {{ venta.producto.nombre }}</p>
                 <p><strong>Valor Unitario:</strong> <span class="valor-unitario-modal">{{ venta.valor_unitario }}</span></p>
                 <p><strong>Cantidad:</strong> <span class="cantidad-modal"></span></p>

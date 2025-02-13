@@ -96,14 +96,16 @@ def delete_tercero(request, id):
     try:
         tercero = Tercero.objects.get(id=id)
     except Tercero.DoesNotExist:
-        return render(request, 'terceros/error.html', {
-            'error_message': f"No se encontró el tercero con ID {id}."
+        return render(request, 'compras/error.html', {
+            'error_message': f"No se encontró la compra con ID {id}."
         })
 
     if request.method == "POST":
         tercero.delete()
         messages.success(request, "Tercero eliminado correctamente.")
         return redirect('get_all_terceros')
+
+    return render(request, 'compras/delete_confirm.html', {'tercero': tercero})
 
 @login_required
 def get_tercero_by_name_din(request):

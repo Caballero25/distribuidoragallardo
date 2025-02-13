@@ -1,10 +1,146 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base/base_adminlte.html' %}
+{% load static %}
 
-</body>
-</html>
+{% block title %} Crear Producto {% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h1 class="text-center">Crear Producto</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="nombre">Nombre del Producto</label>
+            <input type="text" name="nombre" id="nombre" class="form-control" required>
+            <span id="nombre_error" style="color: red; display: none;">El producto ya existe.</span>
+        </div>
+
+        <div class="form-group">
+            <label for="codigo">Código del Producto</label>
+            <input type="text" name="codigo" id="codigo" maxlength="4" class="form-control" required>
+            <span id="codigo_error" style="color: red; display: none;">El código ya está en uso.</span>
+        </div>
+
+        <div class="form-group">
+            <label for="entradas">Entradas</label>
+            <input type="number" name="entradas" id="entradas" class="form-control" required>
+            <span id="entradas_error" style="color: red; display: none;">Las entradas deben ser mayores a 0.</span>
+        </div>
+
+        <div class="form-group">
+            <label for="valor_unitario">Valor Unitario</label>
+            <input type="number" name="valor_unitario" id="valor_unitario" step="0.01" class="form-control" required>
+            <span id="valor_unitario_error" style="color: red; display: none;">El valor unitario debe ser mayor a 0.</span>
+        </div>
+
+
+        <button type="submit" id="submit_btn" class="btn btn-primary btn-block mt-4">Crear Producto</button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        function calcularExistencia() {
+            let entradas = parseInt($("#entradas").val()) || 0;
+            let salidas = parseInt($("#salidas").val()) || 0;
+            $("#existencia").val(entradas - salidas);
+        }
+
+        function validarCodigo() {
+            let codigo = $("#codigo").val().trim();
+            if (codigo.length === 4) {
+                $.ajax({
+                    url: "{% url 'get_codigo_producto' %}",
+                    data: { codigo: codigo },
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.existe) {
+                            $("#codigo_error").show();
+                        } else {
+                            $("#codigo_error").hide();
+                        }
+                    }
+                });
+            } else {
+                $("#codigo_error").hide();
+            }
+        }
+
+        $("#entradas").on("input", calcularExistencia);
+        $("#codigo").on("input", validarCodigo);
+    });
+
+    $(document).ready(function() {
+        function validarNombre() {
+            let nombre = $("#nombre").val().trim();
+            if (nombre.length > 0) {
+                $.ajax({
+                    url: "{% url 'validate_nombre' %}",
+                    data: { nombre: nombre },
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.existe) {
+                            $("#nombre_error").show();
+                        } else {
+                            $("#nombre_error").hide();
+                        }
+                    }
+                });
+            } else {
+                $("#nombre_error").hide();
+            }
+        }
+
+        function validarCodigo() {
+            let codigo = $("#codigo").val().trim();
+            if (codigo.length === 4) {
+                $.ajax({
+                    url: "{% url 'validate_codigo' %}",
+                    data: { codigo: codigo },
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.existe) {
+                            $("#codigo_error").show();
+                        } else {
+                            $("#codigo_error").hide();
+                        }
+                    }
+                });
+            } else {
+                $("#codigo_error").hide();
+            }
+        }
+
+        function validarEntradas() {
+            let entradas = parseFloat($("#entradas").val());
+            if (isNaN(entradas) || entradas <= 0) {
+                $("#entradas_error").show();
+            } else {
+                $("#entradas_error").hide();
+            }
+        }
+
+        function validarValorUnitario() {
+            let valor = parseFloat($("#valor_unitario").val());
+            if (isNaN(valor) || valor <= 0) {
+                $("#valor_unitario_error").show();
+            } else {
+                $("#valor_unitario_error").hide();
+            }
+        }
+
+        $("#nombre").on("input", validarNombre);
+        $("#codigo").on("input", validarCodigo);
+        $("#entradas").on("input", validarEntradas);
+        $("#valor_unitario").on("input", validarValorUnitario);
+    });
+</script>
+
+{% endblock %}

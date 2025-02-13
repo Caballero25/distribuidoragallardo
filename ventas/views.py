@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -102,6 +103,65 @@ def create_venta(request):
 
     return render(request, 'ventas/create_venta.html')
 
+@login_required
+def update_venta(request, venta_id):
+    venta = get_object_or_404(Venta, id=venta_id)
+
+    if request.method == 'POST':
+        fecha = request.POST.get('fecha')
+        tercero_id = request.POST.get('tercero')
+        producto_id = request.POST.get('producto_id')
+        cantidad = int(request.POST.get('cantidad'))
+        valor_unitario = Decimal(request.POST.get('valor_unitario'))
+        valor_total = cantidad * valor_unitario
+        descripcion = request.POST.get('descripcion')
+        user = request.user
+
+        producto = Producto.objects.filter(id=producto_id).first()
+
+        if not producto:
+            messages.error(request, "El producto seleccionado no existe.")
+            return redirect('update_venta', venta_id=venta.id)
+
+        # Revertir la salida anterior del producto antes de actualizar
+        if venta.producto:
+            venta.producto.salidas -= cantidad
+            venta.producto.existencia = venta.producto.entradas - venta.producto.salidas
+            venta.producto.save()
+
+        # Verificar que haya suficiente stock para la nueva cantidad
+        if producto.existencia < cantidad:
+            messages.error(request, "No hay suficiente existencia para realizar la venta.")
+            return redirect('update_venta', venta_id=venta.id)
+
+        # Actualizar la existencia del producto con los nuevos valores
+        producto.salidas += cantidad
+        producto.existencia = producto.entradas - producto.salidas
+        producto.save()
+
+        # Actualizar la venta
+        venta.fecha = fecha
+        venta.tercero_id = tercero_id
+        venta.producto = producto
+        venta.valor_unitario = valor_unitario
+        venta.valor_total = valor_total
+        venta.descripcion = descripcion
+        venta.editado_por = user
+        venta.fecha_edicion = date.today()
+        venta.save()
+
+        # Actualizar la cuenta por cobrar asociada
+        if venta.cuenta_por_cobrar:
+            cuenta_por_cobrar = venta.cuenta_por_cobrar
+            cuenta_por_cobrar.fecha = fecha
+            cuenta_por_cobrar.tercero_id = tercero_id
+            cuenta_por_cobrar.saldo = valor_total
+            cuenta_por_cobrar.save()
+
+        messages.success(request, "Venta actualizada exitosamente.")
+        return redirect('get_all_ventas')
+
+    return render(request, 'ventas/update_venta.html', {'venta': venta})
 
 @login_required
 def delete_venta(request, id):

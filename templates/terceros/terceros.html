@@ -6,6 +6,214 @@
 {% block extra_head %}
 <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
+
+<style>
+    /* Estilos */
+    h1 {
+        font-size: 36px;
+        font-weight: bold;
+        color: #333;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    /* Filtros */
+    .filtros {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .filtros label {
+        font-weight: bold;
+    }
+
+    .filtros input, .filtros button {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .filtros button {
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .filtros button:hover {
+        background: #0056b3;
+    }
+
+    /* Tabla */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        background: white;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+        background: #f9f9f9;
+    }
+
+    /* Íconos */
+    .actions a {
+        text-decoration: none;
+        font-size: 18px;
+        margin-right: 10px;
+    }
+
+    .actions .edit {
+        color: #007bff;
+    }
+
+    .actions .delete {
+        color: #ff4d4d;
+    }
+
+    .actions a:hover {
+        opacity: 0.7;
+    }
+
+    /* Paginación */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    .pagination a {
+        padding: 8px 12px;
+        margin: 0 5px;
+        text-decoration: none;
+        background: #007bff;
+        color: white;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: 0.3s;
+    }
+
+    .pagination a:hover {
+        background: #0056b3;
+    }
+
+    /* Estilos para el modal de eliminación */
+    .eliminar-modal {
+        display: none; /* Oculto por defecto */
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .eliminar-modal .modal-content {
+        background: white;
+        width: 400px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .eliminar-modal .modal-header {
+        background: #007bff;
+        color: white;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .eliminar-modal .modal-header .close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    .eliminar-modal .modal-body {
+        padding: 20px;
+        font-size: 16px;
+        color: #333;
+        text-align: center;
+    }
+
+    .eliminar-modal .modal-footer {
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        background: #f1f1f1;
+    }
+
+    .eliminar-modal .btn-cancel,
+    .eliminar-modal .btn-delete {
+        padding: 10px 15px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: 0.3s;
+        border: none;
+    }
+
+    .eliminar-modal .btn-cancel {
+        background: #ccc;
+        color: #333;
+    }
+
+    .eliminar-modal .btn-cancel:hover {
+        background: #b3b3b3;
+    }
+
+    .eliminar-modal .btn-delete {
+        background: #ff4d4d;
+        color: white;
+    }
+
+    .eliminar-modal .btn-delete:hover {
+        background: #cc0000;
+    }
+
+    /* Animación */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+</style>
 {% endblock %}
 
 {% block content %}
@@ -91,25 +299,27 @@
         </div>
     </div>
 
-    <!-- Modal de Eliminar -->
-    <div class="modal" id="deleteModal{{ tercero.id }}" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>Confirmar Eliminación</h5>
-                <button type="button" class="close" data-bs-dismiss="modal">X</button>
-            </div>
-            <div class="modal-body">
-                ¿Estás seguro de que deseas eliminar a {{ tercero.nombre }}?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-cancel">Cancelar</button>
-                <form action="{% url 'delete_tercero' tercero.id %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-delete">Eliminar</button>
-                </form>
+    <div class="modal fade" id="deleteModal{{ tercero.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ tercero.id }}" aria-hidden="true" data-bs-backdrop="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ tercero.id }}">Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar a <strong>{{ tercero.nombre }}</strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form action="{% url 'delete_tercero' tercero.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+
     {% endfor %}
     </tbody>
 </table>
@@ -137,27 +347,6 @@
         document.getElementById("buscar-tercero").value = "";
         window.location.href = "{% url 'get_all_terceros' %}";
     });
-
-    // Mostrar y ocultar modales
-    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(item => {
-        item.addEventListener('click', event => {
-            const targetModal = document.querySelector(item.getAttribute('data-bs-target'));
-            targetModal.style.display = 'block';
-        });
-    });
-
-    document.querySelectorAll('.close').forEach(item => {
-        item.addEventListener('click', event => {
-            const modal = item.closest('.modal');
-            modal.style.display = 'none';
-        });
-    });
-
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal')) {
-            event.target.style.display = 'none';
-        }
-    }
 
     $(document).ready(function () {
         setTimeout(function () {

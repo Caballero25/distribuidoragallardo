@@ -41,7 +41,8 @@ OUR_APPS = [
     'user',
     'ventas',
     'ingresos',
-    'cuentasporcobrar'
+    'cuentasporcobrar',
+    'balance'
 ]
 
 DEFAULT_APPS = [

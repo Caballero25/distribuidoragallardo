@@ -379,7 +379,6 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
         <th>Fecha</th>
         <th>Tercero</th>
         <th>Saldo</th>
-        <th>Creado Por</th>
         <th>Estado</th>
         <th>Ver</th>
         <th>Eliminar</th>
@@ -392,7 +391,6 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
         <td>{{ cuenta_por_cobrar.fecha|date:"d/m/Y" }}</td>
         <td>{{ cuenta_por_cobrar.tercero.nombre }}</td>
         <td class="saldo">${{ cuenta_por_cobrar.saldo }}</td>
-        <td>{{ cuenta_por_cobrar.creado_por.username }}</td>
         <td>{{ cuenta_por_cobrar.estado|capfirst }}</td>
 
         <!-- Columna Ver -->
@@ -409,6 +407,28 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
             </a>
         </td>
     </tr>
+
+
+    <div class="modal fade" id="deleteModal{{ cuenta_por_cobrar.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ cuenta_por_cobrar.id }}" aria-hidden="true" data-bs-backdrop="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ cuenta_por_cobrar.id }}">Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar la cuenta por cobrar?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form action="{% url 'delete_cuenta_por_cobrar' cuenta_por_cobrar.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Ver Detalles -->
     <div class="modal venta-modal" id="viewModal{{ cuenta_por_cobrar.id }}">

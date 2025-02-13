@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.utils.dateparse import parse_date
+
 from cuentasporpagar.models import CuentaPorPagar
 from .models import Egreso
 from django.contrib import messages
@@ -61,13 +63,30 @@ def create_egreso(request, cuenta_id):
 
 @login_required
 def get_all_egresos(request):
-    if request.method == 'GET':
-        egresos = Egreso.objects.all()
-        paginator = Paginator(egresos, 20)
-        page_number = request.GET.get('page')  # Obtiene el número de página de la URL
-        page_obj = paginator.get_page(page_number)  # Obtiene la página actual
-        context = {'egresos': page_obj}
-        return render(request, 'egresos/egresos.html', context)
+    egresos = Egreso.objects.all()
+
+    fecha_inicio = request.GET.get('fecha_inicio', '').strip()
+    fecha_fin = request.GET.get('fecha_fin', '').strip()
+    tercero = request.GET.get('tercero', '').strip()
+
+    if fecha_inicio and fecha_fin:
+        fecha_inicio = parse_date(fecha_inicio)
+        fecha_fin = parse_date(fecha_fin)
+        if fecha_inicio and fecha_fin:
+            egresos = egresos.filter(fecha__range=[fecha_inicio, fecha_fin])
+
+    if tercero:
+        egresos = egresos.filter(tercero__nombre__icontains=tercero)
+
+    paginator = Paginator(egresos, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Si es una solicitud AJAX, devolvemos solo la tabla
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'egresos/egresos.html', {'egresos': page_obj})
+
+    return render(request, 'egresos/egresos.html', {'egresos': page_obj})
 
 @login_required
 def delete_egreso(request, id):

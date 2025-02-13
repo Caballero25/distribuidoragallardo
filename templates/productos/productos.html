@@ -99,21 +99,23 @@
 
 
   <!-- MODAL PARA ELIMINAR PRODUCTO-->
-  <div class="modal" id="deleteModal{{ producto.id }}" style="display: none;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5>Confirmar Eliminación</h5>
-        <button type="button" class="close" data-bs-dismiss="modal">X</button>
-      </div>
-      <div class="modal-body">
-        ¿Estás seguro de que deseas eliminar el producto {{ producto.nombre }}?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn-cancel" style="background-color: #ccc;">Cancelar</button>
-        <form action="{% url 'delete_producto' producto.id %}" method="post">
-          {% csrf_token %}
-          <button type="submit" class="btn-delete" style="background-color: #f00; color: white;">Eliminar</button>
-        </form>
+  <div class="modal fade" id="deleteModal{{ producto.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ producto.id }}" aria-hidden="true" data-bs-backdrop="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel{{ producto.id }}">Confirmar eliminación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          ¿Estás seguro de que deseas eliminar el producto <strong>{{ producto.nombre }}</strong>?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <form action="{% url 'delete_producto' producto.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>

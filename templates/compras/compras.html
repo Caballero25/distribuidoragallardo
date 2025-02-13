@@ -7,6 +7,7 @@
 <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
 <style>
+    /* Estilo general */
     body {
         font-family: 'Arial', sans-serif;
         background-color: #f0f0f0;
@@ -160,9 +161,24 @@
 
     .filtros button:hover {
         background: #0056b3;
+    }
 
+    /* Estilos para el modal de venta */
+    /* Estilos del modal de ventas */
+    .venta-modal {
+        display: none; /* Ocultar el modal inicialmente */
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
 
-    .compra-modal .modal-content {
+    .venta-modal .modal-content {
         background: #fff;
         width: 70%;
         max-width: 800px;
@@ -178,7 +194,7 @@
 
 
     /* Encabezado del modal */
-    .compra-modal .modal-header {
+    .venta-modal .modal-header {
         display: flex;
         justify-content: center; /* Centra horizontalmente */
         align-items: center;
@@ -188,7 +204,7 @@
         position: relative; /* Permite posicionar el botón de cierre */
     }
 
-    .compra-modal .modal-header h5 {
+    .venta-modal .modal-header h5 {
         font-size: 26px;
         font-weight: bold;
         color: #007bff;
@@ -197,30 +213,31 @@
         text-align: center;
     }
 
-    .compra-modal .close-modal {
+    .venta-modal .close-modal {
         position: absolute;
         right: 10px; /* Asegura que el botón de cierre se mantenga en su lugar */
         top: 50%;
         transform: translateY(-50%);
     }
 
+
     /* Contenido del modal */
-    .compra-modal .modal-body {
+    .venta-modal .modal-body {
         font-size: 18px;
         line-height: 1.6;
         color: #444;
     }
 
-    .compra-modal .modal-body p {
+    .venta-modal .modal-body p {
         margin-bottom: 12px;
     }
 
-    .compra-modal .modal-body p strong {
+    .venta-modal .modal-body p strong {
         color: #222;
     }
 
     /* Footer del modal */
-    .compra-modal .modal-footer {
+    .venta-modal .modal-footer {
         display: flex;
         justify-content: space-between;
         margin-top: 20px;
@@ -230,11 +247,11 @@
         color: #555;
     }
 
-    .compra-modal .modal-footer .left {
+    .venta-modal .modal-footer .left {
         text-align: left;
     }
 
-    .compra-modal .modal-footer .right {
+    .venta-modal .modal-footer .right {
         text-align: right;
     }
 
@@ -253,7 +270,7 @@
 {% endif %}
 
 <div class="filtros-container">
-    <form method="get" action="{% url 'get_all_ventas' %}" class="filtros">
+    <form method="get" action="{% url 'get_all_compras' %}" class="filtros">
         <label for="fecha_inicio">Desde:</label>
         <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ request.GET.fecha_inicio }}">
 
@@ -264,7 +281,7 @@
     </form>
 
     <!-- Filtro por cliente -->
-    <form method="get" action="{% url 'get_all_ventas' %}" class="filtros">
+    <form method="get" action="{% url 'get_all_compras' %}" class="filtros">
         <label for="tercero">Buscar por Cliente:</label>
         <input type="text" id="tercero" name="tercero" value="{{ request.GET.tercero }}" placeholder="Nombre del cliente">
 
@@ -280,63 +297,78 @@
         <th>Tercero</th>
         <th>Producto</th>
         <th>Valor Unitario</th>
+        <th>Cantidad</th>
         <th>Valor Total</th>
         <th>Descripción</th>
-        <th>Cuenta por Pagar</th>
-        <th>Usuario</th>
         <th>Ver</th>
         <th>Editar</th>
         <th>Eliminar</th>
     </tr>
     </thead>
     <tbody>
+    {% if compras %}
     {% for compra in compras %}
     <tr>
         <td>{{ compra.fecha|date:"d/m/Y" }}</td>
         <td>{{ compra.tercero.nombre }}</td>
         <td>{{ compra.producto.nombre }}</td>
         <td class="valor-unitario">{{ compra.valor_unitario }}</td>
+        <td class="cantidad-vendida"></td>
         <td class="valor-total">{{ compra.valor_total }}</td>
         <td>{{ compra.descripcion }}</td>
-        <td>
-            {% if compra.cuenta_por_pagar.id %}
-            <a href="{% url 'get_cuenta_por_pagar_by_id' compra.cuenta_por_pagar.id %}" target="_blank">
-                Ver Cuenta por Pagar
-            </a>
-            {% else %}
-            No asignada
-            {% endif %}
-        </td>
-        <td>{{ compra.creado_por.username }}</td>
+
         <td class="actions">
             <a href="#viewModal{{ compra.id }}" class="view btn-ver" data-id="{{ compra.id }}">
-                <i class="fi fi-rr-eye"></i> <!-- Ícono de ojo -->
+                <i class="fi fi-rr-eye"></i>
             </a>
         </td>
-        <td class="actions">
+
+        <td>
             <a href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ compra.id }}">
                 <i class="fi fi-rr-pencil"></i>
             </a>
         </td>
-        <td class="actions">
+        <td>
             <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ compra.id }}">
                 <i class="fi fi-rs-trash-can-slash"></i>
             </a>
         </td>
     </tr>
 
-    <!-- Modal para ver detalles de la compra -->
-    <div class="modal compra-modal" id="viewModal{{ compra.id }}">
+
+    <div class="modal fade" id="deleteModal{{ compra.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ compra.id }}" aria-hidden="true" data-bs-backdrop="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ compra.id }}">Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar la compra?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form action="{% url 'delete_compra' compra.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de la venta -->
+    <div class="modal venta-modal" id="viewModal{{ compra.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Detalles de la Compra</h5>
-                <button type="button" class="close-modal" data-bs-dismiss="modal">X</button>
+                <h5>Detalles de la Venta</h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ compra.fecha|date:"d/m/Y" }}</p>
                 <p><strong>Tercero:</strong> {{ compra.tercero.nombre }}</p>
                 <p><strong>Producto:</strong> {{ compra.producto.nombre }}</p>
                 <p><strong>Valor Unitario:</strong> <span class="valor-unitario-modal">{{ compra.valor_unitario }}</span></p>
+                <p><strong>Cantidad:</strong> <span class="cantidad-modal"></span></p>
                 <p><strong>Valor Total:</strong> <span class="valor-total-modal">{{ compra.valor_total }}</span></p>
                 <p><strong>Descripción:</strong> {{ compra.descripcion }}</p>
                 <p>
@@ -349,38 +381,30 @@
                     No asignada
                     {% endif %}
                 </p>
-                <p><strong>Creado por:</strong> {{ compra.creado_por.username|default:"-" }}</p>
-                <p><strong>Fecha de Creación:</strong> {{ compra.fecha_creacion }}</p>
-                <p><strong>Editado por:</strong> {{ compra.editado_por.username|default:"-" }}</p>
-                <p><strong>Fecha de Edición:</strong> {{ compra.fecha_edicion|default:"-" }}</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cerrar</button>
+                <div class="left-info">
+                    <p><strong>Creado por:</strong> {{ compra.creado_por.username|default:"-" }}</p>
+                    <p><strong>Fecha de Creación:</strong> {{ compra.fecha_creacion }}</p>
+                </div>
+                <div class="right-info">
+                    <p><strong>Editado por:</strong> {{ compra.editado_por.username|default:"-" }}</p>
+                    <p><strong>Fecha de Edición:</strong> {{ compra.fecha_edicion|default:"-" }}</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para eliminar compra -->
-    <div class="modal" id="deleteModal{{ compra.id }}">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>Confirmar Eliminación</h5>
-                <button type="button" class="close-modal" data-bs-dismiss="modal">X</button>
-            </div>
-            <div class="modal-body">
-                ¿Estás seguro de que deseas eliminar la compra de {{ compra.tercero.nombre }}?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-cancel" style="background-color: #ccc;">Cancelar</button>
-                <form action="{% url 'delete_compra' compra.id %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-delete" style="background-color: #f00; color: white;">Eliminar</button>
-                </form>
-            </div>
-        </div>
-    </div>
     {% endfor %}
+    {% else %}
+    <tr>
+        <td colspan="10" style="text-align: center; font-size: 18px; font-weight: bold; color: #777; padding: 15px;">
+            No hay coincidencias para la búsqueda
+        </td>
+    </tr>
+    {% endif %}
     </tbody>
+
 </table>
 
 <!-- Paginación -->
@@ -413,14 +437,15 @@
         });
     });
 
-    document.querySelectorAll('.close-modal').forEach(item => {
+    document.querySelectorAll('.close').forEach(item => {
         item.addEventListener('click', event => {
             const modal = item.closest('.modal');
             modal.style.display = 'none';
         });
     });
 
-    window.onclick = function(event) {
+    // Cerrar el modal al hacer clic fuera de él
+    window.onclick = function (event) {
         if (event.target.classList.contains('modal')) {
             event.target.style.display = 'none';
         }
@@ -430,6 +455,109 @@
         setTimeout(function () {
             $(".alert-success").fadeOut(500);
         }, 3000); // 3 segundos
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let rows = document.querySelectorAll("tbody tr"); // Seleccionar todas las filas de la tabla
+
+        rows.forEach(row => {
+            let valorTotalElement = row.querySelector(".valor-total");
+            let valorUnitarioElement = row.querySelector(".valor-unitario");
+            let cantidadVendidaElement = row.querySelector(".cantidad-vendida");
+
+            let valorTotal = parseFloat(valorTotalElement.textContent) || 0;
+            let valorUnitario = parseFloat(valorUnitarioElement.textContent) || 1;
+
+            // Evitar divisiones por 0 y redondear hacia abajo
+            let cantidadVendida = valorUnitario !== 0 ? Math.floor(valorTotal / valorUnitario) : 0;
+
+            // Formatear números con coma en decimales
+            let formatoMoneda = (valor) => `$${valor.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            valorTotalElement.textContent = formatoMoneda(valorTotal);
+            valorUnitarioElement.textContent = formatoMoneda(valorUnitario);
+            cantidadVendidaElement.textContent = cantidadVendida;
+        });
+    });
+
+    $(document).ready(function () {
+        function cargarCompras() {
+            let tercero = $("#tercero").val();
+            let fecha_inicio = $("#fecha_inicio").val();
+            let fecha_fin = $("#fecha_fin").val();
+
+            $.ajax({
+                url: "{% url 'get_all_compras' %}",
+                data: {
+                    tercero: tercero,
+                    fecha_inicio: fecha_inicio,
+                    fecha_fin: fecha_fin
+                },
+                success: function (data) {
+                    let newTable = $(data).find("#ventas-body").html();
+                    $("#ventas-body").html(newTable);
+                }
+            });
+        }
+
+        // Buscar mientras escribe
+        $("#tercero").on("input", function () {
+            cargarCompras();
+        });
+
+        // Si se borra el nombre del cliente, se recargan todas las ventas
+        $("#tercero").on("keyup", function () {
+            if ($(this).val().trim() === "") {
+                cargarCompras();
+            }
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-ver").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                let compraId = this.getAttribute("data-id");
+                let modal = document.getElementById(`viewModal${compraId}`);
+
+                let row = this.closest("tr");
+
+                // Obtener los valores directamente del texto
+                let valorTotalText = row.querySelector(".valor-total").textContent.trim();
+                let valorUnitarioText = row.querySelector(".valor-unitario").textContent.trim();
+
+                // Función para convertir texto con comas a número
+                function convertirANumero(texto) {
+                    // Eliminar el símbolo de moneda ($) si está presente
+                    texto = texto.replace("$", "").trim();
+                    // Reemplazar comas por puntos para el formato decimal
+                    texto = texto.replace(",", ".");
+                    // Convertir a número
+                    return parseFloat(texto) || 0;
+                }
+
+                // Convertir los valores a números
+                let valorTotal = convertirANumero(valorTotalText);
+                let valorUnitario = convertirANumero(valorUnitarioText);
+
+                // Calcular la cantidad
+                let cantidad = valorUnitario !== 0 ? (valorTotal / valorUnitario).toFixed(2) : 0;
+
+                // Función para formatear los valores con $ y coma decimal
+                function formatoMoneda(valor) {
+                    return `$${valor.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                }
+
+                // Aplicar formato a los valores en el modal
+                modal.querySelector(".valor-unitario-modal").textContent = formatoMoneda(valorUnitario);
+                modal.querySelector(".valor-total-modal").textContent = formatoMoneda(valorTotal);
+                modal.querySelector(".cantidad-modal").textContent = cantidad;
+
+                // Mostrar el modal
+                modal.style.display = "block";
+            });
+        });
     });
 </script>
 {% endblock %}

@@ -1,7 +1,7 @@
+from datetime import date
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_date
-
 from .models import Compra
 from productos.models import Producto
 from django.contrib import messages
@@ -10,6 +10,12 @@ from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 
 # Create your views here.
+@login_required
+def get_compra_by_id(request, id):
+    if request.method == 'GET':
+        compra = Compra.objects.get(id=id)
+        context = {'compra': compra}
+        return render(request, 'compras/compra.html', context)
 
 @login_required
 def get_all_compras(request):
@@ -34,9 +40,9 @@ def get_all_compras(request):
 
     # Si es una solicitud AJAX, devolvemos solo la tabla
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'ventas/ventas_table.html', {'ventas': page_obj})
+        return render(request, 'ventas/ventas_table.html', {'compras': page_obj})
 
-    return render(request, 'ventas/ventas.html', {'ventas': page_obj})
+    return render(request, 'compras/compras.html', {'compras': page_obj})
 
 @login_required
 def create_compra(request):
@@ -111,6 +117,80 @@ def create_compra(request):
         return redirect('get_all_compras')
 
     return render(request, 'compras/create_compra.html')
+
+@login_required
+def update_compra(request, id):
+    compra = Compra.objects.get(id=id)
+
+    if request.method == 'POST':
+        fecha = request.POST.get('fecha')
+        tercero_id = request.POST.get('tercero')
+        nombre_producto = request.POST.get('producto_nombre')
+        codigo_producto = request.POST.get('producto_codigo')
+
+        cantidad = request.POST.get('cantidad')
+        valor_unitario = request.POST.get('valor_unitario')
+        valor_total = request.POST.get('valor_total')
+
+        cantidad = Decimal(cantidad) if cantidad else Decimal(0)
+        valor_unitario = Decimal(valor_unitario) if valor_unitario else Decimal(0)
+        valor_total = Decimal(valor_total) if valor_total else cantidad * valor_unitario
+
+        descripcion = request.POST.get('descripcion')
+        user = request.user
+
+        # Buscar o crear el producto
+        producto = Producto.objects.filter(codigo=codigo_producto).first()
+        if producto:
+            # Revertir los valores del producto antes de actualizar
+            producto.costo_historico -= compra.valor_total
+            producto.existencia -= compra.producto.entradas if compra.producto else 0
+            producto.entradas -= compra.producto.entradas if compra.producto else 0
+
+            # Aplicar los nuevos valores
+            producto.costo_historico += valor_total
+            producto.existencia += cantidad
+            producto.entradas += cantidad
+            if producto.entradas > 0:
+                producto.costo_unitario = producto.costo_historico / producto.entradas
+            producto.save()
+        else:
+            producto = Producto(
+                nombre=nombre_producto,
+                codigo=codigo_producto,
+                existencia=cantidad,
+                valor_unitario=0,
+                entradas=cantidad,
+                salidas=0,
+                costo_historico=valor_total,
+                costo_unitario=valor_unitario,
+                creado_por=user
+            )
+            producto.save()
+
+        # Actualizar la compra
+        compra.fecha = fecha
+        compra.tercero_id = tercero_id
+        compra.producto = producto
+        compra.valor_unitario = valor_unitario
+        compra.valor_total = valor_total
+        compra.descripcion = descripcion
+        compra.editado_por = user
+        compra.fecha_edicion = date.today()
+        compra.save()
+
+        # Actualizar la cuenta por pagar asociada
+        if compra.cuenta_por_pagar:
+            cuenta_por_pagar = compra.cuenta_por_pagar
+            cuenta_por_pagar.fecha = fecha
+            cuenta_por_pagar.tercero_id = tercero_id
+            cuenta_por_pagar.saldo = valor_total
+            cuenta_por_pagar.save()
+
+        messages.success(request, "Compra actualizada exitosamente.")
+        return redirect('get_all_compras')
+
+    return render(request, 'compras/update_compra.html', {'compra': compra})
 
 @login_required
 def delete_compra(request, id):

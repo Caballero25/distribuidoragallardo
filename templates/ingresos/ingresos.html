@@ -248,7 +248,6 @@ background: #0056b3;
 .venta-modal .modal-footer .left{
     text-align: left;
 }
-
 </style>
 
 
@@ -256,6 +255,14 @@ background: #0056b3;
 
 {% block content %}
 <h1>Ingresos</h1>
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-success" id="success-message" role="alert">
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
 
 <div class="filtros-container">
     <form method="get" action="{% url 'get_all_ingresos' %}" class="filtros">
@@ -341,21 +348,23 @@ background: #0056b3;
     </div>
 
     <!-- Modal de Eliminación -->
-    <div class="modal" id="deleteModal{{ ingreso.id }}" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>Confirmar Eliminación</h5>
-                <button type="button" class="close" data-bs-dismiss="modal">X</button>
-            </div>
-            <div class="modal-body">
-                ¿Estás seguro de que deseas eliminar este ingreso?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-cancel" style="background-color: #ccc;">Cancelar</button>
-                <form action="{% url 'delete_ingreso' ingreso.id %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-delete" style="background-color: #f00; color: white;">Eliminar</button>
-                </form>
+    <div class="modal fade" id="deleteModal{{ ingreso.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ ingreso.id }}" aria-hidden="true" data-bs-backdrop="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel{{ ingreso.id }}">Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar el Ingreso?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form action="{% url 'delete_ingreso' ingreso.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -393,6 +402,12 @@ background: #0056b3;
             event.target.style.display = 'none';
         }
     }
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $(".alert-success").fadeOut(500);
+        }, 3000); // 3 segundos
+    });
 
     $(document).ready(function () {
         function cargarIngresos() {
