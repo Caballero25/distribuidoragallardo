@@ -234,7 +234,6 @@ background: #0056b3;
     color: #222;
 }
 
-
 .venta-modal .modal-footer {
     display: flex;
     justify-content: space-between;
@@ -291,6 +290,7 @@ background: #0056b3;
 <table>
     <thead>
     <tr>
+        <th>ID</th>
         <th>Fecha</th>
         <th>Tercero</th>
         <th>Valor</th>
@@ -302,6 +302,7 @@ background: #0056b3;
     <tbody>
     {% for ingreso in ingresos %}
     <tr>
+        <td>{{ "ingreso.id" }}</td>
         <td>{{ ingreso.fecha|date:"d/m/Y" }}</td>
         <td>{{ ingreso.tercero.nombre }}</td>
         <td class="valor">{{ ingreso.valor }}</td>
@@ -322,16 +323,16 @@ background: #0056b3;
     <div class="modal venta-modal" id="viewModal{{ ingreso.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Detalles de la Cuenta por Cobrar</h5>
+                <h5><p><strong>Ingreso #</strong>{{ ingreso.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ ingreso.fecha|date:"d/m/Y" }}</p>
                 <p><strong>Tercero:</strong> {{ ingreso.tercero.nombre }}</p>
                 <p><strong>Valor:</strong> <span id="modal-valor">{{ ingreso.valor }}</span></p>
-                <p>
+                <p class="actions">
                     <strong>Cuenta por Cobrar:</strong>
                     {% if ingreso.cuenta_por_cobrar.id %}
-                    <a href="{% url 'get_cuenta_por_cobrar_by_id' ingreso.cuenta_por_cobrar.id %}" target="_blank">
+                    <a href="#cuentaModal{{ ingreso.cuenta_por_cobrar.id }}" class="view btn-ver-cuenta" data-id="{{ ingreso.cuenta_por_cobrar.id }}">
                         Ver Cuenta por Cobrar
                     </a>
                     {% else %}
@@ -344,7 +345,7 @@ background: #0056b3;
             <div class="modal-footer">
                 <div class="left-info">
                     <p><strong>Creado por:</strong> {{ ingreso.creado_por.username|default:"-" }}</p>
-                    <p><strong>Fecha de Creación:</strong> {{ ingreso.fecha_creacion }}</p>
+                    <p><strong>Fecha de Creación:</strong> {{ ingreso.fecha_creacion|date:"d/m/Y" }}</p>
                 </div>
             </div>
         </div>
@@ -367,6 +368,64 @@ background: #0056b3;
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger">Eliminar</button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ver Detalles de la Cuenta por Cobrar-->
+    <div class="modal venta-modal" id="cuentaModal{{ ingreso.cuenta_por_cobrar.id }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5><p><strong>Cuenta por Cobrar #</strong>{{ ingreso.cuenta_por_cobrar.id }}</p></h5>
+            </div>
+            <div class="modal-body">
+                <p><strong>Fecha:</strong> {{ ingreso.cuenta_por_cobrar.fecha|date:"d/m/Y" }}</p>
+                <p><strong>Tercero:</strong> {{ ingreso.cuenta_por_cobrar.tercero.nombre }}</p>
+                <p class="actions">
+                    <strong>Venta:</strong>
+                    {% if ingreso.cuenta_por_cobrar.venta.id %}
+                    <a href="#ventaModal{{ ingreso.cuenta_por_cobrar.venta.id }}" class="view btn-ver-venta" data-id="{{ ingreso.cuenta_por_cobrar.venta.id }}">
+                        Ver Venta
+                    </a>
+                    {% else %}
+                    No asignada
+                    {% endif %}
+                </p>
+                <p><strong>Saldo:</strong> <span id="saldo">${{ ingreso.cuenta_por_cobrar.saldo }}</span></p>
+                <p><strong>Estado:</strong> {{ ingreso.cuenta_por_cobrar.estado|capfirst }}</p>
+            </div>
+            <div class="modal-footer">
+                <div class="left-info">
+                    <p><strong>Creado por:</strong> {{ ingreso.cuenta_por_cobrar.creado_por.username|default:"-" }}</p>
+                    <p><strong>Fecha de Creación:</strong> {{ ingreso.cuenta_por_cobrar.fecha_creacion|date:"d/m/Y" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal venta-modal" id="ventaModal{{ ingreso.cuenta_por_cobrar.venta.id }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5><p><strong>Venta #</strong>{{ ingreso.cuenta_por_cobrar.venta.id}}</p></h5>
+            </div>
+            <div class="modal-body">
+                <p><strong>Fecha:</strong> {{ ingreso.cuenta_por_cobrar.venta.fecha|date:"d/m/Y" }}</p>
+                <p><strong>Tercero:</strong> {{ ingreso.cuenta_por_cobrar.venta.tercero.nombre }}</p>
+                <p><strong>Producto:</strong> {{ ingreso.cuenta_por_cobrar.venta.producto.nombre }}</p>
+                <p><strong>Valor Unitario:</strong> <span class="valor-unitario-modal">{{ ingreso.cuenta_por_cobrar.venta.valor_unitario }}</span></p>
+                <p><strong>Cantidad:</strong> <span class="cantidad-modal"></span></p>
+                <p><strong>Valor Total:</strong> <span class="valor-total-modal">{{ ingreso.cuenta_por_cobrar.venta.valor_total }}</span></p>
+                <p><strong>Descripción:</strong> {{ ingreso.cuenta_por_cobrar.venta.descripcion }}</p>
+            </div>
+            <div class="modal-footer">
+                <div class="left-info">
+                    <p><strong>Creado por:</strong> {{ ingreso.cuenta_por_cobrar.venta.creado_por.username|default:"-" }}</p>
+                    <p><strong>Fecha de Creación:</strong> {{ ingreso.cuenta_por_cobrar.venta.fecha_creacion }}</p>
+                </div>
+                <div class="right-info">
+                    <p><strong>Editado por:</strong> {{ ingreso.cuenta_por_cobrar.venta.editado_por.username|default:"-" }}</p>
+                    <p><strong>Fecha de Edición:</strong> {{ ingreso.cuenta_por_cobrar.venta.fecha_edicion|default:"-" }}</p>
                 </div>
             </div>
         </div>
@@ -518,14 +577,66 @@ background: #0056b3;
                 }
             });
         });
+    });
 
-        // Cerrar el modal si se hace clic fuera del contenido
-        document.querySelectorAll(".venta-modal").forEach(modal => {
-            modal.addEventListener("click", function (event) {
-                if (event.target === this) {
-                    this.style.display = "none";
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-ver-cuenta").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                let cuentaId = this.getAttribute("data-id");
+                let modal = document.getElementById(`cuentaModal${cuentaId}`);
+
+                if (modal) {
+                    modal.style.display = "block";
                 }
             });
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-ver-venta").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                // Obtener el ID de la compra desde el botón
+                let compraId = this.getAttribute("data-id");
+
+                // Calcular la cantidad para este modal específico
+                calcularCantidad(compraId);
+
+                // Mostrar el modal
+                let modal = document.getElementById(`ventaModal${compraId}`);
+                if (modal) {
+                    modal.style.display = "block";
+                }
+            });
+        });
+
+        // Función para calcular la cantidad
+        function calcularCantidad(compraId) {
+            const valorUnitarioElement = document.getElementById(`modal-valor-unitario-${compraId}`);
+            const valorTotalElement = document.getElementById(`modal-valor-total-${compraId}`);
+            const cantidadElement = document.getElementById(`modal-cantidad-${compraId}`);
+
+            if (valorUnitarioElement && valorTotalElement && cantidadElement) {
+                let valorUnitario = parseFloat(valorUnitarioElement.textContent) || 0;
+                let valorTotal = parseFloat(valorTotalElement.textContent) || 0;
+
+                // Calcular la cantidad
+                let cantidad = valorUnitario !== 0 ? (valorTotal / valorUnitario) : 0;
+                cantidadElement.textContent = cantidad; // Mostrar con 2 decimales
+            }
+        }
+
+    });
+
+    // Cerrar el modal si se hace clic fuera del contenido
+    document.querySelectorAll(".venta-modal").forEach(modal => {
+        modal.addEventListener("click", function (event) {
+            if (event.target === this) {
+                this.style.display = "none";
+            }
         });
     });
 </script>

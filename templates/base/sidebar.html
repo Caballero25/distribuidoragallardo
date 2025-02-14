@@ -39,21 +39,15 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="../index.html" class="nav-link">
+                <a href="{% url 'get_all_ventas' %}" class="nav-link">
                   <i class="nav-icon bi bi-circle"></i>
-                  <p>Ventas</p>
+                  <p>Ver Ventas</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="../index2.html" class="nav-link">
+                <a href="{% url 'create_venta' %}" class="nav-link">
                   <i class="nav-icon bi bi-circle"></i>
-                  <p>Ventas</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="../index3.html" class="nav-link">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Ventas</p>
+                  <p>Nueva Venta</p>
                 </a>
               </li>
             </ul>
@@ -68,21 +62,15 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="../index.html" class="nav-link">
+                <a href="{% url 'get_all_compras' %}" class="nav-link">
                   <i class="nav-icon bi bi-circle"></i>
-                  <p>Compras</p>
+                  <p>Ver Compras</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="../index2.html" class="nav-link">
+                <a href="{% url 'create_compra' %}" class="nav-link">
                   <i class="nav-icon bi bi-circle"></i>
-                  <p>Compras</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="../index3.html" class="nav-link">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Compras</p>
+                  <p>Nueva Compra</p>
                 </a>
               </li>
             </ul>
@@ -97,21 +85,15 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="../index.html" class="nav-link">
+                <a href="{% url 'get_all_cuentas_por_cobrar' %}" class="nav-link">
                   <i class="nav-icon bi bi-circle"></i>
-                  <p>Cartera</p>
+                  <p>Cuentas por Cobrar</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="../index2.html" class="nav-link">
+                <a href="{% url 'get_all_cuentas_por_pagar' %}" class="nav-link">
                   <i class="nav-icon bi bi-circle"></i>
-                  <p>Cartera</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="../index3.html" class="nav-link">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Cartera</p>
+                  <p>Cuentas por Pagar</p>
                 </a>
               </li>
             </ul>
@@ -126,21 +108,15 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="../index.html" class="nav-link">
+                <a href="{% url 'get_all_productos' %}" class="nav-link">
                   <i class="nav-icon bi bi-circle"></i>
-                  <p>Inventario</p>
+                  <p>Ver Inventario</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="../index2.html" class="nav-link">
+                <a href="{% url 'create_producto' %}" class="nav-link">
                   <i class="nav-icon bi bi-circle"></i>
-                  <p>Inventario</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="../index3.html" class="nav-link">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Inventario</p>
+                  <p>Nuevo Producto</p>
                 </a>
               </li>
             </ul>
@@ -155,21 +131,44 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="../index.html" class="nav-link">
+                <a href="{% url 'get_all_terceros' %}" class="nav-link">
                   <i class="nav-icon bi bi-circle"></i>
-                  <p>Terceros</p>
+                  <p>Ver Terceros</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="../index2.html" class="nav-link">
+                <a href="{% url 'create_tercero' %}" class="nav-link">
                   <i class="nav-icon bi bi-circle"></i>
-                  <p>Terceros</p>
+                  <p>Nuevo Tercero</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon bi bi-speedometer"></i>
+              <p>
+                Balance
+                <i class="nav-arrow bi bi-chevron-right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{% url 'get_all_ingresos' %}" class="nav-link">
+                  <i class="nav-icon bi bi-circle"></i>
+                  <p>Ingresos</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="../index3.html" class="nav-link">
+                <a href="{% url 'get_all_egresos' %}" class="nav-link">
                   <i class="nav-icon bi bi-circle"></i>
-                  <p>Terceros</p>
+                  <p>Egresos</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'balance-url' %}" class="nav-link">
+                  <i class="nav-icon bi bi-circle"></i>
+                  <p>Ver Balance</p>
                 </a>
               </li>
             </ul>

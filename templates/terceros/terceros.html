@@ -229,7 +229,7 @@
 {% endif %}
 
 <!-- Formulario de Búsqueda -->
-<form method="get" action="{% url 'get_all_terceros' %}">
+<form method="get" action="{% url 'get_all_terceros' %}" class="filtros">
     <label for="nombre">Buscar por nombre:</label>
     <input type="text" name="nombre" id="buscar-tercero" value="{{ query }}" placeholder="Escriba el nombre">
     <button type="submit">Buscar</button>

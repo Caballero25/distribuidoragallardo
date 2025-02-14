@@ -254,7 +254,59 @@
     .venta-modal .modal-footer .right {
         text-align: right;
     }
+    .venta-modal .modal-body ul {
+        list-style-type: none; /* Elimina los puntos de la lista */
+        padding: 0;
+        margin: 0;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #f9f9f9;
+    }
 
+    .venta-modal .modal-body ul li {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        font-size: 16px;
+        color: #444;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.3s ease;
+    }
+
+    .venta-modal .modal-body ul li:last-child {
+        border-bottom: none; /* Elimina el borde inferior del último elemento */
+    }
+
+    .venta-modal .modal-body ul li:hover {
+        background: #f1f1f1; /* Efecto hover para cada elemento de la lista */
+    }
+
+    .venta-modal .modal-body ul li a.btn {
+        padding: 6px 12px;
+        font-size: 14px;
+        background: #007bff;
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background 0.3s ease;
+    }
+
+    .venta-modal .modal-body ul li a.btn:hover {
+        background: #0056b3; /* Efecto hover para el botón */
+    }
+
+    /* Estilos para el mensaje cuando no hay ingresos */
+    .venta-modal .modal-body p.no-egresos {
+        font-size: 16px;
+        color: #777;
+        text-align: center;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #f9f9f9;
+    }
 </style>
 {% endblock %}
 
@@ -295,6 +347,7 @@
 <table>
     <thead>
     <tr>
+        <th>ID</th>
         <th>Fecha</th>
         <th>Tercero</th>
         <th>Producto</th>
@@ -311,6 +364,7 @@
     {% if compras %}
     {% for compra in compras %}
     <tr>
+        <td>{{ compra.id }}</td>
         <td>{{ compra.fecha|date:"d/m/Y" }}</td>
         <td>{{ compra.tercero.nombre }}</td>
         <td>{{ compra.producto.nombre }}</td>
@@ -359,11 +413,11 @@
         </div>
     </div>
 
-    <!-- Modal para ver detalles de la venta -->
+    <!-- Modal para ver detalles de la compra -->
     <div class="modal venta-modal" id="viewModal{{ compra.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Detalles de la Venta</h5>
+                <h5><p><strong>Compra #</strong>{{ compra.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ compra.fecha|date:"d/m/Y" }}</p>
@@ -373,10 +427,10 @@
                 <p><strong>Cantidad:</strong> <span class="cantidad-modal"></span></p>
                 <p><strong>Valor Total:</strong> <span class="valor-total-modal">{{ compra.valor_total }}</span></p>
                 <p><strong>Descripción:</strong> {{ compra.descripcion }}</p>
-                <p>
+                <p class="actions">
                     <strong>Cuenta por Pagar:</strong>
                     {% if compra.cuenta_por_pagar.id %}
-                    <a href="{% url 'get_cuenta_por_pagar_by_id' compra.cuenta_por_pagar.id %}" target="_blank">
+                    <a href="#cuentaModal{{ compra.cuenta_por_pagar.id }}" class="view btn-ver-cuenta" data-id="{{ compra.cuenta_por_pagar.id }}">
                         Ver Cuenta por Pagar
                     </a>
                     {% else %}
@@ -387,15 +441,68 @@
             <div class="modal-footer">
                 <div class="left-info">
                     <p><strong>Creado por:</strong> {{ compra.creado_por.username|default:"-" }}</p>
-                    <p><strong>Fecha de Creación:</strong> {{ compra.fecha_creacion }}</p>
+                    <p><strong>Fecha de Creación:</strong> {{ compra.fecha_creacion|date:"d/m/Y" }}</p>
                 </div>
                 <div class="right-info">
                     <p><strong>Editado por:</strong> {{ compra.editado_por.username|default:"-" }}</p>
-                    <p><strong>Fecha de Edición:</strong> {{ compra.fecha_edicion|default:"-" }}</p>
+                    <p><strong>Fecha de Edición:</strong> {{ compra.fecha_edicion|date:"d/m/Y"|default:"-" }}</p>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal Ver Detalles de la Cuenta por Cobrar -->
+    <div class="modal venta-modal" id="cuentaModal{{ compra.cuenta_por_pagar.id }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5><p><strong>Cuenta por Pagar #</strong>{{ compra.cuenta_por_pagar.id }}</p></h5>
+            </div>
+            <div class="modal-body">
+                <p><strong>Fecha:</strong> {{ compra.cuenta_por_pagar.fecha|date:"d/m/Y" }}</p>
+                <p><strong>Tercero:</strong> {{ compra.cuenta_por_pagar.tercero.nombre }}</p>
+                <p><strong>Saldo:</strong> <span class="saldo">{{ compra.cuenta_por_pagar.saldo }}</span></p>
+                <p><strong>Estado:</strong> {{ compra.cuenta_por_pagar.estado|capfirst }}</p>
+
+                <p><strong>Egresos:</strong></p>
+                {% if compra.cuenta_por_pagar.egresos.all %}
+                <ul>
+                    {% for egreso in compra.cuenta_por_pagar.egresos.all %}
+                    <li class="actions">
+                        {{ egreso.fecha|date:"d/m/Y" }} - ${{ egreso.valor }} - {{ egreso.metodo_de_pago }}
+                        <a href="#egresoModal{{ egreso.id }}" class="view btn-ver-egresos" data-id="{{ egreso.id }}">Ver Egreso</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="no-egresos">No hay egresos registrados.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Egreso -->
+    {% for egreso in compra.cuenta_por_pagar.egresos.all %}
+    <div class="modal venta-modal" id="egresoModal{{ egreso.id }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5><p><strong>Egreso #</strong>{{ egreso.id }}</p></h5>
+            </div>
+            <div class="modal-body">
+                <p><strong>Fecha:</strong> {{ egreso.fecha|date:"d/m/Y" }}</p>
+                <p><strong>Tercero:</strong> {{ egreso.tercero.nombre }}</p>
+                <p><strong>Valor:</strong> <span id="modal-valor">{{ egreso.valor }}</span></p>
+                <p><strong>Método de Pago:</strong> {{ egreso.metodo_de_pago }}</span></p>
+
+            </div>
+            <div class="modal-footer">
+                <div class="left-info">
+                    <p><strong>Creado por:</strong> {{ egreso.creado_por.username|default:"-" }}</p>
+                    <p><strong>Fecha de Creación:</strong> {{ egreso.fecha_creacion|date:"d/m/Y" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 
     {% endfor %}
     {% else %}
@@ -573,6 +680,36 @@
 
                 // Mostrar el modal
                 modal.style.display = "block";
+            });
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-ver-cuenta").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                let cuentaId = this.getAttribute("data-id");
+                let modal = document.getElementById(`cuentaModal${cuentaId}`);
+
+                if (modal) {
+                    modal.style.display = "block";
+                }
+            });
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-ver-egresos").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                let cuentaId = this.getAttribute("data-id");
+                let modal = document.getElementById(`egresoModal${cuentaId}`);
+
+                if (modal) {
+                    modal.style.display = "block";
+                }
             });
         });
     });

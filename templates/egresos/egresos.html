@@ -288,6 +288,7 @@ text-align: left;
 <table>
     <thead>
     <tr>
+        <th>ID</th>
         <th>Fecha</th>
         <th>Tercero</th>
         <th>Valor</th>
@@ -299,6 +300,7 @@ text-align: left;
     <tbody>
     {% for egreso in egresos %}
     <tr>
+        <td>{{ egreso.id }}</td>
         <td>{{ egreso.fecha|date:"d/m/Y" }}</td>
         <td>{{ egreso.tercero.nombre }}</td>
         <td class="valor">{{ egreso.valor }}</td>
@@ -319,16 +321,16 @@ text-align: left;
     <div class="modal venta-modal" id="viewModal{{ egreso.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Detalles de la Cuenta por Pagar</h5>
+                <h5><p><strong>Egreso #</strong>{{ egreso.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ egreso.fecha|date:"d/m/Y" }}</p>
                 <p><strong>Tercero:</strong> {{ egreso.tercero.nombre }}</p>
                 <p><strong>Valor:</strong> <span id="modal-valor">{{ egreso.valor }}</span></p>
-                <p>
+                <p class="actions">
                     <strong>Cuenta por Pagar:</strong>
                     {% if egreso.cuenta_por_pagar.id %}
-                    <a href="{% url 'get_cuenta_por_pagar_by_id' egreso.cuenta_por_pagar.id %}" target="_blank">
+                    <a href="#cuentaModal{{ egreso.cuenta_por_pagar.id }}" class="view btn-ver-cuenta" data-id="{{ egreso.cuenta_por_pagar.id }}">
                         Ver Cuenta por Pagar
                     </a>
                     {% else %}
@@ -341,7 +343,7 @@ text-align: left;
             <div class="modal-footer">
                 <div class="left-info">
                     <p><strong>Creado por:</strong> {{ egreso.creado_por.username|default:"-" }}</p>
-                    <p><strong>Fecha de Creación:</strong> {{ egreso.fecha_creacion }}</p>
+                    <p><strong>Fecha de Creación:</strong> {{ egreso.fecha_creacion|date:"d/m/Y" }}</p>
                 </div>
             </div>
         </div>
@@ -363,6 +365,65 @@ text-align: left;
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger">Eliminar</button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ver Detalles de la Cuenta por Pagar -->
+    <div class="modal venta-modal" id="cuentaModal{{ egreso.cuenta_por_pagar.id }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5><p><strong>Cuenta por Pagar #</strong>{{ egreso.cuenta_por_pagar.id }}</p></h5>
+            </div>
+            <div class="modal-body">
+                <p><strong>Fecha:</strong> {{ egreso.cuenta_por_pagar.fecha|date:"d/m/Y" }}</p>
+                <p><strong>Tercero:</strong> {{ egreso.cuenta_por_pagar.tercero.nombre }}</p>
+                <p class="actions">
+                    <strong>Compra:</strong>
+                    {% if egreso.cuenta_por_pagar.compra.id %}
+                    <a href="#compraModal{{ egreso.cuenta_por_pagar.compra.id }}" class="view btn-ver-compra" data-id="{{ egreso.cuenta_por_pagar.compra.id }}">
+                        Ver Compra
+                    </a>
+                    {% else %}
+                    No asignada
+                    {% endif %}
+                </p>
+                <p><strong>Saldo:</strong> <span class="saldo">{{ egreso.cuenta_por_pagar.saldo }}</span></p>
+                <p><strong>Estado:</strong> {{ egreso.cuenta_por_pagar.estado|capfirst }}</p>
+            </div>
+            <div class="modal-footer">
+                <div class="left-info">
+                    <p><strong>Creado por:</strong> {{ egreso.cuenta_por_pagar.creado_por.username|default:"-" }}</p>
+                    <p><strong>Fecha de Creación:</strong> {{ egreso.cuenta_por_pagar.fecha_creacion|date:"d/m/Y" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de la compra -->
+    <div class="modal venta-modal" id="compraModal{{ egreso.cuenta_por_pagar.compra.id }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5><p><strong>Compra #</strong>{{ egreso.cuenta_por_pagar.compra.id }}</p></h5>
+            </div>
+            <div class="modal-body">
+                <p><strong>Fecha:</strong> {{ egreso.cuenta_por_pagar.compra.fecha|date:"d/m/Y" }}</p>
+                <p><strong>Tercero:</strong> {{ egreso.cuenta_por_pagar.compra.tercero.nombre }}</p>
+                <p><strong>Producto:</strong> {{ egreso.cuenta_por_pagar.compra.producto.nombre }}</p>
+                <p><strong>Valor Unitario:</strong> <span class="saldo" id="modal-valor-unitario-{{ cuenta_por_pagar.compra.id }}">{{ egreso.cuenta_por_pagar.compra.valor_unitario }}</span></p>
+                <p><strong>Cantidad:</strong> <span id="modal-cantidad-{{ egreso.cuenta_por_pagar.compra.id }}"></span></p>
+                <p><strong>Valor Total:</strong> <span class="saldo" id="modal-valor-total-{{ egreso.cuenta_por_pagar.compra.id }}">{{ egreso.cuenta_por_pagar.compra.valor_total }}</span></p>
+                <p><strong>Descripción:</strong> {{ egreso.cuenta_por_pagar.compra.descripcion }}</p>
+            </div>
+            <div class="modal-footer">
+                <div class="left-info">
+                    <p><strong>Creado por:</strong> {{ egreso.cuenta_por_pagar.compra.creado_por.username|default:"-" }}</p>
+                    <p><strong>Fecha de Creación:</strong> {{ egreso.cuenta_por_pagar.compra.fecha_creacion|date:"d/m/Y" }}</p>
+                </div>
+                <div class="right-info">
+                    <p><strong>Editado por:</strong> {{ egreso.cuenta_por_pagar.compra.editado_por.username|default:"-" }}</p>
+                    <p><strong>Fecha de Edición:</strong> {{ egreso.cuenta_por_pagar.compra.fecha_edicion|date:"d/m/Y"|default:"-" }}</p>
                 </div>
             </div>
         </div>
@@ -523,6 +584,58 @@ text-align: left;
             window.location.href = "{% url 'get_all_egresos' %}";
         });
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-ver-cuenta").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                let cuentaId = this.getAttribute("data-id");
+                let modal = document.getElementById(`cuentaModal${cuentaId}`);
+
+                if (modal) {
+                    modal.style.display = "block";
+                }
+            });
+        });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-ver-compra").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                // Obtener el ID de la compra desde el botón
+                let compraId = this.getAttribute("data-id");
+
+                // Calcular la cantidad para este modal específico
+                calcularCantidad(compraId);
+
+                // Mostrar el modal
+                let modal = document.getElementById(`compraModal${compraId}`);
+                if (modal) {
+                    modal.style.display = "block";
+                }
+            });
+        });
+
+        // Función para calcular la cantidad
+        function calcularCantidad(compraId) {
+            const valorUnitarioElement = document.getElementById(`modal-valor-unitario-${compraId}`);
+            const valorTotalElement = document.getElementById(`modal-valor-total-${compraId}`);
+            const cantidadElement = document.getElementById(`modal-cantidad-${compraId}`);
+
+            if (valorUnitarioElement && valorTotalElement && cantidadElement) {
+                let valorUnitario = parseFloat(valorUnitarioElement.textContent) || 0;
+                let valorTotal = parseFloat(valorTotalElement.textContent) || 0;
+
+                // Calcular la cantidad
+                let cantidad = valorUnitario !== 0 ? (valorTotal / valorUnitario) : 0;
+                cantidadElement.textContent = cantidad; // Mostrar con 2 decimales
+            }
+        }
+    });
+
+
 </script>
 
 {% endblock %}

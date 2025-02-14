@@ -105,7 +105,7 @@ def create_venta(request):
 
 @login_required
 def update_venta(request, venta_id):
-    venta = get_object_or_404(Venta, id=venta_id)
+    venta = Venta.objects.get(id=venta_id)
 
     if request.method == 'POST':
         fecha = request.POST.get('fecha')
@@ -175,12 +175,15 @@ def delete_venta(request, id):
     if request.method == "POST":
         producto = venta.producto
 
-        if producto:  # Validar si la venta tiene un producto asociado
+        # Solo actualizar la existencia del producto si el valor unitario no es cero
+        if producto and venta.valor_unitario != Decimal('0'):
             cantidad = venta.valor_total / venta.valor_unitario
             producto.existencia += cantidad
             producto.save()
 
+        # Eliminar la venta en cualquier caso
         venta.delete()
+        messages.success(request, "Venta eliminada exitosamente.")
         return redirect('get_all_ventas')
 
     return render(request, 'ventas/delete_confirm.html', {'venta': venta})

@@ -4,6 +4,9 @@
 {% block title %} Crear Compra {% endblock %}
 
 {% block extra_head %}
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<!-- jQuery UI CSS -->
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 {% endblock %}
 
@@ -27,77 +30,160 @@
             <span id="tercero_error" style="color: red; display: none;"></span>
         </div>
 
-        <!-- Sección del Producto -->
-        <h3>Información del Producto</h3>
-
         <div class="form-group">
-            <label for="producto_nombre">Nombre del Producto</label>
-            <input type="text" name="producto_nombre" id="producto_nombre" class="form-control">
-            <input type="hidden" name="producto_id" id="producto_id">
+            <label for="descripcion">Descripción</label>
+            <textarea name="descripcion" id="descripcion" class="form-control"></textarea>
         </div>
 
-        <div class="form-group">
-            <label for="producto_codigo">Código del Producto</label>
-            <input type="text" name="producto_codigo" id="producto_codigo" maxlength="4" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label for="cantidad">Cantidad</label>
-            <input type="number" name="cantidad" id="cantidad" min="1" class="form-control" disabled>
-            <span id="cantidad_error" style="color: red; display: none;">La cantidad no puede ser cero</span>
-        </div>
-
-        <div class="form-group">
-            <label for="valor_unitario">Valor Unitario</label>
-            <input type="number" name="valor_unitario" id="valor_unitario" step="0.01" class="form-control" disabled>
-            <span id="valor_unitario_error" style="color: red; display: none;">El valor unitario no puede ser cero</span>
-        </div>
-
-        <div class="form-group">
+        <div id="valor_total_principal" class="form-group">
             <label for="valor_total">Valor Total</label>
             <input type="number" name="valor_total" id="valor_total" step="0.01" class="form-control">
         </div>
 
-        <div class="form-group">
-            <label for="descripcion">Descripción</label>
-            <textarea name="descripcion" id="descripcion" class="form-control" required></textarea>
+        <!-- Botón para agregar productos -->
+        <button type="button" id="btn_agregar_productos" class="btn btn-secondary mt-4">Agregar Productos</button>
+
+        <!-- Sección oculta de productos -->
+        <div id="seccion_productos" class="mt-4" style="display: none;">
+            <h3>Información del Producto</h3>
+
+            <div class="form-group">
+                <label for="producto_nombre">Nombre del Producto</label>
+                <input type="text" name="producto_nombre" id="producto_nombre" class="form-control">
+                <input type="hidden" name="producto_id" id="producto_id">
+            </div>
+
+            <div class="form-group">
+                <label for="producto_codigo">Código del Producto</label>
+                <input type="text" name="producto_codigo" id="producto_codigo" maxlength="4" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="cantidad">Cantidad</label>
+                <input type="number" name="cantidad" id="cantidad" min="1" class="form-control">
+                <span id="cantidad_error" style="color: red; display: none;">La cantidad no puede ser cero</span>
+            </div>
+
+            <div class="form-group">
+                <label for="valor_unitario">Valor Unitario</label>
+                <input type="number" name="valor_unitario" id="valor_unitario" step="0.01" class="form-control">
+                <span id="valor_unitario_error" style="color: red; display: none;">El valor unitario no puede ser cero</span>
+            </div>
+
+            <button type="button" id="btn_agregar_producto" class="btn btn-success mt-2">Agregar Producto</button>
+            <button type="button" id="btn_cancelar_producto" class="btn btn-danger mt-2">Cancelar</button>
+
+            <!-- Tabla de productos agregados -->
+            <table class="table mt-4">
+                <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Valor Unitario</th>
+                    <th>Cantidad</th>
+                    <th>Valor Total</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody id="tabla_productos">
+                <!-- Aquí se agregarán los productos dinámicamente -->
+                </tbody>
+            </table>
         </div>
 
         <button type="submit" id="submit_btn" class="btn btn-primary btn-block mt-4">Crear Compra</button>
+        <div class="form-group mt-4">
+            <label for="total">Total</label>
+            <input type="text" id="total" class="form-control" readonly>
+            <input type="hidden" name="valor_total" id="valor_total_hidden">
+        </div>
     </form>
 </div>
 
+<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery UI -->
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script>
     $(document).ready(function() {
-        function actualizarEstadoCampos() {
-            let productoSeleccionado = $("#producto_id").val() !== "";
-            let nombreProductoEscrito = $("#producto_nombre").val().trim() !== "";
 
-            if (productoSeleccionado || nombreProductoEscrito) {
-                $("#cantidad, #valor_unitario").prop("disabled", false);
-                $("#valor_total").prop("readonly", true);
-                $("#descripcion").prop("required", false);
-            } else {
-                $("#cantidad, #valor_unitario").prop("disabled", true).val("");
-                $("#valor_total").prop("readonly", false);
-                $("#descripcion").prop("required", true);
-            }
-        }
-
-        function hayErrores() {
-            return $("#tercero_id").val() === "" || $("#tercero_error").is(":visible") ||
-                $("#cantidad_error").is(":visible") || $("#valor_unitario_error").is(":visible") ||
-                $("#valor_total_error").is(":visible");
-        }
-
-        $("form").on("submit", function(event) {
-            if (hayErrores()) {
-                event.preventDefault(); // Evita el envío del formulario si hay errores
-            }
+        $("#btn_agregar_productos").click(function() {
+            $("#seccion_productos").show();
+            $("#btn_agregar_productos").hide();
+            $("#valor_total_principal").hide();
         });
+
+        $("#btn_cancelar_producto").click(function() {
+            $("#seccion_productos").hide();
+            $("#btn_agregar_productos").show();
+            $("#valor_total_principal").show();
+        });
+
+        function actualizarTotal() {
+            let total = 0;
+            $(".valor-total").each(function() {
+                total += parseFloat($(this).text()) || 0;
+            });
+            $("#total").val(total.toFixed(2));
+            $("#valor_total_hidden").val(total.toFixed(2));
+        }
+
+        $("#btn_agregar_producto").click(function() {
+            let codigo = $("#producto_codigo").val();
+            let nombre = $("#producto_nombre").val();
+            let cantidad = $("#cantidad").val();
+            let valorUnitario = $("#valor_unitario").val();
+            let valorTotal = (cantidad * valorUnitario).toFixed(2);
+
+            if (!nombre || !codigo || cantidad <= 0 || valorUnitario <= 0) {
+                alert("Debe llenar todos los campos del producto.");
+                return;
+            }
+
+            let fila = `
+                <tr>
+                    <td>${codigo}</td>
+                    <td>${nombre}</td>
+                    <td>${valorUnitario}</td>
+                    <td>${cantidad}</td>
+                    <td class="valor-total">${valorTotal}</td>
+                    <td><button type="button" class="btn btn-danger btn-sm btn_eliminar">Eliminar</button></td>
+                </tr>
+            `;
+
+            $("#tabla_productos").append(fila);
+            actualizarTotal();
+
+            $("#producto_nombre").val("");
+            $("#producto_codigo").val("");
+            $("#cantidad").val("");
+            $("#valor_unitario").val("");
+        });
+
+        $(document).on("click", ".btn_eliminar", function() {
+            $(this).closest("tr").remove();
+            actualizarTotal();
+        });
+
+        $("form").submit(function(event) {
+            let productosEnTabla = $("#tabla_productos tr").length;
+
+            if (productosEnTabla === 0) {
+                // No hay productos, aseguramos que solo se envíen tercero, valor_total y descripción
+                $("#producto_id").remove();
+                $("#producto_nombre").remove();
+                $("#producto_codigo").remove();
+                $("#cantidad").remove();
+                $("#valor_unitario").remove();
+                $("#valor_total_hidden").val($("#valor_total").val()); // Usar el valor total inicial
+            }
+
+            return true; // Continuar con el envío del formulario
+        });
+
 
         // Autocompletar Tercero
         $("#tercero_nombre").autocomplete({
@@ -107,12 +193,6 @@
                     dataType: "json",
                     data: { term: request.term },
                     success: function(data) {
-                        if (data.length === 0) {
-                            $("#tercero_error").text("El tercero no existe").show();
-                            $("#tercero_id").val("");
-                        } else {
-                            $("#tercero_error").hide();
-                        }
                         response($.map(data, function(item) {
                             return { label: item.text, value: item.text, id: item.id };
                         }));
@@ -124,17 +204,6 @@
                 $("#tercero_id").val(ui.item.id);
                 $("#tercero_error").hide();
             }
-        });
-
-        $("#tercero_nombre").on("input", function() {
-            $("#tercero_id").val("");
-            $("#tercero_error").hide();
-        });
-
-        // Ocultar el mensaje de error al escribir
-        $("#tercero_nombre").on("input", function() {
-            $("#tercero_id").val("");
-            $("#tercero_error").hide();
         });
 
         // Autocompletar Producto
@@ -153,68 +222,7 @@
             },
             minLength: 2,
             select: function(event, ui) {
-                $("#producto_id").val(ui.item.id); // Guardar ID del producto
-
-                // Hacer petición AJAX para obtener el código del producto
-                $.ajax({
-                    url: "{% url 'get_codigo_producto' %}",
-                    dataType: "json",
-                    data: { producto_id: ui.item.id },
-                    success: function(response) {
-                        if (response.codigo) {
-                            $("#producto_codigo").val(response.codigo).prop("readonly", true);
-                        }
-                    }
-                });
-            }
-        });
-
-        function hayErrores() {
-            return $("#tercero_id").val() === "" || $("#tercero_error").is(":visible") ||
-                $("#cantidad_error").is(":visible") || $("#valor_unitario_error").is(":visible");
-        }
-
-        function validarCantidad() {
-            let cantidad = $("#cantidad").val();
-            if (cantidad && parseFloat(cantidad) <= 0) {
-                $("#cantidad_error").show();
-            } else {
-                $("#cantidad_error").hide();
-            }
-        }
-
-        function validarValorUnitario() {
-            let valorUnitario = $("#valor_unitario").val();
-            if (valorUnitario && parseFloat(valorUnitario) <= 0) {
-                $("#valor_unitario_error").show();
-            } else {
-                $("#valor_unitario_error").hide();
-            }
-        }
-
-        $("#producto_nombre").on("input", function() {
-            $("#producto_id").val(""); // Limpiar ID del producto seleccionado
-            $("#producto_codigo").val("").prop("readonly", false);
-            actualizarEstadoCampos();
-        });
-
-        $("#producto_nombre").autocomplete({
-            source: function(request, response) {
-                $.ajax({
-                    url: "{% url 'get_producto_by_name_din' %}",
-                    dataType: "json",
-                    data: { term: request.term },
-                    success: function(data) {
-                        response($.map(data, function(item) {
-                            return { label: item.nombre, value: item.nombre, id: item.id };
-                        }));
-                    }
-                });
-            },
-            minLength: 2,
-            select: function(event, ui) {
                 $("#producto_id").val(ui.item.id);
-                actualizarEstadoCampos();
 
                 // Obtener código del producto
                 $.ajax({
@@ -230,23 +238,57 @@
             }
         });
 
-        $("#cantidad").on("input", validarCantidad);
-        $("#valor_unitario").on("input", validarValorUnitario);
+        function calcularValorTotalProducto() {
+            let cantidad = parseFloat($("#cantidad").val()) || 0;
+            let valorUnitario = parseFloat($("#valor_unitario").val()) || 0;
+            return (cantidad * valorUnitario).toFixed(2);
+        }
 
-        $("form").on("submit", function(event) {
-            validarCantidad();
-            validarValorUnitario();
-            if (hayErrores()) {
-                event.preventDefault();
+        function actualizarTotal() {
+            let total = 0;
+            $(".valor-total").each(function() {
+                total += parseFloat($(this).text()) || 0;
+            });
+            $("#total").val(total.toFixed(2));
+            $("#valor_total_hidden").val(total.toFixed(2)); // Enviar este valor al backend
+        }
+
+        $("#btn_agregar_producto").click(function() {
+            let codigo = $("#producto_codigo").val();
+            let nombre = $("#producto_nombre").val();
+            let cantidad = $("#cantidad").val();
+            let valorUnitario = $("#valor_unitario").val();
+            let valorTotal = calcularValorTotalProducto();
+
+            if (!nombre || !codigo || cantidad <= 0 || valorUnitario <= 0) {
+                alert("Por favor complete todos los campos correctamente.");
+                return;
             }
+
+            let fila = `
+                <tr>
+                    <td>${codigo}</td>
+                    <td>${nombre}</td>
+                    <td>${valorUnitario}</td>
+                    <td>${cantidad}</td>
+                    <td class="valor-total">${valorTotal}</td>
+                    <td><button type="button" class="btn btn-danger btn-sm btn_eliminar">Eliminar</button></td>
+                </tr>
+            `;
+
+            $("#tabla_productos").append(fila);
+            actualizarTotal();  // Actualizar total después de agregar producto
+
+            // Limpiar los campos después de agregar
+            $("#producto_nombre").val("");
+            $("#producto_codigo").val("");
+            $("#cantidad").val("");
+            $("#valor_unitario").val("");
         });
 
-        actualizarEstadoCampos();
-
-        // Si se cambia el nombre del producto, desbloquear el campo de código y limpiar ID
-        $("#producto_nombre").on("input", function() {
-            $("#producto_id").val(""); // Eliminar ID del producto seleccionado
-            $("#producto_codigo").val("").prop("readonly", false); // Habilitar campo de código
+        $(document).on("click", ".btn_eliminar", function() {
+            $(this).closest("tr").remove();
+            actualizarTotal();  // Actualizar total después de eliminar producto
         });
     });
 
