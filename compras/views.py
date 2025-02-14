@@ -19,7 +19,7 @@ def get_compra_by_id(request, id):
 
 @login_required
 def get_all_compras(request):
-    compras = Compra.objects.all()
+    compras = Compra.objects.all().order_by("-fecha")
 
     fecha_inicio = request.GET.get('fecha_inicio', '').strip()
     fecha_fin = request.GET.get('fecha_fin', '').strip()

@@ -6,7 +6,6 @@
 {% block extra_head %}
 <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
-
 <style>
     /* Estilos */
     h1 {
@@ -117,19 +116,6 @@
     }
 
     /* Estilos para el modal de eliminación */
-    .eliminar-modal {
-        display: none; /* Oculto por defecto */
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
 
     .eliminar-modal .modal-content {
         background: white;
@@ -213,6 +199,64 @@
         }
     }
 
+    /* Estilos para el modal */
+    .modal-header {
+        background: #007bff;
+        color: white;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+
+    .modal-header .close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .modal-footer {
+        padding: 15px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    .modal-footer button {
+        padding: 10px 15px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: 0.3s;
+        border: none;
+    }
+
+    .modal-footer .btn-secondary {
+        background: #ccc;
+        color: #333;
+    }
+
+    .modal-footer .btn-secondary:hover {
+        background: #b3b3b3;
+    }
+
+    .modal-footer .btn-primary {
+        background: #007bff;
+        color: white;
+    }
+
+    .modal-footer .btn-primary:hover {
+        background: #0056b3;
+    }
+
 </style>
 {% endblock %}
 
@@ -267,34 +311,49 @@
         </td>
     </tr>
 
-    <!-- Modal de Editar -->
-    <div class="modal" id="editModal{{ tercero.id }}" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5>Editando Tercero: {{ tercero.nombre }}</h5>
-                <button type="button" class="close" data-bs-dismiss="modal">X</button>
-            </div>
-            <div class="modal-body">
-                <form method="post" action="{% url 'update_tercero' tercero.id %}">
-                    {% csrf_token %}
-                    <label for="nombre">Nombre:</label>
-                    <input type="text" name="nombre" value="{{ tercero.nombre }}" required>
-
-                    <label for="tipo">Tipo:</label>
-                    <select name="tipo" required>
-                        <option value="CLIENTE" {% if tercero.tipo == "CLIENTE" %}selected{% endif %}>Cliente</option>
-                        <option value="PROVEEDOR" {% if tercero.tipo == "PROVEEDOR" %}selected{% endif %}>Proveedor</option>
-                        <option value="CLIENTE/PROVEEDOR" {% if tercero.tipo == "CLIENTE/PROVEEDOR" %}selected{% endif %}>Cliente/Proveedor</option>
-                    </select>
-
-                    <label for="telefono">Teléfono:</label>
-                    <input type="text" name="telefono" value="{{ tercero.telefono }}" required>
-
-                    <label for="direccion">Dirección:</label>
-                    <input type="text" name="direccion" value="{{ tercero.direccion }}" required>
-
-                    <button type="submit">Guardar Cambios</button>
-                </form>
+    <!-- Modal de Edición -->
+    <div class="modal fade" id="editModal{{ tercero.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ tercero.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Encabezado del Modal -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel{{ tercero.id }}">Editar Tercero</h5>
+                </div>
+                <!-- Cuerpo del Modal -->
+                <div class="modal-body">
+                    <form method="post" action="{% url 'update_tercero' tercero.id %}">
+                        {% csrf_token %}
+                        <!-- Campo Nombre -->
+                        <div class="mb-3">
+                            <label for="nombre{{ tercero.id }}" class="form-label">Nombre:</label>
+                            <input type="text" class="form-control" id="nombre{{ tercero.id }}" name="nombre" value="{{ tercero.nombre }}" required>
+                        </div>
+                        <!-- Campo Tipo -->
+                        <div class="mb-3">
+                            <label for="tipo{{ tercero.id }}" class="form-label">Tipo:</label>
+                            <select class="form-select" id="tipo{{ tercero.id }}" name="tipo" required>
+                                <option value="CLIENTE" {% if tercero.tipo == "CLIENTE" %}selected{% endif %}>Cliente</option>
+                                <option value="PROVEEDOR" {% if tercero.tipo == "PROVEEDOR" %}selected{% endif %}>Proveedor</option>
+                                <option value="CLIENTE/PROVEEDOR" {% if tercero.tipo == "CLIENTE/PROVEEDOR" %}selected{% endif %}>Cliente/Proveedor</option>
+                            </select>
+                        </div>
+                        <!-- Campo Teléfono -->
+                        <div class="mb-3">
+                            <label for="telefono{{ tercero.id }}" class="form-label">Teléfono:</label>
+                            <input type="text" class="form-control" id="telefono{{ tercero.id }}" name="telefono" value="{{ tercero.telefono }}" required>
+                        </div>
+                        <!-- Campo Dirección -->
+                        <div class="mb-3">
+                            <label for="direccion{{ tercero.id }}" class="form-label">Dirección:</label>
+                            <input type="text" class="form-control" id="direccion{{ tercero.id }}" name="direccion" value="{{ tercero.direccion }}" required>
+                        </div>
+                        <!-- Botones del Modal -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -356,6 +415,36 @@
         setTimeout(function () {
             $(".alert-success").fadeOut(500);
         }, 3000); // 3 segundos
+    });
+
+    $(document).ready(function () {
+        // Manejar el envío del formulario de edición
+        $('form[id^="editForm"]').on('submit', function (e) {
+            e.preventDefault(); // Evitar el envío tradicional del formulario
+
+            var form = $(this);
+            var url = form.attr('action');
+            var formData = form.serialize();
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        // Cerrar el modal
+                        $(form).closest('.modal').modal('hide');
+                        // Recargar la página o actualizar la tabla
+                        location.reload(); // O usar JavaScript para actualizar solo la fila editada
+                    } else {
+                        alert('Error al actualizar el tercero.');
+                    }
+                },
+                error: function () {
+                    alert('Error en la solicitud.');
+                }
+            });
+        });
     });
 </script>
 

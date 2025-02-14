@@ -63,7 +63,7 @@ def create_egreso(request, cuenta_id):
 
 @login_required
 def get_all_egresos(request):
-    egresos = Egreso.objects.all()
+    egresos = Egreso.objects.all().order_by("-fecha")
 
     fecha_inicio = request.GET.get('fecha_inicio', '').strip()
     fecha_fin = request.GET.get('fecha_fin', '').strip()

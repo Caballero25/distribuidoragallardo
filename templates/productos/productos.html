@@ -129,6 +129,64 @@
   .filtros button:hover {
     background: #0056b3;
   }
+
+  /* Estilos para el modal */
+  .modal-header {
+    background: #007bff;
+    color: white;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+
+  .modal-header .close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  .modal-footer {
+    padding: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+  }
+
+  .modal-footer button {
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+    border: none;
+  }
+
+  .modal-footer .btn-secondary {
+    background: #ccc;
+    color: #333;
+  }
+
+  .modal-footer .btn-secondary:hover {
+    background: #b3b3b3;
+  }
+
+  .modal-footer .btn-primary {
+    background: #007bff;
+    color: white;
+  }
+
+  .modal-footer .btn-primary:hover {
+    background: #0056b3;
+  }
 </style>
 {% endblock %}
 
@@ -194,31 +252,46 @@
   </tr>
 
   <!-- MODAL PARA EDITAR PRODUCTO -->
-  <div class="modal" id="editModal{{ producto.id }}" style="display: none;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5>Editando Producto: {{ producto.nombre }}</h5>
-        <button type="button" class="close" data-bs-dismiss="modal">X</button>
-      </div>
-      <div class="modal-body">
-        <form id="editForm{{ producto.id }}" method="post" action="{% url 'update_producto' producto.id %}">
-          {% csrf_token %}
-
-          <label for="nombre">Nombre:</label>
-          <input type="text" value="{{ producto.nombre }}" readonly>
-
-          <label for="codigo">Código:</label>
-          <input type="text" value="{{ producto.codigo }}" readonly>
-
-          <label for="existencia">Existencia:</label>
-          <input type="text" value="{{ producto.existencia }}" readonly>
-
-          <label for="valor_unitario">Valor Unitario:</label>
-          <input type="number" name="valor_unitario" id="valor_unitario_{{ producto.id }}" min="0.01" step="0.01" required>
-          <p id="error_msg_{{ producto.id }}" style="color: red; display: none;">El valor debe ser mayor a 0.</p>
-
-          <button type="submit" id="saveButton_{{ producto.id }}">Guardar Cambios</button>
-        </form>
+  <div class="modal fade" id="editModal{{ producto.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ producto.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <!-- Encabezado del Modal -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="editModalLabel{{ producto.id }}">Editar Producto</h5>
+          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Cerrar">X</button>
+        </div>
+        <!-- Cuerpo del Modal -->
+        <div class="modal-body">
+          <form id="editForm{{ producto.id }}" method="post" action="{% url 'update_producto' producto.id %}">
+            {% csrf_token %}
+            <!-- Campo Nombre -->
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre:</label>
+              <input type="text" class="form-control" value="{{ producto.nombre }}" readonly>
+            </div>
+            <!-- Campo Código -->
+            <div class="mb-3">
+              <label for="codigo" class="form-label">Código:</label>
+              <input type="text" class="form-control" value="{{ producto.codigo }}" readonly>
+            </div>
+            <!-- Campo Existencia -->
+            <div class="mb-3">
+              <label for="existencia" class="form-label">Existencia:</label>
+              <input type="text" class="form-control" value="{{ producto.existencia }}" readonly>
+            </div>
+            <!-- Campo Valor Unitario -->
+            <div class="mb-3">
+              <label for="valor_unitario_{{ producto.id }}" class="form-label">Valor Unitario:</label>
+              <input type="number" class="form-control" name="valor_unitario" id="valor_unitario_{{ producto.id }}" min="0.01" step="0.01" required>
+              <p id="error_msg_{{ producto.id }}" style="color: red; display: none;">El valor debe ser mayor a 0.</p>
+            </div>
+            <!-- Botones del Modal -->
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary" id="saveButton_{{ producto.id }}">Guardar Cambios</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>

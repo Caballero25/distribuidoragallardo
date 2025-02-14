@@ -411,6 +411,11 @@ text-align: left;
                 {% else %}
                 <p class="no-egresos">No hay egresos registrados.</p>
                 {% endif %}
+
+                <!-- Botón Pagar -->
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#pagarModal{{ cuenta_por_pagar.id }}">
+                    Pagar
+                </button>
             </div>
         </div>
     </div>

@@ -326,7 +326,7 @@ text-align: left;
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ egreso.fecha|date:"d/m/Y" }}</p>
                 <p><strong>Tercero:</strong> {{ egreso.tercero.nombre }}</p>
-                <p><strong>Valor:</strong> <span id="modal-valor">{{ egreso.valor }}</span></p>
+                <p><strong>Valor:</strong> <span class="valor">{{ egreso.valor }}</span></p>
                 <p class="actions">
                     <strong>Cuenta por Pagar:</strong>
                     {% if egreso.cuenta_por_pagar.id %}
@@ -389,7 +389,7 @@ text-align: left;
                     No asignada
                     {% endif %}
                 </p>
-                <p><strong>Saldo:</strong> <span class="saldo">{{ egreso.cuenta_por_pagar.saldo }}</span></p>
+                <p><strong>Saldo:</strong> <span class="valor">{{ egreso.cuenta_por_pagar.saldo }}</span></p>
                 <p><strong>Estado:</strong> {{ egreso.cuenta_por_pagar.estado|capfirst }}</p>
             </div>
             <div class="modal-footer">
@@ -411,9 +411,9 @@ text-align: left;
                 <p><strong>Fecha:</strong> {{ egreso.cuenta_por_pagar.compra.fecha|date:"d/m/Y" }}</p>
                 <p><strong>Tercero:</strong> {{ egreso.cuenta_por_pagar.compra.tercero.nombre }}</p>
                 <p><strong>Producto:</strong> {{ egreso.cuenta_por_pagar.compra.producto.nombre }}</p>
-                <p><strong>Valor Unitario:</strong> <span class="saldo" id="modal-valor-unitario-{{ cuenta_por_pagar.compra.id }}">{{ egreso.cuenta_por_pagar.compra.valor_unitario }}</span></p>
+                <p><strong>Valor Unitario:</strong> <span class="valor">{{ egreso.cuenta_por_pagar.compra.valor_unitario }}</span></p>
                 <p><strong>Cantidad:</strong> <span id="modal-cantidad-{{ egreso.cuenta_por_pagar.compra.id }}"></span></p>
-                <p><strong>Valor Total:</strong> <span class="saldo" id="modal-valor-total-{{ egreso.cuenta_por_pagar.compra.id }}">{{ egreso.cuenta_por_pagar.compra.valor_total }}</span></p>
+                <p><strong>Valor Total:</strong> <span class="valor">{{ egreso.cuenta_por_pagar.compra.valor_total }}</span></p>
                 <p><strong>Descripción:</strong> {{ egreso.cuenta_por_pagar.compra.descripcion }}</p>
             </div>
             <div class="modal-footer">
@@ -505,6 +505,33 @@ text-align: left;
             let valor = parseFloat(modalValor.textContent.replace("$", "").trim());
             if (!isNaN(valor)) {
                 modalValor.textContent = formatCurrency(valor);
+            }
+        }
+
+        // Formatear el saldo en el modal
+        let modalSaldo = document.getElementById("saldo");
+        if (modalSaldo) {
+            let saldo = parseFloat(modalSaldo.textContent.replace("$", "").trim());
+            if (!isNaN(saldo)) {
+                modalSaldo.textContent = formatCurrency(saldo);
+            }
+        }
+
+        // Formatear el saldo en el modal
+        let modalValorUnitario = document.getElementById("valor-unitario-modal");
+        if (modalValorUnitario) {
+            let valorUnitario = parseFloat(modalValorUnitario.textContent.replace("$", "").trim());
+            if (!isNaN(valorUnitario)) {
+                modalValorUnitario.textContent = formatCurrency(valorUnitario);
+            }
+        }
+
+        // Formatear el saldo en el modal
+        let modalValorTotal = document.getElementById("valor-total-modal");
+        if (modalValorTotal) {
+            let valor = parseFloat(modalValorTotal.textContent.replace("$", "").trim());
+            if (!isNaN(valor)) {
+                modalValorTotal.textContent = formatCurrency(valor);
             }
         }
     });
@@ -607,9 +634,6 @@ text-align: left;
                 // Obtener el ID de la compra desde el botón
                 let compraId = this.getAttribute("data-id");
 
-                // Calcular la cantidad para este modal específico
-                calcularCantidad(compraId);
-
                 // Mostrar el modal
                 let modal = document.getElementById(`compraModal${compraId}`);
                 if (modal) {
@@ -617,22 +641,6 @@ text-align: left;
                 }
             });
         });
-
-        // Función para calcular la cantidad
-        function calcularCantidad(compraId) {
-            const valorUnitarioElement = document.getElementById(`modal-valor-unitario-${compraId}`);
-            const valorTotalElement = document.getElementById(`modal-valor-total-${compraId}`);
-            const cantidadElement = document.getElementById(`modal-cantidad-${compraId}`);
-
-            if (valorUnitarioElement && valorTotalElement && cantidadElement) {
-                let valorUnitario = parseFloat(valorUnitarioElement.textContent) || 0;
-                let valorTotal = parseFloat(valorTotalElement.textContent) || 0;
-
-                // Calcular la cantidad
-                let cantidad = valorUnitario !== 0 ? (valorTotal / valorUnitario) : 0;
-                cantidadElement.textContent = cantidad; // Mostrar con 2 decimales
-            }
-        }
     });
 
 

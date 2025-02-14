@@ -1,7 +1,7 @@
 {% extends 'base/base_adminlte.html' %}
 {% load static %}
 
-{% block title %} Crear Compra {% endblock %}
+{% block title %} Nueva Compra {% endblock %}
 
 {% block extra_head %}
 <!-- Bootstrap CSS -->
@@ -13,7 +13,7 @@
 {% block content %}
 
 <div class="container mt-4">
-    <h1 class="text-center">Crear Compra</h1>
+    <h1 class="text-center">Nueva Compra</h1>
 
     <form method="POST">
         {% csrf_token %}

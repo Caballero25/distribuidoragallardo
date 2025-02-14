@@ -15,6 +15,7 @@ def get_ingreso_by_id(request, id):
         ingreso = Ingreso.objects.get(id=id)
         context = {'ingreso': ingreso}
         return render(request, 'ingresos/ingreso.html', context)
+
 @login_required
 def create_ingreso(request, cuenta_id):
     if request.method == 'POST':
@@ -53,7 +54,7 @@ def create_ingreso(request, cuenta_id):
 
 @login_required
 def get_all_ingresos(request):
-    ingresos = Ingreso.objects.all()
+    ingresos = Ingreso.objects.all().order_by("-fecha")
 
     fecha_inicio = request.GET.get('fecha_inicio', '').strip()
     fecha_fin = request.GET.get('fecha_fin', '').strip()

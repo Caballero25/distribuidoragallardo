@@ -79,17 +79,55 @@ def create_tercero(request):
         form = TerceroForm()
     return render(request, 'terceros/create_tercero.html', {'form': form})
 
-@login_required
 def update_tercero(request, id):
-        tercero = Tercero.objects.get(id=id)
-        if request.method == 'POST':
-                form = TerceroForm(request.POST, instance=tercero)
-                if form.is_valid():
-                        form.save()
-                        return redirect('get_all_terceros')
-        else:
-                form =TerceroForm(instance=tercero)
-        return render(request, 'terceros/terceros.html', {'form': form})
+    # Obtener el tercero por su ID
+    tercero =Tercero.objects.get(id=id)
+
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        nombre = request.POST.get('nombre')
+        tipo = request.POST.get('tipo')
+        telefono = request.POST.get('telefono')
+        direccion = request.POST.get('direccion')
+
+        # Validar que los campos no estén vacíos
+        if not nombre or not tipo or not telefono or not direccion:
+            messages.error(request, "Todos los campos son obligatorios.")
+            return redirect('get_all_terceros')
+
+        # Validar que el teléfono tenga exactamente 10 dígitos
+        if len(telefono) != 10 or not telefono.isdigit():
+            messages.error(request, "El teléfono debe contener exactamente 10 dígitos.")
+            return redirect('get_all_terceros')
+
+        # Validar que el nombre no esté duplicado (excluyendo el actual)
+        if Tercero.objects.filter(nombre=nombre).exclude(id=tercero.id).exists():
+            messages.error(request, "Ya existe un tercero con este nombre.")
+            return redirect('get_all_terceros')
+
+        # Validar que el teléfono no esté duplicado (excluyendo el actual)
+        if Tercero.objects.filter(telefono=telefono).exclude(id=tercero.id).exists():
+            messages.error(request, "Ya existe un tercero con este teléfono.")
+            return redirect('get_all_terceros')
+
+        # Validar que la dirección no esté duplicada (excluyendo el actual)
+        if Tercero.objects.filter(direccion=direccion).exclude(id=tercero.id).exists():
+            messages.error(request, "Ya existe un tercero con esta dirección.")
+            return redirect('get_all_terceros')
+
+        # Actualizar los campos del tercero
+        tercero.nombre = nombre
+        tercero.tipo = tipo
+        tercero.telefono = telefono
+        tercero.direccion = direccion
+        tercero.save()
+
+        # Mensaje de éxito
+        messages.success(request, "Tercero actualizado correctamente.")
+        return redirect('get_all_terceros')
+
+    # Si no es una solicitud POST, redirigir a la lista de terceros
+    return redirect('get_all_terceros')
 
 @login_required
 def delete_tercero(request, id):
