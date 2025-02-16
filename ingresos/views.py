@@ -54,7 +54,7 @@ def create_ingreso(request, cuenta_id):
 
 @login_required
 def get_all_ingresos(request):
-    ingresos = Ingreso.objects.all().order_by("-fecha")
+    ingresos = Ingreso.objects.all().order_by("-fecha", "-fecha_creacion")
 
     fecha_inicio = request.GET.get('fecha_inicio', '').strip()
     fecha_fin = request.GET.get('fecha_fin', '').strip()

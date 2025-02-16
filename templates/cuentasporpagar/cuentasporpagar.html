@@ -343,7 +343,6 @@ text-align: left;
 <table>
     <thead>
     <tr>
-        <th>ID</th>
         <th>Fecha</th>
         <th>Tercero</th>
         <th>Saldo</th>
@@ -355,7 +354,6 @@ text-align: left;
     <tbody>
     {% for cuenta_por_pagar in cuentas_por_pagar %}
     <tr>
-        <td>{{ cuenta_por_pagar.id }}</td>
         <td>{{ cuenta_por_pagar.fecha|date:"d/m/Y" }}</td>
         <td>{{ cuenta_por_pagar.tercero.nombre }}</td>
         <td class="saldo">{{ cuenta_por_pagar.saldo }}</td>
@@ -380,7 +378,7 @@ text-align: left;
     <div class="modal venta-modal" id="cuentaModal{{ cuenta_por_pagar.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Cuenta por Pagar #</strong>{{ cuenta_por_pagar.id }}</p></h5>
+                <h5><p><strong>Cuenta por Pagar N°</strong> {{ cuenta_por_pagar.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ cuenta_por_pagar.fecha|date:"d/m/Y" }}</p>
@@ -487,25 +485,39 @@ text-align: left;
     <div class="modal venta-modal" id="compraModal{{ cuenta_por_pagar.compra.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Compra #</strong>{{ cuenta_por_pagar.compra.id }}</p></h5>
+                <h5><p><strong>Compra N°</strong> {{ cuenta_por_pagar.compra.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ cuenta_por_pagar.compra.fecha|date:"d/m/Y" }}</p>
                 <p><strong>Tercero:</strong> {{ cuenta_por_pagar.compra.tercero.nombre }}</p>
-                <p><strong>Producto:</strong> {{ cuenta_por_pagar.compra.producto.nombre }}</p>
-                <p><strong>Valor Unitario:</strong> <span class="saldo" id="modal-valor-unitario-{{ cuenta_por_pagar.compra.id }}">{{ cuenta_por_pagar.compra.valor_unitario }}}</span></p>
-                <p><strong>Cantidad:</strong> <span id="modal-cantidad-{{ cuenta_por_pagar.compra.id }}"></span></p>
-                <p><strong>Valor Total:</strong> <span class="saldo" id="modal-valor-total-{{ cuenta_por_pagar.compra.id }}">{{ cuenta_por_pagar.compra.valor_total }}</span></p>
+                {% if cuenta_por_pagar.compra.descripcion %}
                 <p><strong>Descripción:</strong> {{ cuenta_por_pagar.compra.descripcion }}</p>
+                {% else %}
+                <p><strong>Descripción:</strong> Sin descripción disponible</p>
+                {% endif %}
+                <!-- Lista de productos -->
+                <p><strong>Productos comprados:</strong></p>
+                {% if cuenta_por_pagar.compra.productos_comprados.all %}
+                <ul>
+                    {% for producto_comprado in cuenta_por_pagar.compra.productos_comprados.all %}
+                    <li class="actions">
+                    <span>
+                        <strong>Nombre:</strong> {{ producto_comprado.producto.nombre }} |
+                        <strong>Valor Unitario:</strong> ${{ producto_comprado.valor_unitario|floatformat:2 }} |
+                        <strong>Cantidad:</strong> {{ producto_comprado.cantidad }} |
+                        <strong>Valor Total:</strong> ${{ producto_comprado.valor_total|floatformat:2 }}
+                    </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No hay productos asociados a esta compra.</p>
+                {% endif %}
             </div>
             <div class="modal-footer">
                 <div class="left-info">
                     <p><strong>Creado por:</strong> {{ cuenta_por_pagar.compra.creado_por.username|default:"-" }}</p>
                     <p><strong>Fecha de Creación:</strong> {{ cuenta_por_pagar.compra.fecha_creacion|date:"d/m/Y" }}</p>
-                </div>
-                <div class="right-info">
-                    <p><strong>Editado por:</strong> {{ cuenta_por_pagar.compra.editado_por.username|default:"-" }}</p>
-                    <p><strong>Fecha de Edición:</strong> {{ cuenta_por_pagar.compra.fecha_edicion|date:"d/m/Y"|default:"-" }}</p>
                 </div>
             </div>
         </div>
@@ -516,7 +528,7 @@ text-align: left;
     <div class="modal venta-modal" id="egresoModal{{ egreso.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Egreso #</strong>{{ egreso.id }}</p></h5>
+                <h5><p><strong>Egreso N°</strong> {{ egreso.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ egreso.fecha|date:"d/m/Y" }}</p>

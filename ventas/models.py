@@ -21,5 +21,5 @@ class Venta(models.Model):
                                    related_name='ventas_creadas')
     editado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
                                     related_name='ventas_editadas')
-    fecha_creacion = models.DateField(auto_now=True)
+    fecha_creacion = models.DateTimeField(auto_now=True)
     fecha_edicion = models.DateField(auto_now=False, null=True, blank=True)

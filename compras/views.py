@@ -1,25 +1,30 @@
 from datetime import date
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
-from django.utils.dateparse import parse_date
+from django.utils.dateparse import parse_date, parse_datetime
+
+from compras.models import ProductosComprados
+from egresos.models import Egreso
+from terceros.models import Tercero
 from .models import Compra
 from productos.models import Producto
 from django.contrib import messages
 from cuentasporpagar.models import CuentaPorPagar
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
+from django.db import transaction
 
 # Create your views here.
 @login_required
 def get_compra_by_id(request, id):
     if request.method == 'GET':
-        compra = Compra.objects.get(id=id)
+        compra = Compra.objects.prefetch_related('productos_comprados__producto').get(id=id)
         context = {'compra': compra}
         return render(request, 'compras/compra.html', context)
 
 @login_required
 def get_all_compras(request):
-    compras = Compra.objects.all().order_by("-fecha")
+    compras = Compra.objects.all().order_by("-fecha", "-fecha_creacion")
 
     fecha_inicio = request.GET.get('fecha_inicio', '').strip()
     fecha_fin = request.GET.get('fecha_fin', '').strip()
@@ -45,87 +50,134 @@ def get_all_compras(request):
     return render(request, 'compras/compras.html', {'compras': page_obj})
 
 @login_required
+@transaction.atomic
 def create_compra(request):
     if request.method == 'POST':
+        # Extraer y validar campos obligatorios
         fecha = request.POST.get('fecha')
         tercero_id = request.POST.get('tercero')
-        nombre_producto = request.POST.get('producto_nombre', '').strip()
-        codigo_producto = request.POST.get('producto_codigo', '').strip()
-
-        cantidad = request.POST.get('cantidad')
-        valor_unitario = request.POST.get('valor_unitario')
-        valor_total = request.POST.get('valor_total')  # Puede venir vacío
-
-        # Asegurar que los valores sean numéricos o asignarles 0
-        cantidad = Decimal(cantidad) if cantidad and cantidad.isnumeric() else Decimal(0)
-        valor_unitario = Decimal(valor_unitario) if valor_unitario and valor_unitario.strip() else Decimal(0)
-        valor_total = Decimal(valor_total) if valor_total and valor_total.isnumeric() else cantidad * valor_unitario
-
         descripcion = request.POST.get('descripcion')
-        user = request.user
+        valor = float(request.POST.get('valor', 0))  # Valor total de la compra
+        pagado = float(request.POST.get('pagado', 0))  # Monto pagado (por defecto 0)
+        creado_por = request.user
 
-        # Si no se envía producto ni código, asignar valores específicos
-        if not nombre_producto and not codigo_producto:
-            cantidad = Decimal(0)
-            valor_unitario = Decimal(0)
-            # Mantener el valor total enviado en el formulario
-            valor_total = Decimal(request.POST.get('valor_total', 0))
+        if not fecha or not tercero_id or valor <= 0:
+            return render(request, 'compras/create_compra.html', {
+                'error': 'Fecha, Tercero y Valor son campos obligatorios. El valor debe ser mayor a 0.',
+            })
 
-        producto = None
-        if codigo_producto:
-            producto = Producto.objects.filter(codigo=codigo_producto).first()
-            if producto:
-                producto.costo_historico += valor_total
-                producto.existencia += cantidad
-                producto.entradas += cantidad
-                if producto.entradas > 0:
-                    producto.costo_unitario = producto.costo_historico / producto.entradas
-                producto.save()
-            else:
-                producto = Producto(
-                    nombre=nombre_producto,
-                    codigo=codigo_producto,
-                    existencia=cantidad,
-                    valor_unitario=0,
-                    entradas=cantidad,
-                    salidas=0,
-                    costo_historico=valor_total,
-                    costo_unitario=valor_unitario,
-                    creado_por=user
-                )
-                producto.save()
+        try:
+            tercero = Tercero.objects.get(id=tercero_id)
+        except Tercero.DoesNotExist:
+            return render(request, 'compras/create_compra.html', {
+                'error': 'El tercero especificado no existe.',
+            })
 
         # Crear la compra
         compra = Compra(
             fecha=fecha,
-            tercero_id=tercero_id,
-            producto=producto,
-            valor_unitario=valor_unitario,
-            valor_total=valor_total,
+            tercero=tercero,
             descripcion=descripcion,
-            creado_por=user
+            valor=valor,
+            creado_por=creado_por,
         )
         compra.save()
 
-        # Crear la cuenta por pagar
+        # Procesar los productos comprados
+        productos_ids = request.POST.getlist('producto[]')
+        nombres_productos = request.POST.getlist('producto_nombre[]')
+        codigos_productos = request.POST.getlist('producto_codigo[]')
+        cantidades = request.POST.getlist('cantidad[]')
+        valores_unitarios = request.POST.getlist('valor_unitario[]')
+        valores_totales = request.POST.getlist('valor_total[]')
+
+        for producto_id, nombre_producto, codigo_producto, cantidad, valor_unitario, valor_total in zip(productos_ids,
+                                                                                                        nombres_productos,
+                                                                                                        codigos_productos,
+                                                                                                        cantidades,
+                                                                                                        valores_unitarios,
+                                                                                                        valores_totales):
+            if nombre_producto.strip() and codigo_producto.strip() and cantidad.strip() and valor_unitario.strip() and valor_total.strip():
+                # Si no hay un ID de producto, crear uno nuevo
+                if not producto_id.strip():
+                    producto, created = Producto.objects.get_or_create(
+                        nombre=nombre_producto,
+                        codigo=codigo_producto,
+                        defaults={
+                            'existencia': 0,
+                            'valor_unitario': float(valor_unitario),
+                            'entradas': 0,
+                            'salidas': 0,
+                        }
+                    )
+                else:
+                    try:
+                        producto = Producto.objects.get(id=producto_id)
+                    except Producto.DoesNotExist:
+                        return render(request, 'compras/create_compra.html', {
+                            'error': f'El producto con ID {producto_id} no existe.',
+                        })
+
+                # Crear el registro de producto comprado
+                producto_comprado = ProductosComprados(
+                    compra=compra,
+                    producto=producto,
+                    cantidad=int(cantidad),
+                    valor_unitario=float(valor_unitario),
+                    valor_total=float(valor_total),
+                )
+                producto_comprado.save()
+
+                # Actualizar las entradas y la existencia del producto
+                producto.entradas += int(cantidad)
+                producto.existencia += int(cantidad)
+                producto.save()
+
+        # Calcular el saldo de la cuenta por pagar
+        saldo = valor - pagado
+
+        # Determinar el estado de la cuenta por pagar
+        estado = 'PAGADO' if saldo <= 0 else 'PENDIENTE'
+
+        # Crear la cuenta por pagar asociada a la compra
         cuenta_por_pagar = CuentaPorPagar(
             fecha=fecha,
-            tercero_id=tercero_id,
+            tercero=tercero,
             compra=compra,
-            saldo=valor_total,
-            creado_por=user,
-            estado='PENDIENTE'
+            saldo=saldo,
+            estado=estado,
+            creado_por=creado_por,
         )
         cuenta_por_pagar.save()
 
+        # Asignar la cuenta por pagar a la compra
         compra.cuenta_por_pagar = cuenta_por_pagar
-        compra.save()
+        compra.save()  # Guardar la compra con la cuenta por pagar asignada
+
+        # Crear un egreso si hay un monto pagado
+        if pagado > 0:
+            metodo_pago = request.POST.get('metodo_pago', 'EFECTIVO')  # Obtener el método de pago del formulario
+            egreso = Egreso(
+                fecha=fecha,
+                tercero=tercero,
+                valor=pagado,
+                metodo_de_pago=metodo_pago,
+                cuenta_por_pagar=cuenta_por_pagar,
+                creado_por=creado_por,
+            )
+            egreso.save()
 
         messages.success(request, "Compra creada exitosamente.")
         return redirect('get_all_compras')
 
-    return render(request, 'compras/create_compra.html')
+    else:
+        terceros = Tercero.objects.all()
+        productos = Producto.objects.all()
 
+        return render(request, 'compras/create_compra.html', {
+            'terceros': terceros,
+            'productos': productos,
+        })
 
 @login_required
 def update_compra(request, id):

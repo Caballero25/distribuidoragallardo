@@ -432,7 +432,6 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
 <table>
     <thead>
     <tr>
-        <th>ID</th>
         <th>Fecha</th>
         <th>Tercero</th>
         <th>Saldo</th>
@@ -445,7 +444,6 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
     {% if cuentas_por_cobrar %}
     {% for cuenta_por_cobrar in cuentas_por_cobrar %}
     <tr>
-        <td>{{ cuenta_por_cobrar.id}}</td>
         <td>{{ cuenta_por_cobrar.fecha|date:"d/m/Y" }}</td>
         <td>{{ cuenta_por_cobrar.tercero.nombre }}</td>
         <td class="saldo">${{ cuenta_por_cobrar.saldo }}</td>
@@ -492,7 +490,7 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
     <div class="modal venta-modal" id="cuentaModal{{ cuenta_por_cobrar.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Cuenta por Cobrar #</strong>{{ cuenta_por_cobrar.id }}</p></h5>
+                <h5><p><strong>Cuenta por Cobrar N°</strong> {{ cuenta_por_cobrar.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ cuenta_por_cobrar.fecha|date:"d/m/Y" }}</p>
@@ -583,7 +581,7 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
     <div class="modal venta-modal" id="ingresoModal{{ ingreso.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Ingreso #</strong>{{ ingreso.id }}</p></h5>
+                <h5><p><strong>Ingreso N°</strong> {{ ingreso.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ ingreso.fecha|date:"d/m/Y" }}</p>
@@ -605,7 +603,7 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
     <div class="modal venta-modal" id="ventaModal{{ cuenta_por_cobrar.venta.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Venta #</strong>{{ cuenta_por_cobrar.venta.id }}</p></h5>
+                <h5><p><strong>Venta N°</strong> {{ cuenta_por_cobrar.venta.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ cuenta_por_cobrar.venta.fecha|date:"d/m/Y" }}</p>

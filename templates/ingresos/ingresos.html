@@ -348,7 +348,6 @@ background: #0056b3;
 <table>
     <thead>
     <tr>
-        <th>ID</th>
         <th>Fecha</th>
         <th>Tercero</th>
         <th>Valor</th>
@@ -360,7 +359,6 @@ background: #0056b3;
     <tbody>
     {% for ingreso in ingresos %}
     <tr>
-        <td>{{ ingreso.id }}</td>
         <td>{{ ingreso.fecha|date:"d/m/Y" }}</td>
         <td>{{ ingreso.tercero.nombre }}</td>
         <td class="valor">{{ ingreso.valor }}</td>
@@ -381,7 +379,7 @@ background: #0056b3;
     <div class="modal venta-modal" id="viewModal{{ ingreso.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Ingreso #</strong>{{ ingreso.id }}</p></h5>
+                <h5><p><strong>Ingreso N°</strong> {{ ingreso.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ ingreso.fecha|date:"d/m/Y" }}</p>
@@ -435,7 +433,7 @@ background: #0056b3;
     <div class="modal venta-modal" id="cuentaModal{{ ingreso.cuenta_por_cobrar.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Cuenta por Cobrar #</strong>{{ ingreso.cuenta_por_cobrar.id }}</p></h5>
+                <h5><p><strong>Cuenta por Cobrar N°</strong> {{ ingreso.cuenta_por_cobrar.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ ingreso.cuenta_por_cobrar.fecha|date:"d/m/Y" }}</p>
@@ -465,7 +463,7 @@ background: #0056b3;
     <div class="modal venta-modal" id="ventaModal{{ ingreso.cuenta_por_cobrar.venta.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Venta #</strong>{{ ingreso.cuenta_por_cobrar.venta.id}}</p></h5>
+                <h5><p><strong>Venta N°</strong> {{ ingreso.cuenta_por_cobrar.venta.id}}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ ingreso.cuenta_por_cobrar.venta.fecha|date:"d/m/Y" }}</p>

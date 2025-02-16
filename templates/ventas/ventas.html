@@ -348,7 +348,6 @@ background: #0056b3;
 <table>
   <thead>
   <tr>
-    <th>ID</th>
     <th>Fecha</th>
     <th>Tercero</th>
     <th>Producto</th>
@@ -365,7 +364,6 @@ background: #0056b3;
     {% if ventas %}
     {% for venta in ventas %}
     <tr>
-        <td>{{ venta.id }}</td>
         <td>{{ venta.fecha|date:"d/m/Y" }}</td>
         <td>{{ venta.tercero.nombre }}</td>
         <td>{{ venta.producto.nombre }}</td>
@@ -396,7 +394,7 @@ background: #0056b3;
     <div class="modal venta-modal" id="viewModal{{ venta.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Venta #</strong>{{ venta.id}}</p></h5>
+                <h5><p><strong>Venta N°</strong> {{ venta.id}}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ venta.fecha|date:"d/m/Y" }}</p>
@@ -455,7 +453,7 @@ background: #0056b3;
     <div class="modal venta-modal" id="cuentaModal{{ venta.cuenta_por_cobrar.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Cuenta por Pagar #</strong>{{ venta.cuenta_por_cobrar.id }}</p></h5>
+                <h5><p><strong>Cuenta por Pagar N°</strong> {{ venta.cuenta_por_cobrar.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ venta.cuenta_por_cobrar.fecha|date:"d/m/Y" }}</p>
@@ -485,7 +483,7 @@ background: #0056b3;
     <div class="modal venta-modal" id="ingresoModal{{ ingreso.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Ingreso #</strong>{{ ingreso.id }}</p></h5>
+                <h5><p><strong>Ingreso N°</strong> {{ ingreso.id }}</p></h5>
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ ingreso.fecha|date:"d/m/Y" }}</p>

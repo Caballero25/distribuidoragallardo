@@ -20,7 +20,7 @@ def get_venta_by_id(request, id):
 
 @login_required
 def get_all_ventas(request):
-    ventas = Venta.objects.all().order_by("-fecha")
+    ventas = Venta.objects.all().order_by("-fecha", "-fecha_creacion")
 
     fecha_inicio = request.GET.get('fecha_inicio', '').strip()
     fecha_fin = request.GET.get('fecha_fin', '').strip()

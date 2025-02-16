@@ -17,7 +17,7 @@ def get_cuenta_por_pagar_by_id(request, id):
 
 @login_required
 def get_all_cuentas_por_pagar(request):
-    cuentas_por_pagar = CuentaPorPagar.objects.all().order_by("-fecha")
+    cuentas_por_pagar = CuentaPorPagar.objects.all().order_by("-fecha", "-fecha_creacion")
 
     fecha_inicio = request.GET.get('fecha_inicio', '').strip()
     fecha_fin = request.GET.get('fecha_fin', '').strip()

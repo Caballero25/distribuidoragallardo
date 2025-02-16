@@ -17,6 +17,6 @@ class CuentaPorPagar(models.Model):
     )
     saldo = models.DecimalField(max_digits=10, decimal_places=2)
     egresos = models.ManyToManyField('egresos.Egreso', blank=True)
-    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='cuentas_por_pagar')
     estado = models.CharField(max_length=255, choices=ESTADO_CHOICES)
-    fecha_creacion = models.DateField(auto_now=True)
+    fecha_creacion = models.DateTimeField(auto_now=True)
