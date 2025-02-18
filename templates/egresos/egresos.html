@@ -343,7 +343,11 @@ text-align: left;
     {% for egreso in egresos %}
     <tr>
         <td>{{ egreso.fecha|date:"d/m/Y" }}</td>
+        {% if egreso.tercero %}
         <td>{{ egreso.tercero.nombre }}</td>
+        {% else %}
+        <td>Sin tercero disponible</td>
+        {% endif %}
         <td class="valor">{{ egreso.valor }}</td>
         <td>{{ egreso.metodo_de_pago|capfirst }}</td>
         <td class="actions">
@@ -366,7 +370,11 @@ text-align: left;
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ egreso.fecha|date:"d/m/Y" }}</p>
+                {% if egreso.tercero %}
                 <p><strong>Tercero:</strong> {{ egreso.tercero.nombre }}</p>
+                {% else %}
+                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                {% endif %}
                 <p><strong>Valor:</strong> <span class="valor">{{ egreso.valor }}</span></p>
                 <p class="actions">
                     <strong>Cuenta por Pagar:</strong>
@@ -419,7 +427,11 @@ text-align: left;
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ egreso.cuenta_por_pagar.fecha|date:"d/m/Y" }}</p>
+                {% if egreso.cuenta_por_pagar.tercero %}
                 <p><strong>Tercero:</strong> {{ egreso.cuenta_por_pagar.tercero.nombre }}</p>
+                {% if else %}
+                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                {% endif %}
                 <p class="actions">
                     <strong>Compra:</strong>
                     {% if egreso.cuenta_por_pagar.compra.id %}
@@ -450,7 +462,11 @@ text-align: left;
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ egreso.cuenta_por_pagar.compra.fecha|date:"d/m/Y" }}</p>
+                {% if egreso.cuenta_por_pagar.compra.tercero %}
                 <p><strong>Tercero:</strong> {{ egreso.cuenta_por_pagar.compra.tercero.nombre }}</p>
+                {% else %}
+                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                {% endif %}
                 {% if egreso.cuenta_por_pagar.compra.descripcion %}
                 <p><strong>Descripción:</strong> {{ egreso.cuenta_por_pagar.compra.descripcion }}</p>
                 {% else %}

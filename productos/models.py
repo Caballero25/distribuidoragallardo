@@ -9,3 +9,5 @@ class Producto(models.Model):
     valor_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     entradas = models.IntegerField()
     salidas = models.IntegerField()
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='productos_creados')
+    editado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='productos_editados')

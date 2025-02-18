@@ -108,7 +108,8 @@ def create_compra(request):
                             'valor_unitario': float(valor_unitario),
                             'entradas': 0,
                             'salidas': 0,
-                        }
+                        },
+                        creado_por = creado_por
                     )
                 else:
                     try:
@@ -166,6 +167,8 @@ def create_compra(request):
                 creado_por=creado_por,
             )
             egreso.save()
+            cuenta_por_pagar.egresos=egreso
+            cuenta_por_pagar.save()
 
         messages.success(request, "Compra creada exitosamente.")
         return redirect('get_all_compras')

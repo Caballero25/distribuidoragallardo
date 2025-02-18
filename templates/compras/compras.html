@@ -349,7 +349,11 @@
     {% for compra in compras %}
     <tr>
         <td>{{ compra.fecha|date:"d/m/Y" }}</td>
+        {% if compra.tercero %}
         <td>{{ compra.tercero.nombre }}</td>
+        {% else %}
+        <td>Sin tercero disponible</td>
+        {% endif %}
         <td class="saldo">{{ compra.valor }}</td>
         {% if compra.descripcion %}
         <td>{{ compra.descripcion }}</td>
@@ -400,9 +404,13 @@
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ compra.fecha|date:"d/m/Y" }}</p>
+                {% if compra.tercero %}
                 <p><strong>Tercero:</strong> {{ compra.tercero.nombre }}</p>
-                {% if cuenta_por_pagar.compra.all %}
-                <p><strong>Descripción:</strong> {{ cuenta_por_pagar.compra.descripcion }}</p>
+                {% else %}
+                {% endif %}
+                <p><strong>Tercero:</strong>Sintercero disponible</p>
+                {% if compra.descripcion %}
+                <p><strong>Descripción:</strong> {{ compra.descripcion }}</p>
                 {% else %}
                 <p><strong>Descripción:</strong> Sin descripción disponible</p>
                 {% endif %}
@@ -471,6 +479,9 @@
                 {% else %}
                 <p class="no-egresos">No hay egresos registrados.</p>
                 {% endif %}
+                <button class="btn btn-success" onclick="location.href='{% url 'get_all_cuentas_por_pagar' %}'">
+                    Pagar
+                </button>
             </div>
         </div>
     </div>

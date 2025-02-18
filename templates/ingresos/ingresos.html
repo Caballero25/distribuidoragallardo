@@ -360,7 +360,11 @@ background: #0056b3;
     {% for ingreso in ingresos %}
     <tr>
         <td>{{ ingreso.fecha|date:"d/m/Y" }}</td>
+        {% if ingreso.tercero %}
         <td>{{ ingreso.tercero.nombre }}</td>
+        {% else %}
+        <td>Sin tercero disponible</td>
+        {% endif %}
         <td class="valor">{{ ingreso.valor }}</td>
         <td>{{ ingreso.metodo_de_pago|capfirst }}</td>
         <td class="actions">
@@ -383,7 +387,11 @@ background: #0056b3;
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ ingreso.fecha|date:"d/m/Y" }}</p>
-                <p><strong>Tercero:</strong> {{ ingreso.tercero.nombre }}</p>
+                {% if ingreso.tercero %}
+                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                {% else %}
+                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                {% endif %}
                 <p><strong>Valor:</strong> <span class="valor">{{ ingreso.valor }}</span></p>
                 <p class="actions">
                     <strong>Cuenta por Cobrar:</strong>
@@ -437,7 +445,11 @@ background: #0056b3;
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ ingreso.cuenta_por_cobrar.fecha|date:"d/m/Y" }}</p>
+                {% if ingreso.cuenta_por_cobrar.tercero %}
                 <p><strong>Tercero:</strong> {{ ingreso.cuenta_por_cobrar.tercero.nombre }}</p>
+                {% else %}
+                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                {% endif %}
                 <p class="actions">
                     <strong>Venta:</strong>
                     {% if ingreso.cuenta_por_cobrar.venta.id %}
@@ -467,7 +479,11 @@ background: #0056b3;
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ ingreso.cuenta_por_cobrar.venta.fecha|date:"d/m/Y" }}</p>
+                {% if ingreso.cuenta_por_cobrar.venta.tercero %}
                 <p><strong>Tercero:</strong> {{ ingreso.cuenta_por_cobrar.venta.tercero.nombre }}</p>
+                {% else %}
+                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                {% endif %}
                 <p><strong>Producto:</strong> {{ ingreso.cuenta_por_cobrar.venta.producto.nombre }}</p>
                 <p><strong>Valor Unitario:</strong> <span class="valor">{{ ingreso.cuenta_por_cobrar.venta.valor_unitario }}</span></p>
                 <p><strong>Valor Total:</strong> <span class="valor">{{ ingreso.cuenta_por_cobrar.venta.valor_total }}</span></p>
@@ -477,10 +493,6 @@ background: #0056b3;
                 <div class="left-info">
                     <p><strong>Creado por:</strong> {{ ingreso.cuenta_por_cobrar.venta.creado_por.username|default:"-" }}</p>
                     <p><strong>Fecha de Creación:</strong> {{ ingreso.cuenta_por_cobrar.venta.fecha_creacion|date:"d/m/Y" }}</p>
-                </div>
-                <div class="right-info">
-                    <p><strong>Editado por:</strong> {{ ingreso.cuenta_por_cobrar.venta.editado_por.username|default:"-" }}</p>
-                    <p><strong>Fecha de Edición:</strong> {{ ingreso.cuenta_por_cobrar.venta.fecha_edicion|date:"d/m/Y"|default:"-" }}</p>
                 </div>
             </div>
         </div>

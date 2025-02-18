@@ -153,6 +153,56 @@
         $("#entradas").on("input", validarEntradas);
         $("#valor_unitario").on("input", validarValorUnitario);
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('[id^="nombre_"]').forEach(input => {
+            input.addEventListener('input', function() {
+                const productoId = this.id.split('_')[1];
+                const nombre = this.value;
+                const nombreError = document.getElementById(`nombre_error_${productoId}`);
+
+                if (nombre.trim() === "") {
+                    nombreError.style.display = "none";
+                    return;
+                }
+
+                // Verificar si el nombre ya existe
+                fetch(`/verificar-nombre/?nombre=${nombre}&id=${productoId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            nombreError.style.display = "block";
+                        } else {
+                            nombreError.style.display = "none";
+                        }
+                    });
+            });
+        });
+
+        document.querySelectorAll('[id^="codigo_"]').forEach(input => {
+            input.addEventListener('input', function() {
+                const productoId = this.id.split('_')[1];
+                const codigo = this.value;
+                const codigoError = document.getElementById(`codigo_error_${productoId}`);
+
+                if (codigo.trim() === "") {
+                    codigoError.style.display = "none";
+                    return;
+                }
+
+                // Verificar si el código ya existe
+                fetch(`/verificar-codigo/?codigo=${codigo}&id=${productoId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            codigoError.style.display = "block";
+                        } else {
+                            codigoError.style.display = "none";
+                        }
+                    });
+            });
+        });
+    });
 </script>
 
 {% endblock %}

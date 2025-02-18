@@ -1,4 +1,5 @@
 from decimal import Decimal
+from idlelib.rpc import request_queue
 
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
@@ -40,7 +41,6 @@ def create_producto(request):
             valor_unitario=valor_unitario,
             entradas=entradas,
             salidas=salidas,
-            costo_unitario=costo_unitario,
             creado_por=creado_por
         )
         producto.save()
@@ -104,6 +104,10 @@ def update_producto(request, id):
 
     if request.method == 'POST':
         nuevo_valor_unitario = request.POST.get('valor_unitario')
+        nuevo_nombre = request.POST.get('nombre')
+        nuevo_codigo = request.POST.get('codigo')
+        nueva_existencia = request.POST.get('existencia')
+        editado_por = request.user
 
         # Validar que el valor ingresado sea un número válido
         try:
@@ -113,7 +117,12 @@ def update_producto(request, id):
                 return redirect('get_all_productos')
 
             # Actualizar solo el campo valor_unitario
+            producto.nombre = nuevo_nombre
+            producto.codigo = nuevo_codigo
+            producto.existencia = nueva_existencia
             producto.valor_unitario = nuevo_valor_unitario
+            producto.editado_por = editado_por
+
             producto.save()
 
             messages.success(request, "Producto actualizado correctamente.")
@@ -176,3 +185,15 @@ def validate_codigo(request):
     codigo = request.GET.get('codigo', '').strip()
     existe = Producto.objects.filter(codigo__iexact=codigo).exists()
     return JsonResponse({'existe': existe})
+
+def verificar_nombre(request):
+    nombre = request.GET.get('nombre')
+    producto_id = request.GET.get('id')
+    exists = Producto.objects.filter(nombre=nombre).exclude(id=producto_id).exists()
+    return JsonResponse({'exists': exists})
+
+def verificar_codigo(request):
+    codigo = request.GET.get('codigo')
+    producto_id = request.GET.get('id')
+    exists = Producto.objects.filter(codigo=codigo).exclude(id=producto_id).exists()
+    return JsonResponse({'exists': exists})

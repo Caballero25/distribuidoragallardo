@@ -13,4 +13,6 @@ urlpatterns = [
     path('delete/<int:id>/', views.delete_producto, name="delete_producto"),
     path('validate_nombre/', views.validate_nombre, name='validate_nombre'),
     path('validate_codigo/', views.validate_codigo, name='validate_codigo'),
+    path('verificar-nombre/', views.verificar_nombre, name='verificar_nombre'),
+    path('verificar-codigo/', views.verificar_codigo, name='verificar_codigo')
 ]

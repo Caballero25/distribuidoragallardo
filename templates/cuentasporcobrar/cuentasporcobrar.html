@@ -445,7 +445,11 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
     {% for cuenta_por_cobrar in cuentas_por_cobrar %}
     <tr>
         <td>{{ cuenta_por_cobrar.fecha|date:"d/m/Y" }}</td>
+        {% if cuenta_por_cobrar.tercero %}
         <td>{{ cuenta_por_cobrar.tercero.nombre }}</td>
+        {% else %}
+        <td> Sin tercero disponible</td>
+        {% endif %}
         <td class="saldo">${{ cuenta_por_cobrar.saldo }}</td>
         <td>{{ cuenta_por_cobrar.estado|capfirst }}</td>
 
@@ -494,7 +498,11 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ cuenta_por_cobrar.fecha|date:"d/m/Y" }}</p>
+                {% if cuenta_por_cobrar.tercero %}
                 <p><strong>Tercero:</strong> {{ cuenta_por_cobrar.tercero.nombre }}</p>
+                {% else %}
+                <p><strong>Tercero:</strong> Sin Tercero Disponible</p>
+                {% endif %}
                 <p class="actions">
                     <strong>Venta:</strong>
                     {% if cuenta_por_cobrar.venta.id %}
@@ -541,7 +549,7 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="cobrarModalLabel{{ cuenta_por_cobrar.id }}">Registrar Cobro</h5>
+                    <h5 class="modal-title" id="cobrarModalLabel{{ cuenta_por_cobrar.id }}">Saldo de la cuenta por cobrar ${{ cuenta_por_cobrar.saldo}}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
@@ -585,7 +593,11 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ ingreso.fecha|date:"d/m/Y" }}</p>
+                {% if ingreso.tercero %}
                 <p><strong>Tercero:</strong> {{ ingreso.tercero.nombre }}</p>
+                {% else %}
+                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                {% endif %}
                 <p><strong>Valor:</strong> <span id="modal-valor">{{ ingreso.valor }}</span></p>
                 <p><strong>Método de Pago:</strong> {{ ingreso.metodo_de_pago }}</span></p>
 
@@ -607,7 +619,11 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ cuenta_por_cobrar.venta.fecha|date:"d/m/Y" }}</p>
+                {% if cuenta_por_cobrar.venta.tercero %}
                 <p><strong>Tercero:</strong> {{ cuenta_por_cobrar.venta.tercero.nombre }}</p>
+                {% else %}
+                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                {% endif %}
                 <p><strong>Producto:</strong> {{ cuenta_por_cobrar.venta.producto.nombre }}</p>
                 <p><strong>Valor Unitario:</strong> <span class="saldo" id="modal-valor-unitario-{{ cuenta_por_pagar.compra.id }}">{{ cuenta_por_cobrar.venta.valor_unitario }}}</span></p>
                 <p><strong>Cantidad:</strong> <span id="modal-cantidad-{{ cuenta_por_pagar.compra.id }}"></span></p>
@@ -618,10 +634,6 @@ transform: translateY(-50%); /* Ajusta la posición vertical */
                 <div class="left-info">
                     <p><strong>Creado por:</strong> {{ cuenta_por_cobrar.venta.creado_por.username|default:"-" }}</p>
                     <p><strong>Fecha de Creación:</strong> {{ cuenta_por_cobrar.venta.fecha_creacion|date:"d/m/Y" }}</p>
-                </div>
-                <div class="right-info">
-                    <p><strong>Editado por:</strong> {{ cuenta_por_cobrar.venta.editado_por.username|default:"-" }}</p>
-                    <p><strong>Fecha de Edición:</strong> {{ cuenta_por_cobrar.venta.fecha_edicion|date:"d/m/Y"|default:"-" }}</p>
                 </div>
             </div>
         </div>

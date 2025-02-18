@@ -96,7 +96,7 @@
 
                 <div class="col-md-2">
                     <label for="producto_codigo" class="form-label">Código:</label>
-                    <input type="text" id="producto_codigo" class="form-control" placeholder="Código del producto">
+                    <input type="text" id="producto_codigo" class="form-control" placeholder="Código del producto" maxlength="4">
                     <span id="producto_codigo_error" style="color: red; display: none;">El código no puede estar vacío.</span>
                 </div>
 
@@ -139,6 +139,12 @@
 
         <!-- Segunda fila: Valor Total, Pagado y Método de Pago -->
         <div class="form-row">
+
+            <div class="form-group">
+                <label for="descuento" class="form-label">Descuento:</label>
+                <input type="number" step="0.01" class="form-control" id="descuento" name="descuento" value="0">
+            </div>
+
             <div class="form-group">
                 <label for="valor" class="form-label">Valor Total:</label>
                 <input type="number" step="0.01" class="form-control" id="valor" name="valor" readonly>
@@ -147,6 +153,7 @@
             <div class="form-group">
                 <label for="pagado" class="form-label">Pagado:</label>
                 <input type="number" step="0.01" class="form-control" id="pagado" name="pagado" value="0">
+                <span id="pagado_error" style="color: red; display: none;">El valor pagado no puede ser mayor al valor total.</span>
             </div>
 
             <div class="form-group">
@@ -297,20 +304,19 @@
 
         // Evento para agregar producto a la tabla
         $("#agregar-producto-tabla").on("click", function() {
-            // Solo validar si la sección de productos está visible
-            if ($("#seccion-productos").is(":visible")) {
-                if (!validarCamposProducto()) {
-                    return; // Detener si hay errores
-                }
+            // Validar campos del producto
+            if (!validarCamposProducto()) {
+                return; // Detener si hay errores
             }
 
-            // Resto del código para agregar el producto a la tabla
+            // Obtener los valores del formulario
             const productoNombre = $("#producto_nombre").val();
             const productoCodigo = $("#producto_codigo").val();
             const productoId = $("#producto_id").val();
-            const cantidad = $("#cantidad").val();
-            const valorUnitario = $("#valor_unitario").val();
+            const cantidad = parseFloat($("#cantidad").val());
+            const valorUnitario = parseFloat($("#valor_unitario").val());
 
+            // Calcular el valor total del producto
             const valorTotal = (cantidad * valorUnitario).toFixed(2);
 
             // Agregar fila a la tabla
@@ -319,7 +325,7 @@
                     <td>${productoNombre}</td>
                     <td>${productoCodigo}</td>
                     <td>${cantidad}</td>
-                    <td>$${valorUnitario}</td>
+                    <td>$${valorUnitario.toFixed(2)}</td>
                     <td>$${valorTotal}</td>
                     <td><button type="button" class="btn btn-danger btn-sm eliminar-producto">Eliminar</button></td>
                 </tr>
@@ -351,29 +357,45 @@
         // Función para actualizar el valor total de la compra
         function actualizarValorTotal() {
             let total = 0;
-            $(".valor-total").each(function() {
-                total += parseFloat($(this).text());
+            // Recorrer cada fila de la tabla de productos
+            $("#tabla-productos tbody tr").each(function() {
+                // Obtener el valor total de la fila actual
+                const valorTotalFila = parseFloat($(this).find("td:eq(4)").text().replace("$", ""));
+                if (!isNaN(valorTotalFila)) {
+                    total += valorTotalFila;
+                }
             });
-            $("#valor").val(total.toFixed(2));
-            actualizarPorPagar(); // Actualizar el campo "Por Pagar"
+
+            const descuento = parseFloat($("#descuento").val()) || 0;
+            const valorConDescuento = total - descuento
+            // Actualizar el campo "Valor Total" del formulario
+            $("#valor").val(valorConDescuento.toFixed(2));
+            // Actualizar el campo "Por Pagar"
+            actualizarPorPagar();
         }
+
+        $("#descuento").on("input", function() {
+            actualizarValorTotal();
+        });
 
         // Función para actualizar el campo "Por Pagar"
         function actualizarPorPagar() {
             const valorTotal = parseFloat($("#valor").val()) || 0; // Obtener el valor total
-            const pagado = parseFloat($("#pagado").val()) || 0;     // Obtener el monto pagado
+            const pagado = parseFloat($("#pagado").val()) || 0;   // Obtener el monto pagado
 
-            // Si el campo "Pagado" está vacío o es 0, "Por Pagar" es igual a "Valor"
-            if (pagado === 0) {
-                $("#por_pagar").val(valorTotal.toFixed(2));
+            // Validar si el valor pagado es mayor al valor total
+            if (pagado > valorTotal) {
+                $("#pagado_error").show();
             } else {
-                // Si hay un valor en "Pagado", calcular la diferencia
-                const porPagar = valorTotal - pagado;
-                $("#por_pagar").val(porPagar.toFixed(2));
+                $("#pagado_error").hide();
             }
+
+            // Calcular el valor por pagar
+            const porPagar = valorTotal - pagado;
+            $("#por_pagar").val(porPagar.toFixed(2));
         }
 
-        // Actualizar "Por Pagar" cuando cambie el valor de "Valor"
+        // Actualizar "Por Pagar" cuando cambie el valor de "Valor Total"
         $("#valor").on("input", function() {
             actualizarPorPagar();
         });
@@ -385,12 +407,14 @@
 
         // Evento para eliminar producto de la tabla
         $(document).on("click", ".eliminar-producto", function() {
-            $(this).closest("tr").remove();
-            actualizarValorTotal();
+            $(this).closest("tr").remove(); // Eliminar la fila
+            actualizarValorTotal(); // Actualizar el valor total
         });
 
         // Llamar a la función al cargar la página
         actualizarPorPagar();
     });
+
+
 </script>
 {% endblock %}

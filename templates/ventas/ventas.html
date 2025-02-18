@@ -365,7 +365,11 @@ background: #0056b3;
     {% for venta in ventas %}
     <tr>
         <td>{{ venta.fecha|date:"d/m/Y" }}</td>
+        {% if venta.tercero %}
         <td>{{ venta.tercero.nombre }}</td>
+        {% else %}
+        <td>Sin tercero disponible</td>
+        {% endif %}
         <td>{{ venta.producto.nombre }}</td>
         <td class="valor-unitario">{{ venta.valor_unitario }}</td>
         <td class="cantidad-vendida"></td>
@@ -398,7 +402,11 @@ background: #0056b3;
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ venta.fecha|date:"d/m/Y" }}</p>
+                {% if venta.tercero %}
                 <p><strong>Tercero:</strong> {{ venta.tercero.nombre }}</p>
+                {% else %}
+                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                {% endif %}
                 <p><strong>Producto:</strong> {{ venta.producto.nombre }}</p>
                 <p><strong>Valor Unitario:</strong> <span class="valor-unitario-modal">{{ venta.valor_unitario }}</span></p>
                 <p><strong>Cantidad:</strong> <span class="cantidad-modal"></span></p>
@@ -457,7 +465,11 @@ background: #0056b3;
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ venta.cuenta_por_cobrar.fecha|date:"d/m/Y" }}</p>
+                {% if venta.cuenta_por_cobrar.tercero %}
                 <p><strong>Tercero:</strong> {{ venta.cuenta_por_cobrar.tercero.nombre }}</p>
+                {% else %}
+                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                {% endif %}
                 <p><strong>Saldo:</strong> <span id="valor-unitario-modal">{{ venta.cuenta_por_cobrar.saldo }}</span></p>
                 <p><strong>Estado:</strong> {{ venta.cuenta_por_cobrar.estado|capfirst }}</p>
 
@@ -474,6 +486,9 @@ background: #0056b3;
                 {% else %}
                 <p class="no-egresos">No hay ingresos registrados.</p>
                 {% endif %}
+                <button class="btn btn-success" onclick="location.href='{% url 'get_all_cuentas_por_cobrar' %}'">
+                    Cobrar
+                </button>
             </div>
         </div>
     </div>
@@ -487,7 +502,11 @@ background: #0056b3;
             </div>
             <div class="modal-body">
                 <p><strong>Fecha:</strong> {{ ingreso.fecha|date:"d/m/Y" }}</p>
+                {% if ingreso.tercero %}
                 <p><strong>Tercero:</strong> {{ ingreso.tercero.nombre }}</p>
+                {% else %}
+                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                {% endif %}
                 <p><strong>Valor:</strong> <span id="modal-valor">{{ ingreso.valor }}</span></p>
                 <p><strong>Método de Pago:</strong> {{ ingreso.metodo_de_pago }}</span></p>
 
