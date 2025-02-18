@@ -2,8 +2,163 @@
 {% load static %}
 {% block title %} Inicio {% endblock %}
 {% block extra_head %}
+<style>
+    .filtros input, .filtros button {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .filtros button {
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+        border: none;
+        font-weight: bold;
+    }
+
+    .filtros button:hover {
+        background: #0056b3;
+    }
+    #graficosContainer {
+        display: flex;
+        flex-direction: column;
+    }
+    .graficos-1-container, .graficos-2-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+    }
+    @media (max-width: 800px) { 
+        #graficosContainer {
+            align-items: center;
+        }
+        .graficos-1-container, .graficos-2-container {
+            flex-direction: column;
+        }
+     }
+</style>
 {% endblock %}
 
 {% block content %}
-    
+    <div id="graficosContainer col-12">
+        <div class="graficos-1-container mt-3">
+            <div class="col-sm-8 col-md-6 col-lg-5">
+                <h2>Ventas</h2>
+                <label><input type="checkbox" name="periodo" value="7dias" checked> Últimos 7 días</label>
+                <label><input type="checkbox" name="periodo" value="4semanas"> Últimas 4 semanas</label>
+                <label><input type="checkbox" name="periodo" value="4meses"> Últimos 4 meses</label>
+                <canvas id="graficoVentas"></canvas>
+            </div>
+            <div class="col-sm-8 col-md-6 col-lg-5">
+                <h2>Compras</h2>
+                <label><input type="checkbox" name="compra-time" value="7dias" checked> Últimos 7 días</label>
+                <label><input type="checkbox" name="compra-time" value="4semanas"> Últimas 4 semanas</label>
+                <label><input type="checkbox" name="compra-time" value="4meses"> Últimos 4 meses</label>
+                <canvas id="graficoCompras"></canvas>
+            </div>
+        </div>
+        <div class="graficos-2-container mt-5">
+            <div class="col-sm-8 col-md-6 col-lg-5">
+                <h2>Productos con menor stock</h2>
+                <table class="table table-danger table-striped">
+                    <tr>
+                        <td class="table-light">Producto</td>
+                        <td class="table-light">Código</td>
+                        <td class="table-light">Cantidad</td>
+                    </tr>
+                    <tbody>
+                        {% for producto in productos_escasos %}
+                        <tr>
+                            <td>{{producto.nombre}}</td>
+                            <td>{{producto.codigo}}</td>
+                            <td>{{producto.existencia}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm-8 col-md-6 col-lg-5"></div>
+        </div>
+    </div>
+
+    <!-- Mover el script aquí -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let ctx = document.getElementById('graficoVentas').getContext('2d');
+            let chart;
+            function actualizarGrafico(opcion) {
+                $.get('/obtener_ventas/', { opcion: opcion }, function(data) {
+                    if (chart) chart.destroy();
+                    chart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                data: data.values,
+                                backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+            let ctxCompras = document.getElementById('graficoCompras').getContext('2d');
+            let chartCompras;
+            function actualizarGraficoCompras(opcion) {
+                $.get('/obtener_compras/', { opcion: opcion }, function(data) {
+                    if (chartCompras) chartCompras.destroy();
+                    chartCompras = new Chart(ctxCompras, {
+                        type: 'bar',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                data: data.values,
+                                backgroundColor: 'rgba(255, 145, 133, 0.5)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+            actualizarGraficoCompras('7dias')
+            actualizarGrafico('7dias');
+            $('input[name="compra-time"]').change(function() {
+                $('input[name="compra-time"]').not(this).prop('checked', false);
+                actualizarGraficoCompras($(this).val());
+            });
+            $('input[name="periodo"]').change(function() {
+                $('input[name="periodo"]').not(this).prop('checked', false);
+                actualizarGrafico($(this).val());
+            });
+        });
+    </script>
 {% endblock %}
