@@ -6,8 +6,10 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from cuentasporcobrar.models import CuentaPorCobrar
 from productos.models import Producto
+from terceros.models import Tercero
 from ventas.models import Venta
 from django.utils.dateparse import parse_date
+from django.db import transaction
 
 # Create your views here.
 
@@ -46,62 +48,129 @@ def get_all_ventas(request):
     return render(request, 'ventas/ventas.html', {'ventas': page_obj})
 
 @login_required
+@transaction.atomic
 def create_venta(request):
     if request.method == 'POST':
+        # Extraer y validar campos obligatorios
         fecha = request.POST.get('fecha')
         tercero_id = request.POST.get('tercero')
-        producto_id = request.POST.get('producto_id')
-        cantidad = int(request.POST.get('cantidad'))
-        valor_unitario = Decimal(request.POST.get('valor_unitario'))
-        valor_total = cantidad * valor_unitario
         descripcion = request.POST.get('descripcion')
-        user = request.user
+        valor_total = float(request.POST.get('valor_total', 0))  # Valor total de la venta
+        cobrado = float(request.POST.get('cobrado', 0))  # Monto cobrado (por defecto 0)
+        creado_por = request.user
 
-        producto = Producto.objects.filter(id=producto_id).first()
+        if not fecha or not tercero_id or valor_total <= 0:
+            return render(request, 'ventas/create_venta.html', {
+                'error': 'Fecha, Tercero y Valor Total son campos obligatorios. El valor total debe ser mayor a 0.',
+            })
 
-        if not producto:
-            messages.error(request, "El producto seleccionado no existe.")
-            return redirect('create_venta')
-
-        if producto.existencia < cantidad:
-            messages.error(request, "No hay suficiente existencia para realizar la venta.")
-            return redirect('create_venta')
-
-        # Actualizar existencia del producto
-        producto.salidas += cantidad
-        producto.existencia = producto.entradas - producto.salidas
-        producto.save()
+        try:
+            tercero = Tercero.objects.get(id=tercero_id)
+        except Tercero.DoesNotExist:
+            return render(request, 'ventas/create_venta.html', {
+                'error': 'El tercero especificado no existe.',
+            })
 
         # Crear la venta
         venta = Venta(
             fecha=fecha,
-            tercero_id=tercero_id,
-            producto=producto,
-            valor_unitario=valor_unitario,
-            valor_total=valor_total,
+            tercero=tercero,
             descripcion=descripcion,
-            creado_por=user
+            valor_total=valor_total,
+            creado_por=creado_por,
         )
         venta.save()
 
-        # Crear cuenta por cobrar
+        # Procesar los productos vendidos
+        productos_ids = request.POST.getlist('producto[]')
+        nombres_productos = request.POST.getlist('producto_nombre[]')
+        codigos_productos = request.POST.getlist('producto_codigo[]')
+        cantidades = request.POST.getlist('cantidad[]')
+        valores_unitarios = request.POST.getlist('valor_unitario[]')
+        valores_totales = request.POST.getlist('valor_total[]')
+
+        for producto_id, nombre_producto, codigo_producto, cantidad, valor_unitario, valor_total in zip(productos_ids,
+                                                                                                        nombres_productos,
+                                                                                                        codigos_productos,
+                                                                                                        cantidades,
+                                                                                                        valores_unitarios,
+                                                                                                        valores_totales):
+            if nombre_producto.strip() and codigo_producto.strip() and cantidad.strip() and valor_unitario.strip() and valor_total.strip():
+                # Verificar que el producto exista
+                if not producto_id.strip():
+                    return render(request, 'ventas/create_venta.html', {
+                        'error': f'El producto "{nombre_producto}" no existe. Solo se pueden usar productos existentes.',
+                    })
+
+                try:
+                    producto = Producto.objects.get(id=producto_id)
+                except Producto.DoesNotExist:
+                    return render(request, 'ventas/create_venta.html', {
+                        'error': f'El producto con ID {producto_id} no existe.',
+                    })
+
+                # Crear el registro de producto vendido
+                producto_vendido = ProductosVendidos(
+                    venta=venta,
+                    producto=producto,
+                    cantidad=int(cantidad),
+                    valor_unitario=float(valor_unitario),
+                    valor_total=float(valor_total),
+                )
+                producto_vendido.save()
+
+                # Actualizar las salidas y la existencia del producto
+                producto.salidas += int(cantidad)
+                producto.existencia -= int(cantidad)
+                producto.save()
+
+        # Calcular el saldo de la cuenta por cobrar
+        saldo = valor_total - cobrado
+
+        # Determinar el estado de la cuenta por cobrar
+        estado = 'PAGADO' if saldo <= 0 else 'PENDIENTE'
+
+        # Crear la cuenta por cobrar asociada a la venta
         cuenta_por_cobrar = CuentaPorCobrar(
             fecha=fecha,
-            tercero_id=tercero_id,
+            tercero=tercero,
             venta=venta,
-            saldo=valor_total,
-            creado_por=user,
-            estado='PENDIENTE'
+            saldo=saldo,
+            estado=estado,
+            creado_por=creado_por,
         )
         cuenta_por_cobrar.save()
 
+        # Asignar la cuenta por cobrar a la venta
         venta.cuenta_por_cobrar = cuenta_por_cobrar
-        venta.save()
+        venta.save()  # Guardar la venta con la cuenta por cobrar asignada
+
+        # Crear un ingreso si hay un monto cobrado
+        if cobrado > 0:
+            metodo_pago = request.POST.get('metodo_pago', 'EFECTIVO')  # Obtener el método de pago del formulario
+            ingreso = Ingreso(
+                fecha=fecha,
+                tercero=tercero,
+                valor=cobrado,
+                metodo_de_pago=metodo_pago,
+                cuenta_por_cobrar=cuenta_por_cobrar,
+                creado_por=creado_por,
+            )
+            ingreso.save()
+            cuenta_por_cobrar.ingresos.add(ingreso)
+            cuenta_por_cobrar.save()
 
         messages.success(request, "Venta creada exitosamente.")
         return redirect('get_all_ventas')
 
-    return render(request, 'ventas/create_venta.html')
+    else:
+        terceros = Tercero.objects.all()
+        productos = Producto.objects.all()
+
+        return render(request, 'ventas/create_venta.html', {
+            'terceros': terceros,
+            'productos': productos,
+        })
 
 @login_required
 def update_venta(request, venta_id):

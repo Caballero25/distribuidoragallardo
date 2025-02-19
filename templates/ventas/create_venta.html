@@ -6,94 +6,202 @@
 {% block extra_head %}
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+    /* Ocultar la sección de productos inicialmente */
+    #seccion-productos {
+        display: none;
+    }
+
+    /* Estilo para las filas compactas */
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem; /* Espacio entre elementos */
+        align-items: center; /* Alinear verticalmente al centro */
+    }
+
+    .form-row .form-group {
+        flex: 1; /* Hacer que los elementos se expandan equitativamente */
+        min-width: 200px; /* Ancho mínimo para evitar que se compriman demasiado */
+        margin-bottom: 0; /* Eliminar el margen inferior para evitar desalineaciones */
+    }
+
+    /* Estilo para la barra de selección de método de pago */
+    #metodo_pago {
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        background-color: #fff;
+        color: #495057;
+        font-size: 1rem;
+        line-height: 1.5;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    #metodo_pago:focus {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-center">Nueva Venta</h1>
+    <h2>Crear Venta</h2>
 
-    <form method="POST">
+    <!-- Formulario de Venta -->
+    <form method="POST" action="{% url 'create_venta' %}">
         {% csrf_token %}
 
-        <div class="form-group">
-            <label for="fecha">Fecha</label>
-            <input type="date" name="fecha" class="form-control" required>
+        <!-- Primera fila: Fecha y Cliente -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="fecha" class="form-label">Fecha:</label>
+                <input type="date" class="form-control" id="fecha" name="fecha" required>
+            </div>
+
+            <div class="form-group">
+                <label for="cliente_nombre">Cliente</label>
+                <input type="text" id="cliente_nombre" class="form-control" placeholder="Buscar cliente..." required>
+                <input type="hidden" name="cliente" id="cliente_id">
+                <span id="cliente_error" style="color: red; display: none;"></span>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="tercero_nombre">Tercero</label>
-            <input type="text" id="tercero_nombre" class="form-control" placeholder="Buscar tercero..." required>
-            <input type="hidden" name="tercero" id="tercero_id">
-            <span id="tercero_error" style="color: red; display: none;"></span>
+        <!-- Descripción -->
+        <div class="mb-3">
+            <label for="descripcion" class="form-label">Descripción:</label>
+            <textarea class="form-control" id="descripcion" name="descripcion"></textarea>
         </div>
 
-        <!-- Sección del Producto -->
-        <h3>Información del Producto</h3>
+        <hr>
 
-        <div class="form-group">
-            <label for="producto_nombre">Nombre del Producto</label>
-            <input type="text" name="producto_nombre" id="producto_nombre" class="form-control" required>
-            <input type="hidden" name="producto_id" id="producto_id">
+        <!-- Botón para mostrar/ocultar la sección de productos -->
+        <button type="button" class="btn btn-primary mb-3" id="mostrar-productos">
+            Agregar Productos
+        </button>
+
+        <!-- Sección para agregar productos -->
+        <div id="seccion-productos">
+            <h4>Agregar Productos</h4>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="producto_nombre" class="form-label">Producto:</label>
+                    <input type="text" id="producto_nombre" class="form-control" placeholder="Buscar producto...">
+                    <input type="hidden" name="producto_id" id="producto_id">
+                </div>
+
+                <div class="col-md-2">
+                    <label for="producto_codigo" class="form-label">Código:</label>
+                    <input type="text" id="producto_codigo" class="form-control" placeholder="Código del producto" maxlength="4" readonly>
+                    <span id="producto_codigo_error" style="color: red; display: none;">El código no puede estar vacío.</span>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="cantidad" class="form-label">Cantidad:</label>
+                    <input type="number" class="form-control" id="cantidad" min="1">
+                    <span id="cantidad_error" style="color: red; display: none;">La cantidad no puede estar vacía o ser cero.</span>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="valor_unitario" class="form-label">Valor Unitario:</label>
+                    <input type="number" step="0.01" class="form-control" id="valor_unitario">
+                    <span id="valor_unitario_error" style="color: red; display: none;">El valor unitario no puede estar vacío o ser cero.</span>
+                </div>
+
+                <div class="col-md-2 d-grid">
+                    <button type="button" class="btn btn-primary mt-4" id="agregar-producto-tabla">Agregar</button>
+                </div>
+            </div>
+
+            <table class="table mt-3" id="tabla-productos">
+                <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Código</th>
+                    <th>Cantidad</th>
+                    <th>Valor Unitario</th>
+                    <th>Valor Total</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Aquí se agregarán los productos dinámicamente -->
+                </tbody>
+            </table>
+
+            <!-- Inputs ocultos para productos seleccionados -->
+            <div id="productos-seleccionados"></div>
         </div>
 
-        <div class="form-group">
-            <label for="producto_codigo">Código del Producto</label>
-            <input type="text" name="producto_codigo" id="producto_codigo" maxlength="4" class="form-control" readonly>
+        <!-- Segunda fila: Valor Total, Cobrado y Método de Pago -->
+        <div class="form-row">
+
+            <div class="form-group">
+                <label for="descuento" class="form-label">Descuento:</label>
+                <input type="number" step="0.01" class="form-control" id="descuento" name="descuento" value="0">
+            </div>
+
+            <div class="form-group">
+                <label for="valor" class="form-label">Valor Total:</label>
+                <input type="number" step="0.01" class="form-control" id="valor" name="valor" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="cobrado" class="form-label">Cobrado:</label>
+                <input type="number" step="0.01" class="form-control" id="cobrado" name="cobrado" value="0">
+                <span id="cobrado_error" style="color: red; display: none;">El valor cobrado no puede ser mayor al valor total.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="metodo_pago">Método de Pago:</label>
+                <select name="metodo_pago" id="metodo_pago">
+                    <option value="EFECTIVO">Efectivo</option>
+                    <option value="TRANSFERENCIA">Transferencia</option>
+                </select>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="existencia_actual">Existencia Disponible</label>
-            <input type="number" id="existencia_actual" class="form-control" readonly>
+        <!-- Por Cobrar -->
+        <div class="mb-3">
+            <label for="por_cobrar" class="form-label">Por Cobrar:</label>
+            <input type="number" step="0.01" class="form-control" id="por_cobrar" name="por_cobrar" readonly>
         </div>
 
-        <div class="form-group">
-            <label for="valor_unitario">Valor Unitario</label>
-            <input type="number" name="valor_unitario" id="valor_unitario" step="0.01" class="form-control" required readonly>
-            <span id="valor_unitario_error" style="color: red; display: none;"></span>
-        </div>
-
-        <div class="form-group">
-            <label for="cantidad">Cantidad</label>
-            <input type="number" name="cantidad" id="cantidad" min="1" class="form-control" required>
-            <span id="cantidad_error" style="color: red; display: none;">La cantidad debe ser mayor a 0</span>
-        </div>
-
-        <div class="form-group">
-            <label for="valor_total">Valor Total</label>
-            <input type="number" name="valor_total" id="valor_total" step="0.01" class="form-control" readonly>
-            <span id="valor_total_error" style="color: red; display: none;"></span>
-        </div>
-
-        <div class="form-group">
-            <label for="descripcion">Descripción</label>
-            <textarea name="descripcion" class="form-control"></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block mt-4">Crear Venta</button>
+        <button type="submit" class="btn btn-success">Crear Venta</button>
     </form>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
 <script>
     $(document).ready(function() {
+        // Mostrar/ocultar la sección de productos y alternar el atributo readonly del campo "Valor Total"
+        $("#mostrar-productos").on("click", function() {
+            const seccionProductos = $("#seccion-productos");
+            const valorTotalInput = $("#valor");
 
-        function hayErrores() {
-            return $("#tercero_id").val() === "" || $("#tercero_error").is(":visible") ||
-                $("#cantidad_error").is(":visible") || $("#valor_unitario_error").is(":visible") ||
-                $("#valor_total_error").is(":visible");
-        }
+            if (seccionProductos.is(":visible")) {
+                seccionProductos.hide();
+                valorTotalInput.prop("readonly", true); // Mantener bloqueado el campo "Valor Total"
+                $(this).text("Agregar Productos"); // Cambiar el texto del botón
 
-
-        $("form").on("submit", function(event) {
-            if (hayErrores()) {
-                event.preventDefault(); // Evita el envío del formulario si hay errores
+                // Ocultar mensajes de error al ocultar la sección
+                $("#valor_unitario_error").hide();
+                $("#cantidad_error").hide();
+                $("#producto_codigo_error").hide();
+            } else {
+                seccionProductos.show();
+                valorTotalInput.prop("readonly", true); // Mantener bloqueado el campo "Valor Total"
+                $(this).text("Ocultar Productos"); // Cambiar el texto del botón
             }
         });
 
-        // Autocompletar Cliente (Tercero)
-        $("#tercero_nombre").autocomplete({
+        // Autocompletar Cliente
+        $("#cliente_nombre").autocomplete({
             source: function(request, response) {
                 $.ajax({
                     url: "{% url 'get_tercero_by_name_din' %}",
@@ -101,10 +209,10 @@
                     data: { term: request.term },
                     success: function(data) {
                         if (data.length === 0) {
-                            $("#tercero_error").text("El tercero no existe").show();
-                            $("#tercero_id").val("");
+                            $("#cliente_error").text("El cliente no existe").show();
+                            $("#cliente_id").val("");
                         } else {
-                            $("#tercero_error").hide();
+                            $("#cliente_error").hide();
                         }
                         response($.map(data, function(item) {
                             return { label: item.text, value: item.text, id: item.id };
@@ -114,23 +222,12 @@
             },
             minLength: 2,
             select: function(event, ui) {
-                $("#tercero_id").val(ui.item.id);
-                $("#tercero_error").hide();
+                $("#cliente_id").val(ui.item.id);
+                $("#cliente_error").hide();
             }
         });
 
-        $("#tercero_nombre").on("input", function() {
-            $("#tercero_id").val("");
-            $("#tercero_error").hide();
-        });
-
-        // Ocultar el mensaje de error al escribir
-        $("#tercero_nombre").on("input", function() {
-            $("#tercero_id").val("");
-            $("#tercero_error").hide();
-        });
-
-        // Autocompletar Producto Disponible
+        // Autocompletar Producto
         $("#producto_nombre").autocomplete({
             source: function(request, response) {
                 $.ajax({
@@ -146,109 +243,168 @@
             },
             minLength: 2,
             select: function(event, ui) {
-                $("#producto_id").val(ui.item.id);
+                $("#producto_id").val(ui.item.id); // Guardar ID del producto
+                $("#producto_nombre").val(ui.item.label); // Mostrar el nombre del producto
 
-                // Obtener detalles del producto (Código, Existencia y Valor Unitario)
+                // Obtener el código del producto mediante AJAX
                 $.ajax({
                     url: "{% url 'get_codigo_producto' %}",
                     dataType: "json",
                     data: { producto_id: ui.item.id },
-                    success: function(response) {
-                        if (response.codigo) {
-                            $("#producto_codigo").val(response.codigo);
-                        }
-                    }
-                });
-
-                $.ajax({
-                    url: "{% url 'get_existencia_producto' %}",
-                    dataType: "json",
-                    data: { producto_id: ui.item.id },
-                    success: function(response) {
-                        if (response.existencia !== undefined) {
-                            $("#existencia_actual").val(response.existencia);
-                        }
-                    }
-                });
-
-                $.ajax({
-                    url: "{% url 'get_valor_unitario_producto' %}",
-                    dataType: "json",
-                    data: { producto_id: ui.item.id },
-                    success: function(response) {
-                        if (response.valor_unitario !== undefined) {
-                            $("#valor_unitario").val(response.valor_unitario);
+                    success: function(data) {
+                        if (data.codigo) {
+                            $("#producto_codigo").val(data.codigo).prop("readonly", true); // Bloquear el campo de código
                         }
                     }
                 });
             }
         });
 
-        // Si se cambia el nombre del producto, limpiar ID y detalles
-        $("#producto_nombre").on("input", function() {
-            $("#producto_id").val("");
+        // Función para validar los campos de producto
+        function validarCamposProducto() {
+            let valido = true;
+
+            // Validar valor unitario
+            const valorUnitario = parseFloat($("#valor_unitario").val());
+            if (isNaN(valorUnitario) || valorUnitario <= 0) {
+                $("#valor_unitario_error").show();
+                valido = false;
+            } else {
+                $("#valor_unitario_error").hide();
+            }
+
+            // Validar cantidad
+            const cantidad = parseFloat($("#cantidad").val());
+            if (isNaN(cantidad) || cantidad <= 0) {
+                $("#cantidad_error").show();
+                valido = false;
+            } else {
+                $("#cantidad_error").hide();
+            }
+
+            // Validar código
+            const codigo = $("#producto_codigo").val().trim();
+            if (codigo === "") {
+                $("#producto_codigo_error").show();
+                valido = false;
+            } else {
+                $("#producto_codigo_error").hide();
+            }
+
+            return valido;
+        }
+
+        // Evento para agregar producto a la tabla
+        $("#agregar-producto-tabla").on("click", function() {
+            // Validar campos del producto
+            if (!validarCamposProducto()) {
+                return; // Detener si hay errores
+            }
+
+            // Obtener los valores del formulario
+            const productoNombre = $("#producto_nombre").val();
+            const productoCodigo = $("#producto_codigo").val();
+            const productoId = $("#producto_id").val();
+            const cantidad = parseFloat($("#cantidad").val());
+            const valorUnitario = parseFloat($("#valor_unitario").val());
+
+            // Calcular el valor total del producto
+            const valorTotal = (cantidad * valorUnitario).toFixed(2);
+
+            // Agregar fila a la tabla
+            const nuevaFila = `
+                <tr>
+                    <td>${productoNombre}</td>
+                    <td>${productoCodigo}</td>
+                    <td>${cantidad}</td>
+                    <td>$${valorUnitario.toFixed(2)}</td>
+                    <td>$${valorTotal}</td>
+                    <td><button type="button" class="btn btn-danger btn-sm eliminar-producto">Eliminar</button></td>
+                </tr>
+            `;
+            $("#tabla-productos tbody").append(nuevaFila);
+
+            // Agregar inputs ocultos al formulario
+            $("#productos-seleccionados").append(`
+                <input type="hidden" name="producto[]" value="${productoId}">
+                <input type="hidden" name="producto_nombre[]" value="${productoNombre}">
+                <input type="hidden" name="producto_codigo[]" value="${productoCodigo}">
+                <input type="hidden" name="cantidad[]" value="${cantidad}">
+                <input type="hidden" name="valor_unitario[]" value="${valorUnitario}">
+                <input type="hidden" name="valor_total[]" value="${valorTotal}">
+            `);
+
+            // Actualizar el valor total de la venta
+            actualizarValorTotal();
+
+            // Limpiar los campos del formulario
+            $("#producto_nombre").val("");
             $("#producto_codigo").val("");
-            $("#existencia_actual").val("");
+            $("#producto_id").val("");
+            $("#cantidad").val("");
             $("#valor_unitario").val("");
+            $("#producto_codigo").prop("readonly", false); // Desbloquear el campo de código
         });
 
-        // Calcular automáticamente el valor total y validar existencia
-        $("#cantidad, #valor_unitario").on("input", function () {
-            let cantidad = parseFloat($("#cantidad").val()) || 0;
-            let valorUnitario = parseFloat($("#valor_unitario").val()) || 0;
+        // Función para actualizar el valor total de la venta
+        function actualizarValorTotal() {
+            let total = 0;
+            // Recorrer cada fila de la tabla de productos
+            $("#tabla-productos tbody tr").each(function() {
+                // Obtener el valor total de la fila actual
+                const valorTotalFila = parseFloat($(this).find("td:eq(4)").text().replace("$", ""));
+                if (!isNaN(valorTotalFila)) {
+                    total += valorTotalFila;
+                }
+            });
 
-            $("#valor_total").val((cantidad * valorUnitario).toFixed(2));
+            const descuento = parseFloat($("#descuento").val()) || 0;
+            const valorConDescuento = total - descuento
+            // Actualizar el campo "Valor Total" del formulario
+            $("#valor").val(valorConDescuento.toFixed(2));
+            // Actualizar el campo "Por Cobrar"
+            actualizarPorCobrar();
+        }
+
+        $("#descuento").on("input", function() {
+            actualizarValorTotal();
         });
 
-        $("#cantidad").on("input", function () {
-            let cantidad = parseFloat($(this).val());
-            let existencia = parseFloat($("#existencia_actual").val()) || 0;
+        // Función para actualizar el campo "Por Cobrar"
+        function actualizarPorCobrar() {
+            const valorTotal = parseFloat($("#valor").val()) || 0; // Obtener el valor total
+            const cobrado = parseFloat($("#cobrado").val()) || 0;   // Obtener el monto cobrado
 
-            if ($(this).val().trim() === "") {
-                $("#cantidad_error").hide();
-                return;
-            }
-
-            if (cantidad <= 0 || isNaN(cantidad)) {
-                $("#cantidad_error").text("La cantidad debe ser mayor a 0").show();
-            } else if (cantidad > existencia) {
-                $("#cantidad_error").text("La cantidad a vender no puede ser mayor que la existencia").show();
+            // Validar si el valor cobrado es mayor al valor total
+            if (cobrado > valorTotal) {
+                $("#cobrado_error").show();
             } else {
-                $("#cantidad_error").hide();
+                $("#cobrado_error").hide();
             }
+
+            // Calcular el valor por cobrar
+            const porCobrar = valorTotal - cobrado;
+            $("#por_cobrar").val(porCobrar.toFixed(2));
+        }
+
+        // Actualizar "Por Cobrar" cuando cambie el valor de "Valor Total"
+        $("#valor").on("input", function() {
+            actualizarPorCobrar();
         });
 
-        // Validación de valor unitario
-        $("#valor_unitario").on("input", function () {
-            let valorUnitario = parseFloat($(this).val());
-
-            if ($(this).val().trim() === "") {
-                $("#valor_unitario_error").hide();
-                return;
-            }
-
-            if (valorUnitario <= 0 || isNaN(valorUnitario)) {
-                $("#valor_unitario_error").text("El valor unitario debe ser mayor a 0").show();
-            } else {
-                $("#valor_unitario_error").hide();
-            }
+        // Actualizar "Por Cobrar" cuando cambie el valor de "Cobrado"
+        $("#cobrado").on("input", function() {
+            actualizarPorCobrar();
         });
 
-        // Validación de valor total
-        $("#cantidad, #valor_unitario").on("input", function () {
-            let cantidad = parseFloat($("#cantidad").val()) || 0;
-            let valorUnitario = parseFloat($("#valor_unitario").val()) || 0;
-            let valorTotal = cantidad * valorUnitario;
-
-            $("#valor_total").val(valorTotal.toFixed(2));
-
-            if (valorTotal <= 0 || isNaN(valorTotal)) {
-                $("#valor_total_error").text("El valor total debe ser mayor a 0").show();
-            } else {
-                $("#valor_total_error").hide();
-            }
+        // Evento para eliminar producto de la tabla
+        $(document).on("click", ".eliminar-producto", function() {
+            $(this).closest("tr").remove(); // Eliminar la fila
+            actualizarValorTotal(); // Actualizar el valor total
         });
+
+        // Llamar a la función al cargar la página
+        actualizarPorCobrar();
     });
 </script>
-
 {% endblock %}

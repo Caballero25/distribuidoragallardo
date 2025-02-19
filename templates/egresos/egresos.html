@@ -429,7 +429,7 @@ text-align: left;
                 <p><strong>Fecha:</strong> {{ egreso.cuenta_por_pagar.fecha|date:"d/m/Y" }}</p>
                 {% if egreso.cuenta_por_pagar.tercero %}
                 <p><strong>Tercero:</strong> {{ egreso.cuenta_por_pagar.tercero.nombre }}</p>
-                {% if else %}
+                {% else %}
                 <p><strong>Tercero:</strong> Sin tercero disponible</p>
                 {% endif %}
                 <p class="actions">
