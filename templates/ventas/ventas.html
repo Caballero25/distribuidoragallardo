@@ -7,308 +7,295 @@
 <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
 <style>
-/* Estilo general */
-body {
-font-family: 'Arial', sans-serif;
-background-color: #f0f0f0;
-margin: 0;
-padding: 0;
-}
+    /* Estilo general */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
 
-/* Título */
-h1 {
-    font-size: 36px; /* Tamaño un poco más grande */
-    font-weight: bold;
-    color: #333;
-    margin-top: 20px; /* Mayor separación desde arriba */
-    margin-bottom: 20px;
-    text-align: left;
-}
+    /* Título */
+    h1 {
+        font-size: 36px; /* Tamaño un poco más grande */
+        font-weight: bold;
+        color: #333;
+        margin-top: 20px; /* Mayor separación desde arriba */
+        margin-bottom: 20px;
+        text-align: left;
+    }
 
-/* Filtros */
-.filtros {
-display: flex;
-align-items: center;
-gap: 15px;
-padding: 10px;
-border-radius: 6px;
-}
+    /* Filtros */
+    .filtros {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px;
+        border-radius: 6px;
+    }
 
-.filtros label {
-font-weight: bold;
-}
+    .filtros label {
+        font-weight: bold;
+    }
 
-.filtros input, .filtros button {
-padding: 8px;
-border: 1px solid #ccc;
-border-radius: 4px;
-font-size: 14px;
-}
+    .filtros input, .filtros button {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
 
-.filtros button {
-background: #007bff;
-color: white;
-cursor: pointer;
-transition: 0.3s;
-}
+    .filtros button {
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+    }
 
-.filtros button:hover {
-background: #0056b3;
-}
+    .filtros button:hover {
+        background: #0056b3;
+    }
 
-/* Tabla */
-table {
-width: 100%;
-border-collapse: collapse;
-margin-top: 15px;
-background: white;
-border-radius: 6px;
-overflow: hidden;
-}
+    /* Tabla */
+    #tabla-venta {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        background: white;
+        border-radius: 6px;
+        overflow: hidden;
+    }
 
-th, td {
-padding: 12px;
-text-align: left;
-border-bottom: 1px solid #ddd;
-}
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
 
-th {
-background: #007bff;
-color: white;
-font-weight: bold;
-}
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+    }
 
-tr:nth-child(even) {
-background: #f9f9f9;
-}
+    tr:nth-child(even) {
+        background: #f9f9f9;
+    }
 
-/* Íconos */
-.actions a {
-text-decoration: none;
-font-size: 18px;
-margin-right: 10px;
-}
+    /* Íconos */
+    .actions a {
+        text-decoration: none;
+        font-size: 18px;
+        margin-right: 10px;
+    }
 
-.actions .edit {
-color: #007bff;
-}
+    .actions .edit {
+        color: #007bff;
+    }
 
-.actions .delete {
-color: #ff4d4d;
-}
+    .actions .delete {
+        color: #ff4d4d;
+    }
 
-.actions a:hover {
-opacity: 0.7;
-}
+    .actions a:hover {
+        opacity: 0.7;
+    }
 
-/* Paginación */
-.pagination {
-display: flex;
-justify-content: center;
-margin-top: 15px;
-}
+    /* Paginación */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
+    }
 
-.pagination a {
-padding: 8px 12px;
-margin: 0 5px;
-text-decoration: none;
-background: #007bff;
-color: white;
-border-radius: 4px;
-font-size: 14px;
-transition: 0.3s;
-}
+    .pagination a {
+        padding: 8px 12px;
+        margin: 0 5px;
+        text-decoration: none;
+        background: #007bff;
+        color: white;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: 0.3s;
+    }
 
-.pagination a:hover {
-background: #0056b3;
-}
+    .pagination a:hover {
+        background: #0056b3;
+    }
 
-/* Contenedor de filtros */
-.filtros-container {
-    display: flex;
-    gap: 15px;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
-}
+    /* Contenedor de filtros */
+    .filtros-container {
+        display: flex;
+        gap: 15px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+    }
 
-/* Formularios de filtros */
-.filtros {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 6px;
-    flex-grow: 1;
-}
+    /* Formularios de filtros */
+    .filtros {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 6px;
+        flex-grow: 1;
+    }
 
-/* Inputs y botones */
-.filtros input, .filtros button {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-}
+    /* Inputs y botones */
+    .filtros input, .filtros button {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
 
-.filtros button {
-    background: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: 0.3s;
-    border: none;
-    font-weight: bold;
-}
+    .filtros button {
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+        border: none;
+        font-weight: bold;
+    }
 
-.filtros button:hover {
-    background: #0056b3;
-}
+    .filtros button:hover {
+        background: #0056b3;
+    }
 
-/* Estilos para el modal de venta */
-/* Estilos del modal de ventas */
-.venta-modal {
-    display: none; /* Ocultar el modal inicialmente */
-    position: fixed;
-    z-index: 1050;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    justify-content: center;
-    align-items: center;
-}
+    /* Estilos del modal de ventas */
+    .venta-modal {
+        display: none; /* Ocultar el modal inicialmente */
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
 
-.venta-modal .modal-content {
-    background: #fff;
-    width: 70%;
-    max-width: 800px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    animation: fadeIn 0.3s ease-in-out;
-    position: relative; /* Asegura que el contenido del modal esté posicionado correctamente */
-    margin: auto; /* Centra el modal horizontalmente */
-    top: 50%; /* Centra el modal verticalmente */
-    transform: translateY(-50%); /* Ajusta la posición vertical */
-}
-
-
-/* Encabezado del modal */
-.venta-modal .modal-header {
-    display: flex;
-    justify-content: center; /* Centra horizontalmente */
-    align-items: center;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-    position: relative; /* Permite posicionar el botón de cierre */
-}
-
-.venta-modal .modal-header h5 {
-    font-size: 26px;
-    font-weight: bold;
-    color: #007bff;
-    margin: 0;
-    flex-grow: 1; /* Hace que ocupe el espacio disponible */
-    text-align: center;
-}
-
-.venta-modal .close-modal {
-    position: absolute;
-    right: 10px; /* Asegura que el botón de cierre se mantenga en su lugar */
-    top: 50%;
-    transform: translateY(-50%);
-}
+    .venta-modal .modal-content {
+        background: #fff;
+        width: 70%;
+        max-width: 800px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        animation: fadeIn 0.3s ease-in-out;
+        position: relative; /* Asegura que el contenido del modal esté posicionado correctamente */
+        margin: auto; /* Centra el modal horizontalmente */
+        top: 50%; /* Centra el modal verticalmente */
+        transform: translateY(-50%); /* Ajusta la posición vertical */
+    }
 
 
-/* Contenido del modal */
-.venta-modal .modal-body {
-    font-size: 18px;
-    line-height: 1.6;
-    color: #444;
-}
+    /* Encabezado del modal */
+    .venta-modal .modal-header {
+        display: flex;
+        justify-content: center; /* Centra horizontalmente */
+        align-items: center;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        position: relative; /* Permite posicionar el botón de cierre */
+    }
 
-.venta-modal .modal-body p {
-    margin-bottom: 12px;
-}
+    .venta-modal .modal-header h5 {
+        font-size: 26px;
+        font-weight: bold;
+        color: #007bff;
+        margin: 0;
+        flex-grow: 1; /* Hace que ocupe el espacio disponible */
+        text-align: center;
+    }
 
-.venta-modal .modal-body p strong {
-    color: #222;
-}
+    .venta-modal .close-modal {
+        position: absolute;
+        right: 10px; /* Asegura que el botón de cierre se mantenga en su lugar */
+        top: 50%;
+        transform: translateY(-50%);
+    }
 
-/* Footer del modal */
-.venta-modal .modal-footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #ccc;
-    font-size: 16px;
-    color: #555;
-}
 
-.venta-modal .modal-footer .left {
-    text-align: left;
-}
+    /* Contenido del modal */
+    .venta-modal .modal-body {
+        font-size: 18px;
+        line-height: 1.6;
+        color: #444;
+    }
 
-.venta-modal .modal-footer .right {
-    text-align: right;
-}
+    .venta-modal .modal-body p {
+        margin-bottom: 12px;
+    }
 
-.venta-modal .modal-body ul {
-    list-style-type: none; /* Elimina los puntos de la lista */
-    padding: 0;
-    margin: 0;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    overflow: hidden;
-    background: #f9f9f9;
-}
+    .venta-modal .modal-body p strong {
+        color: #222;
+    }
 
-.venta-modal .modal-body ul li {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    font-size: 16px;
-    color: #444;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background 0.3s ease;
-}
+    /* Footer del modal */
+    .venta-modal .modal-footer {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #ccc;
+        font-size: 16px;
+        color: #555;
+    }
 
-.venta-modal .modal-body ul li:last-child {
-    border-bottom: none; /* Elimina el borde inferior del último elemento */
-}
+    .venta-modal .modal-footer .left {
+        text-align: left;
+    }
 
-.venta-modal .modal-body ul li:hover {
-    background: #f1f1f1; /* Efecto hover para cada elemento de la lista */
-}
+    .venta-modal .modal-footer .right {
+        text-align: right;
+    }
+    /* Estilos para la lista de egresos */
+    .venta-modal .modal-body ul {
+        list-style-type: none; /* Elimina los puntos de la lista */
+        padding: 0;
+        margin: 0;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #f9f9f9;
+    }
 
-.venta-modal .modal-body ul li a.btn {
-    padding: 6px 12px;
-    font-size: 14px;
-    background: #007bff;
-    color: white;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: background 0.3s ease;
-}
+    .venta-modal .modal-body ul li {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        font-size: 16px;
+        color: #444;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.3s ease;
+    }
 
-.venta-modal .modal-body ul li a.btn:hover {
-    background: #0056b3; /* Efecto hover para el botón */
-}
+    .venta-modal .modal-body ul li:last-child {
+        border-bottom: none; /* Elimina el borde inferior del último elemento */
+    }
 
-/* Estilos para el mensaje cuando no hay ingresos */
-.venta-modal .modal-body p.no-egresos {
-    font-size: 16px;
-    color: #777;
-    text-align: center;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background: #f9f9f9;
-}
+    .venta-modal .modal-body ul li:hover {
+        background: #f1f1f1; /* Efecto hover para cada elemento de la lista */
+    }
 
+    .venta-modal .modal-body ul li a.btn {
+        padding: 6px 12px;
+        font-size: 14px;
+        background: #007bff;
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background 0.3s ease;
+    }
+
+    .venta-modal .modal-body ul li a.btn:hover {
+        background: #0056b3; /* Efecto hover para el botón */
+    }
 </style>
 {% endblock %}
 
@@ -323,8 +310,6 @@ background: #0056b3;
 {% endfor %}
 {% endif %}
 
-<!-- Filtros -->
-<!-- Filtros por fecha -->
 <div class="filtros-container">
     <form method="get" action="{% url 'get_all_ventas' %}" class="filtros">
         <label for="fecha_inicio">Desde:</label>
@@ -334,32 +319,31 @@ background: #0056b3;
         <input type="date" id="fecha_fin" name="fecha_fin" value="{{ request.GET.fecha_fin }}">
 
         <button type="submit">Buscar</button>
+        <button type="button" id="limpiar-fecha">Limpiar</button>
     </form>
 
     <!-- Filtro por cliente -->
     <form method="get" action="{% url 'get_all_ventas' %}" class="filtros">
-        <label for="tercero">Buscar por Cliente:</label>
-        <input type="text" id="tercero" name="tercero" value="{{ request.GET.tercero }}" placeholder="Nombre del cliente">
+        <label for="tercero">Buscar por Tercero:</label>
+        <input type="text" id="tercero" name="tercero" value="{{ request.GET.tercero }}" placeholder="Nombre del tercero">
 
         <button type="submit">Buscar</button>
+        <button type="button" id="limpiar-tercero">Limpiar</button>
     </form>
 </div>
+
 <!-- Tabla de Ventas -->
-<table>
-  <thead>
-  <tr>
-    <th>Fecha</th>
-    <th>Tercero</th>
-    <th>Producto</th>
-    <th>Valor Unitario</th>
-    <th>Cantidad</th>
-    <th>Valor Total</th>
-    <th>Descripción</th>
-    <th>Ver</th>
-    <th>Editar</th>
-    <th>Eliminar</th>
-  </tr>
-  </thead>
+<table id="tabla-venta">
+    <thead>
+    <tr>
+        <th>Fecha</th>
+        <th>Tercero</th>
+        <th>Valor</th>
+        <th>Descripción</th>
+        <th>Ver</th>
+        <th>Eliminar</th>
+    </tr>
+    </thead>
     <tbody>
     {% if ventas %}
     {% for venta in ventas %}
@@ -370,11 +354,12 @@ background: #0056b3;
         {% else %}
         <td>Sin tercero disponible</td>
         {% endif %}
-        <td>{{ venta.producto.nombre }}</td>
-        <td class="valor-unitario">{{ venta.valor_unitario }}</td>
-        <td class="cantidad-vendida"></td>
-        <td class="valor-total">{{ venta.valor_total }}</td>
+        <td class="saldo">{{ venta.valor }}</td>
+        {% if venta.descripcion %}
         <td>{{ venta.descripcion }}</td>
+        {% else %}
+        <td>Sin descripción disponible</td>
+        {% endif %}
 
         <td class="actions">
             <a href="#viewModal{{ venta.id }}" class="view btn-ver" data-id="{{ venta.id }}">
@@ -383,58 +368,12 @@ background: #0056b3;
         </td>
 
         <td>
-            <a href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ venta.id }}">
-                <i class="fi fi-rr-pencil"></i>
-            </a>
-        </td>
-        <td>
             <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ venta.id }}">
                 <i class="fi fi-rs-trash-can-slash"></i>
             </a>
         </td>
     </tr>
 
-    <!-- Modal para ver detalles de la venta -->
-    <div class="modal venta-modal" id="viewModal{{ venta.id }}">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5><p><strong>Venta N°</strong> {{ venta.id}}</p></h5>
-            </div>
-            <div class="modal-body">
-                <p><strong>Fecha:</strong> {{ venta.fecha|date:"d/m/Y" }}</p>
-                {% if venta.tercero %}
-                <p><strong>Tercero:</strong> {{ venta.tercero.nombre }}</p>
-                {% else %}
-                <p><strong>Tercero:</strong> Sin tercero disponible</p>
-                {% endif %}
-                <p><strong>Producto:</strong> {{ venta.producto.nombre }}</p>
-                <p><strong>Valor Unitario:</strong> <span class="valor-unitario-modal">{{ venta.valor_unitario }}</span></p>
-                <p><strong>Cantidad:</strong> <span class="cantidad-modal"></span></p>
-                <p><strong>Valor Total:</strong> <span class="valor-total-modal">{{ venta.valor_total }}</span></p>
-                <p><strong>Descripción:</strong> {{ venta.descripcion }}</p>
-                <p class="actions">
-                    <strong>Cuenta por Cobrar:</strong>
-                    {% if venta.cuenta_por_cobrar.id %}
-                    <a href="#cuentaModal{{ venta.cuenta_por_cobrar.id }}" class="view btn-ver-cuenta" data-id="{{ venta.cuenta_por_cobrar.id }}">
-                        Ver Cuenta por Cobrar
-                    </a>
-                    {% else %}
-                    No asignada
-                    {% endif %}
-                </p>
-            </div>
-            <div class="modal-footer">
-                <div class="left-info">
-                    <p><strong>Creado por:</strong> {{ venta.creado_por.username|default:"-" }}</p>
-                    <p><strong>Fecha de Creación:</strong> {{ venta.fecha_creacion|date:"d/m/Y" }}</p>
-                </div>
-                <div class="right-info">
-                    <p><strong>Editado por:</strong> {{ venta.editado_por.username|default:"-" }}</p>
-                    <p><strong>Fecha de Edición:</strong> {{ venta.fecha_edicion|date:"d/m/Y"|default:"-" }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="modal fade" id="deleteModal{{ venta.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ venta.id }}" aria-hidden="true" data-bs-backdrop="true">
         <div class="modal-dialog">
@@ -457,69 +396,123 @@ background: #0056b3;
         </div>
     </div>
 
-    <!-- Modal Ver Detalles de la Cuenta por Cobrar -->
-    <div class="modal venta-modal" id="cuentaModal{{ venta.cuenta_por_cobrar.id }}">
+    <!-- Modal para ver detalles de la venta -->
+    <div class="modal venta-modal" id="viewModal{{ venta.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Cuenta por Pagar N°</strong> {{ venta.cuenta_por_cobrar.id }}</p></h5>
+                <h5><p><strong>Venta N°</strong> {{ venta.id }}</p></h5>
             </div>
             <div class="modal-body">
-                <p><strong>Fecha:</strong> {{ venta.cuenta_por_cobrar.fecha|date:"d/m/Y" }}</p>
-                {% if venta.cuenta_por_cobrar.tercero %}
-                <p><strong>Tercero:</strong> {{ venta.cuenta_por_cobrar.tercero.nombre }}</p>
+                <p><strong>Fecha:</strong> {{ venta.fecha|date:"d/m/Y" }}</p>
+                {% if venta.tercero %}
+                <p><strong>Tercero:</strong> {{ venta.tercero.nombre }}</p>
                 {% else %}
-                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                <p><strong>Tercero:</strong>Sintercero disponible</p>
                 {% endif %}
-                <p><strong>Saldo:</strong> <span id="valor-unitario-modal">{{ venta.cuenta_por_cobrar.saldo }}</span></p>
-                <p><strong>Estado:</strong> {{ venta.cuenta_por_cobrar.estado|capfirst }}</p>
 
-                <p><strong>Ingresos:</strong></p>
-                {% if venta.cuenta_por_cobrar.ingresos.all %}
+                {% if venta.descripcion %}
+                <p><strong>Descripción:</strong> {{ venta.descripcion }}</p>
+                {% else %}
+                <p><strong>Descripción:</strong> Sin descripción disponible</p>
+                {% endif %}
+
+                <!-- Lista de productos -->
+                <p><strong>Productos vendidos:</strong></p>
+                {% if venta.productos_vendidos.all %}
                 <ul>
-                    {% for ingreso in venta.cuenta_por_cobrar.ingresos.all %}
+                    {% for producto_vendido in venta.productos_vendidos.all %}
                     <li class="actions">
-                        {{ ingreso.fecha|date:"d/m/Y" }} - ${{ ingreso.valor }} - {{ ingreso.metodo_de_pago }}
-                        <a href="#ingresoModal{{ ingreso.id }}" class="view btn-ver-ingresos" data-id="{{ ingreso.id }}">Ver Ingreso</a>
+                    <span>
+                        <strong>Nombre:</strong> {{ producto_vendido.producto.nombre }} |
+                        <strong>Valor Unitario:</strong> ${{ producto_vendido.valor_unitario }} |
+                        <strong>Cantidad:</strong> {{ producto_vendido.cantidad }} |
+                        <strong>Valor Total:</strong> ${{ producto_vendido.valor_total|floatformat:2 }}
+                    </span>
                     </li>
                     {% endfor %}
                 </ul>
                 {% else %}
-                <p class="no-egresos">No hay ingresos registrados.</p>
+                <p>No hay productos asociados a esta venta.</p>
                 {% endif %}
-                <button class="btn btn-success" onclick="location.href='{% url 'get_all_cuentas_por_cobrar' %}'">
-                    Cobrar
-                </button>
+
+                <p class="actions">
+                    <strong>Cuenta por Cobrar:</strong>
+                    {% if venta.cuenta_por_cobrar.id %}
+                    <a href="#cuentaModal{{ venta.cuenta_por_cobrar.id }}" class="view btn-ver-cuenta" data-id="{{ venta.cuenta_por_cobrar.id }}">
+                        Ver Cuenta por Cobrar
+                    </a>
+                    {% else %}
+                    No asignada
+                    {% endif %}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <div class="left-info">
+                    <p><strong>Creado por:</strong> {{ venta.creado_por.username|default:"-" }}</p>
+                    <p><strong>Fecha de Creación:</strong> {{ venta.fecha_creacion|date:"d/m/Y" }}</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Ingreso -->
-    {% for ingreso in venta.cuenta_por_cobrar.ingresos.all %}
-    <div class="modal venta-modal" id="ingresoModal{{ ingreso.id }}">
+    <!-- Modal Ver Detalles de la Cuenta por Cobrar -->
+    <div class="modal venta-modal" id="cuentaModal{{ venta.cuenta_por_cobrar.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Ingreso N°</strong> {{ ingreso.id }}</p></h5>
+                <h5><p><strong>Cuenta por Cobrar N°</strong> {{ venta.cuenta_por_cobrar.id }}</p></h5>
             </div>
             <div class="modal-body">
-                <p><strong>Fecha:</strong> {{ ingreso.fecha|date:"d/m/Y" }}</p>
-                {% if ingreso.tercero %}
-                <p><strong>Tercero:</strong> {{ ingreso.tercero.nombre }}</p>
+                <p><strong>Fecha:</strong> {{ venta.cuenta_por_cobrar.fecha|date:"d/m/Y" }}</p>
+                <p><strong>Tercero:</strong> {{ venta.cuenta_por_cobrar.tercero.nombre }}</p>
+                <p><strong>Saldo:</strong> <span class="saldo">{{ venta.cuenta_por_cobrar.saldo }}</span></p>
+                <p><strong>Estado:</strong> {{ venta.cuenta_por_cobrar.estado|capfirst }}</p>
+
+                <p><strong>Egresos:</strong></p>
+                {% if venta.cuenta_por_cobrar.egresos.all %}
+                <ul>
+                    {% for egreso in venta.cuenta_por_cobrar.egresos.all %}
+                    <li class="actions">
+                        {{ egreso.fecha|date:"d/m/Y" }} - ${{ egreso.valor }} - {{ egreso.metodo_de_pago }}
+                        <a href="#egresoModal{{ egreso.id }}" class="view btn-ver-egresos" data-id="{{ egreso.id }}">Ver Egreso</a>
+                    </li>
+                    {% endfor %}
+                </ul>
                 {% else %}
-                <p><strong>Tercero:</strong> Sin tercero disponible</p>
+                <p class="no-egresos">No hay egresos registrados.</p>
                 {% endif %}
-                <p><strong>Valor:</strong> <span id="modal-valor">{{ ingreso.valor }}</span></p>
-                <p><strong>Método de Pago:</strong> {{ ingreso.metodo_de_pago }}</span></p>
+                {% if venta.cuenta_por_cobrar.saldo > 0 %}
+                <button class="btn btn-success" onclick="location.href='{% url 'get_all_cuentas_por_cobrar' %}'">
+                    Cobrar
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Egreso -->
+    {% for egreso in venta.cuenta_por_cobrar.egresos.all %}
+    <div class="modal venta-modal" id="egresoModal{{ egreso.id }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5><p><strong>Egreso N°</strong> {{ egreso.id }}</p></h5>
+            </div>
+            <div class="modal-body">
+                <p><strong>Fecha:</strong> {{ egreso.fecha|date:"d/m/Y" }}</p>
+                <p><strong>Tercero:</strong> {{ egreso.tercero.nombre }}</p>
+                <p><strong>Valor:</strong> <span id="modal-valor">{{ egreso.valor }}</span></p>
+                <p><strong>Método de Pago:</strong> {{ egreso.metodo_de_pago }}</p>
 
             </div>
             <div class="modal-footer">
                 <div class="left-info">
-                    <p><strong>Creado por:</strong> {{ ingreso.creado_por.username|default:"-" }}</p>
-                    <p><strong>Fecha de Creación:</strong> {{ ingreso.fecha_creacion|date:"d/m/Y" }}</p>
+                    <p><strong>Creado por:</strong> {{ egreso.creado_por.username|default:"-" }}</p>
+                    <p><strong>Fecha de Creación:</strong> {{ egreso.fecha_creacion|date:"d/m/Y" }}</p>
                 </div>
             </div>
         </div>
     </div>
     {% endfor %}
+
     {% endfor %}
     {% else %}
     <tr>
@@ -532,6 +525,7 @@ background: #0056b3;
 
 </table>
 
+<!-- Paginación -->
 <nav>
     <ul class="pagination">
         {% if ventas.has_previous %}
@@ -552,179 +546,163 @@ background: #0056b3;
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
-  document.querySelectorAll('[data-bs-toggle="modal"]').forEach(item => {
-    item.addEventListener('click', event => {
-      const targetModal = document.querySelector(item.getAttribute('data-bs-target'));
-      targetModal.style.display = 'block';
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(item => {
+        item.addEventListener('click', event => {
+            const targetModal = document.querySelector(item.getAttribute('data-bs-target'));
+            targetModal.style.display = 'block';
+        });
     });
-  });
 
-  document.querySelectorAll('.close').forEach(item => {
-    item.addEventListener('click', event => {
-      const modal = item.closest('.modal');
-      modal.style.display = 'none';
+    document.querySelectorAll('.close').forEach(item => {
+        item.addEventListener('click', event => {
+            const modal = item.closest('.modal');
+            modal.style.display = 'none';
+        });
     });
-  });
 
-  // Cerrar el modal al hacer clic fuera de él
-  window.onclick = function (event) {
-    if (event.target.classList.contains('modal')) {
-      event.target.style.display = 'none';
+    // Cerrar el modal al hacer clic fuera de él
+    window.onclick = function (event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
     }
-  }
 
-  $(document).ready(function () {
-    setTimeout(function () {
-      $(".alert-success").fadeOut(500);
-    }, 3000); // 3 segundos
-  });
+    $(document).ready(function () {
+        setTimeout(function () {
+            $(".alert-success").fadeOut(500);
+        }, 3000); // 3 segundos
+    });
 
-  document.addEventListener("DOMContentLoaded", function () {
-      let rows = document.querySelectorAll("tbody tr"); // Seleccionar todas las filas de la tabla
+    document.addEventListener("DOMContentLoaded", function () {
+        let rows = document.querySelectorAll("tbody tr"); // Seleccionar todas las filas de la tabla
 
-      rows.forEach(row => {
-          let valorTotalElement = row.querySelector(".valor-total");
-          let valorUnitarioElement = row.querySelector(".valor-unitario");
-          let cantidadVendidaElement = row.querySelector(".cantidad-vendida");
+        rows.forEach(row => {
+            let valorTotalElement = row.querySelector(".valor-total");
+            let valorUnitarioElement = row.querySelector(".valor-unitario");
+            let cantidadVendidaElement = row.querySelector(".cantidad-vendida");
 
-          let valorTotal = parseFloat(valorTotalElement.textContent) || 0;
-          let valorUnitario = parseFloat(valorUnitarioElement.textContent) || 1;
+            let valorTotal = parseFloat(valorTotalElement.textContent.replace(/[^0-9,.]/g, "").replace(",", ".")) || 0;
+            let valorUnitario = parseFloat(valorUnitarioElement.textContent.replace(/[^0-9,.]/g, "").replace(",", ".")) || 0;
 
-          // Evitar divisiones por 0 y redondear hacia abajo
-          let cantidadVendida = valorUnitario !== 0 ? Math.floor(valorTotal / valorUnitario) : 0;
+            let cantidadVendida = 0; // Por defecto, cantidad en 0
 
-          // Formatear números con coma en decimales
-          let formatoMoneda = (valor) => `$${valor.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            if (valorUnitario > 0) {
+                cantidadVendida = Math.floor(valorTotal / valorUnitario);
+            }
 
-          valorTotalElement.textContent = formatoMoneda(valorTotal);
-          valorUnitarioElement.textContent = formatoMoneda(valorUnitario);
-          cantidadVendidaElement.textContent = cantidadVendida;
-      });
-  });
+            // Función para formatear números como moneda
+            let formatoMoneda = (valor) =>
+                `$${valor.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  $(document).ready(function () {
-      function cargarVentas() {
-          let tercero = $("#tercero").val();
-          let fecha_inicio = $("#fecha_inicio").val();
-          let fecha_fin = $("#fecha_fin").val();
+            valorTotalElement.textContent = formatoMoneda(valorTotal);
+            valorUnitarioElement.textContent = formatoMoneda(valorUnitario);
+            cantidadVendidaElement.textContent = cantidadVendida;
+        });
+    });
 
-          $.ajax({
-              url: "{% url 'get_all_ventas' %}",
-              data: {
-                  tercero: tercero,
-                  fecha_inicio: fecha_inicio,
-                  fecha_fin: fecha_fin
-              },
-              success: function (data) {
-                  let newTable = $(data).find("#ventas-body").html();
-                  $("#ventas-body").html(newTable);
-              }
-          });
-      }
+    $(document).ready(function () {
+        function cargarVentas() {
+            let tercero = $("#tercero").val();
+            let fecha_inicio = $("#fecha_inicio").val();
+            let fecha_fin = $("#fecha_fin").val();
 
-      // Buscar mientras escribe
-      $("#tercero").on("input", function () {
-          cargarVentas();
-      });
+            $.ajax({
+                url: "{% url 'get_all_ventas' %}",
+                data: {
+                    tercero: tercero,
+                    fecha_inicio: fecha_inicio,
+                    fecha_fin: fecha_fin
+                },
+                success: function (data) {
+                    let newTable = $(data).find("#ventas-body").html();
+                    $("#ventas-body").html(newTable);
+                }
+            });
+        }
 
-      // Si se borra el nombre del cliente, se recargan todas las ventas
-      $("#tercero").on("keyup", function () {
-          if ($(this).val().trim() === "") {
-              cargarVentas();
-          }
-      });
-  });
+        // Buscar mientras escribe
+        $("#tercero").on("input", function () {
+            cargarVentas();
+        });
 
-  document.addEventListener("DOMContentLoaded", function () {
-      document.querySelectorAll(".btn-ver").forEach(button => {
-          button.addEventListener("click", function (event) {
-              event.preventDefault();
+        // Si se borra el nombre del cliente, se recargan todas las ventas
+        $("#tercero").on("keyup", function () {
+            if ($(this).val().trim() === "") {
+                cargarVentas();
+            }
+        });
 
-              let ventaId = this.getAttribute("data-id");
-              let modal = document.getElementById(`viewModal${ventaId}`);
+        // Limpiar búsqueda de tercero
+        $("#limpiar-tercero").click(function () {
+            $("#tercero").val("");
+            window.location.href = "{% url 'get_all_cuentas_por_cobrar' %}";
+        });
 
-              let row = this.closest("tr");
+        // Limpiar búsqueda por fecha
+        $("#limpiar-fecha").click(function () {
+            $("#fecha_inicio").val("");
+            $("#fecha_fin").val("");
+            window.location.href = "{% url 'get_all_cuentas_por_cobrar' %}";
+        });
+    });
 
-              // Obtener los valores directamente del texto
-              let valorTotalText = row.querySelector(".valor-total").textContent.trim();
-              let valorUnitarioText = row.querySelector(".valor-unitario").textContent.trim();
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-ver").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
 
-              // Función para convertir texto con comas a número
-              function convertirANumero(texto) {
-                  // Eliminar el símbolo de moneda ($) si está presente
-                  texto = texto.replace("$", "").trim();
-                  // Reemplazar comas por puntos para el formato decimal
-                  texto = texto.replace(",", ".");
-                  // Convertir a número
-                  return parseFloat(texto) || 0;
-              }
+                let ventaId = this.getAttribute("data-id");
+                let modal = document.getElementById(`viewModal${ventaId}`);
 
-              // Convertir los valores a números
-              let valorTotal = convertirANumero(valorTotalText);
-              let valorUnitario = convertirANumero(valorUnitarioText);
+                if (modal) {
+                    modal.style.display = "block";
+                }
+            });
+        });
+    });
 
-              // Calcular la cantidad
-              let cantidad = valorUnitario !== 0 ? Math.floor(valorTotal / valorUnitario) : 0;
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-ver-cuenta").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
 
-              // Función para formatear los valores con $ y coma decimal
-              function formatoMoneda(valor) {
-                  return `$${valor.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-              }
+                let cuentaId = this.getAttribute("data-id");
+                let modal = document.getElementById(`cuentaModal${cuentaId}`);
 
-              // Aplicar formato a los valores en el modal
-              modal.querySelector(".valor-unitario-modal").textContent = formatoMoneda(valorUnitario);
-              modal.querySelector(".valor-total-modal").textContent = formatoMoneda(valorTotal);
-              modal.querySelector(".cantidad-modal").textContent = cantidad;
+                if (modal) {
+                    modal.style.display = "block";
+                }
+            });
+        });
+    });
 
-              // Mostrar el modal
-              modal.style.display = "block";
-          });
-      });
-  });
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-ver-egresos").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
 
-  document.addEventListener("DOMContentLoaded", function () {
-      document.querySelectorAll(".btn-ver-cuenta").forEach(button => {
-          button.addEventListener("click", function (event) {
-              event.preventDefault();
+                let cuentaId = this.getAttribute("data-id");
+                let modal = document.getElementById(`egresoModal${cuentaId}`);
 
-              let cuentaId = this.getAttribute("data-id");
-              let modal = document.getElementById(`cuentaModal${cuentaId}`);
+                if (modal) {
+                    modal.style.display = "block";
+                }
+            });
+        });
+    });
 
-              if (modal) {
-                  modal.style.display = "block";
-              }
-          });
-      });
-  });
+    document.addEventListener("DOMContentLoaded", function () {
+        function formatCurrency(value) {
+            return "$" + value.toFixed(2).replace(".", ",");
+        }
 
-  document.addEventListener("DOMContentLoaded", function () {
-      document.querySelectorAll(".btn-ver-ingresos").forEach(button => {
-          button.addEventListener("click", function (event) {
-              event.preventDefault();
-
-              let cuentaId = this.getAttribute("data-id");
-              let modal = document.getElementById(`ingresoModal${cuentaId}`);
-
-              if (modal) {
-                  modal.style.display = "block";
-              }
-          });
-      });
-  });
-
-  document.addEventListener("DOMContentLoaded", function () {
-      function formatCurrency(value) {
-          return "$" + value.toFixed(2).replace(".", ",");
-      }
-
-      let modalValor = document.getElementById("valor-unitario-modal");
-      if (modalValor) {
-          let valor = parseFloat(modalValor.textContent.replace("$", "").trim());
-          if (!isNaN(valor)) {
-              modalValor.textContent = formatCurrency(valor);
-          }
-      }
-  });
+        // Formatear los saldos en la tabla
+        document.querySelectorAll(".saldo").forEach(function (element) {
+            let saldo = parseFloat(element.textContent.replace("$", "").trim());
+            if (!isNaN(saldo)) {
+                element.textContent = formatCurrency(saldo);
+            }
+        });
+    });
 </script>
-
 {% endblock %}

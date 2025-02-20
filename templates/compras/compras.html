@@ -480,9 +480,11 @@
                 {% else %}
                 <p class="no-egresos">No hay egresos registrados.</p>
                 {% endif %}
+                {% if compra.cuenta_por_pagar.saldo > 0 %}
                 <button class="btn btn-success" onclick="location.href='{% url 'get_all_cuentas_por_pagar' %}'">
                     Pagar
                 </button>
+                {% endif %}
             </div>
         </div>
     </div>

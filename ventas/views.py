@@ -5,9 +5,10 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from cuentasporcobrar.models import CuentaPorCobrar
+from ingresos.models import Ingreso
 from productos.models import Producto
 from terceros.models import Tercero
-from ventas.models import Venta
+from ventas.models import Venta, ProductosVendidos
 from django.utils.dateparse import parse_date
 from django.db import transaction
 
@@ -55,11 +56,13 @@ def create_venta(request):
         fecha = request.POST.get('fecha')
         tercero_id = request.POST.get('tercero')
         descripcion = request.POST.get('descripcion')
-        valor_total = float(request.POST.get('valor_total', 0))  # Valor total de la venta
+        valor = float(request.POST.get('valor', 0))  # Valor total de la venta
         cobrado = float(request.POST.get('cobrado', 0))  # Monto cobrado (por defecto 0)
         creado_por = request.user
 
-        if not fecha or not tercero_id or valor_total <= 0:
+        if not fecha or not tercero_id or valor <= 0:
+            print(fecha)
+            print(tercero_id)
             return render(request, 'ventas/create_venta.html', {
                 'error': 'Fecha, Tercero y Valor Total son campos obligatorios. El valor total debe ser mayor a 0.',
             })
@@ -76,7 +79,7 @@ def create_venta(request):
             fecha=fecha,
             tercero=tercero,
             descripcion=descripcion,
-            valor_total=valor_total,
+            valor=valor,
             creado_por=creado_por,
         )
         venta.save()
@@ -125,7 +128,7 @@ def create_venta(request):
                 producto.save()
 
         # Calcular el saldo de la cuenta por cobrar
-        saldo = valor_total - cobrado
+        saldo = valor - cobrado
 
         # Determinar el estado de la cuenta por cobrar
         estado = 'PAGADO' if saldo <= 0 else 'PENDIENTE'
@@ -171,66 +174,6 @@ def create_venta(request):
             'terceros': terceros,
             'productos': productos,
         })
-
-@login_required
-def update_venta(request, venta_id):
-    venta = Venta.objects.get(id=venta_id)
-
-    if request.method == 'POST':
-        fecha = request.POST.get('fecha')
-        tercero_id = request.POST.get('tercero')
-        producto_id = request.POST.get('producto_id')
-        cantidad = int(request.POST.get('cantidad'))
-        valor_unitario = Decimal(request.POST.get('valor_unitario'))
-        valor_total = cantidad * valor_unitario
-        descripcion = request.POST.get('descripcion')
-        user = request.user
-
-        producto = Producto.objects.filter(id=producto_id).first()
-
-        if not producto:
-            messages.error(request, "El producto seleccionado no existe.")
-            return redirect('update_venta', venta_id=venta.id)
-
-        # Revertir la salida anterior del producto antes de actualizar
-        if venta.producto:
-            venta.producto.salidas -= cantidad
-            venta.producto.existencia = venta.producto.entradas - venta.producto.salidas
-            venta.producto.save()
-
-        # Verificar que haya suficiente stock para la nueva cantidad
-        if producto.existencia < cantidad:
-            messages.error(request, "No hay suficiente existencia para realizar la venta.")
-            return redirect('update_venta', venta_id=venta.id)
-
-        # Actualizar la existencia del producto con los nuevos valores
-        producto.salidas += cantidad
-        producto.existencia = producto.entradas - producto.salidas
-        producto.save()
-
-        # Actualizar la venta
-        venta.fecha = fecha
-        venta.tercero_id = tercero_id
-        venta.producto = producto
-        venta.valor_unitario = valor_unitario
-        venta.valor_total = valor_total
-        venta.descripcion = descripcion
-        venta.editado_por = user
-        venta.fecha_edicion = date.today()
-        venta.save()
-
-        # Actualizar la cuenta por cobrar asociada
-        if venta.cuenta_por_cobrar:
-            cuenta_por_cobrar = venta.cuenta_por_cobrar
-            cuenta_por_cobrar.fecha = fecha
-            cuenta_por_cobrar.tercero_id = tercero_id
-            cuenta_por_cobrar.saldo = valor_total
-            cuenta_por_cobrar.save()
-
-        messages.success(request, "Venta actualizada exitosamente.")
-        return redirect('get_all_ventas')
-
-    return render(request, 'ventas/update_venta.html', {'venta': venta})
 
 @login_required
 def delete_venta(request, id):

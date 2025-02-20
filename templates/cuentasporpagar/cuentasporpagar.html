@@ -355,7 +355,7 @@ text-align: left;
     {% for cuenta_por_pagar in cuentas_por_pagar %}
     <tr>
         <td>{{ cuenta_por_pagar.fecha|date:"d/m/Y" }}</td>
-        {% if cuenta_por_pagar.tercero %}
+        {% if cuenta_por_pagar.tercero %}z
         <td>{{ cuenta_por_pagar.tercero.nombre }}</td>
         {% else %}
         <td>Sin tercero disponible</td>
@@ -419,9 +419,11 @@ text-align: left;
                 {% endif %}
 
                 <!-- Botón Pagar -->
+                {% if cuenta_por_pagar.saldo > 0 %}
                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#pagarModal{{ cuenta_por_pagar.id }}">
                     Pagar
                 </button>
+                {% endif %}
             </div>
         </div>
     </div>

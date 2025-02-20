@@ -49,13 +49,13 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Crear Venta</h2>
+    <h2>Nueva Venta</h2>
 
     <!-- Formulario de Venta -->
     <form method="POST" action="{% url 'create_venta' %}">
         {% csrf_token %}
 
-        <!-- Primera fila: Fecha y Cliente -->
+        <!-- Primera fila: Fecha y Tercero -->
         <div class="form-row">
             <div class="form-group">
                 <label for="fecha" class="form-label">Fecha:</label>
@@ -63,10 +63,10 @@
             </div>
 
             <div class="form-group">
-                <label for="cliente_nombre">Cliente</label>
-                <input type="text" id="cliente_nombre" class="form-control" placeholder="Buscar cliente..." required>
-                <input type="hidden" name="cliente" id="cliente_id">
-                <span id="cliente_error" style="color: red; display: none;"></span>
+                <label for="tercero_nombre">Tercero</label>
+                <input type="text" id="tercero_nombre" class="form-control" placeholder="Buscar tercero..." required>
+                <input type="hidden" name="tercero" id="tercero_id">
+                <span id="tercero_error" style="color: red; display: none;"></span>
             </div>
         </div>
 
@@ -92,6 +92,7 @@
                     <label for="producto_nombre" class="form-label">Producto:</label>
                     <input type="text" id="producto_nombre" class="form-control" placeholder="Buscar producto...">
                     <input type="hidden" name="producto_id" id="producto_id">
+                    <span id="producto_error" style="color: red; display: none;">Este producto no existe.</span>
                 </div>
 
                 <div class="col-md-2">
@@ -200,8 +201,8 @@
             }
         });
 
-        // Autocompletar Cliente
-        $("#cliente_nombre").autocomplete({
+        // Autocompletar Tercero
+        $("#tercero_nombre").autocomplete({
             source: function(request, response) {
                 $.ajax({
                     url: "{% url 'get_tercero_by_name_din' %}",
@@ -209,10 +210,10 @@
                     data: { term: request.term },
                     success: function(data) {
                         if (data.length === 0) {
-                            $("#cliente_error").text("El cliente no existe").show();
-                            $("#cliente_id").val("");
+                            $("#tercero_error").text("El Tercero no existe").show();
+                            $("#tercero_id").val("");
                         } else {
-                            $("#cliente_error").hide();
+                            $("#tercero_error").hide();
                         }
                         response($.map(data, function(item) {
                             return { label: item.text, value: item.text, id: item.id };
@@ -222,12 +223,11 @@
             },
             minLength: 2,
             select: function(event, ui) {
-                $("#cliente_id").val(ui.item.id);
-                $("#cliente_error").hide();
+                $("#tercero_id").val(ui.item.id);
+                $("#tercero_error").hide();
             }
         });
 
-        // Autocompletar Producto
         $("#producto_nombre").autocomplete({
             source: function(request, response) {
                 $.ajax({
@@ -235,6 +235,11 @@
                     dataType: "json",
                     data: { term: request.term },
                     success: function(data) {
+                        if (data.length === 0) {
+                            $("#producto_error").show(); // Mostrar mensaje de error
+                        } else {
+                            $("#producto_error").hide(); // Ocultar mensaje de error
+                        }
                         response($.map(data, function(item) {
                             return { label: item.nombre, value: item.nombre, id: item.id };
                         }));
@@ -245,6 +250,7 @@
             select: function(event, ui) {
                 $("#producto_id").val(ui.item.id); // Guardar ID del producto
                 $("#producto_nombre").val(ui.item.label); // Mostrar el nombre del producto
+                $("#producto_error").hide(); // Ocultar mensaje de error al seleccionar un producto
 
                 // Obtener el código del producto mediante AJAX
                 $.ajax({

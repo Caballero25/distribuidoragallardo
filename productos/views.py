@@ -99,6 +99,12 @@ def get_producto_by_name_din(request):
     return JsonResponse(data, safe=False)
 
 @login_required
+def get_producto_by_codigo_din(request):
+    term = request.GET.get('term')
+    productos = Producto.objects.filter(codigo__icontains=term).values('id', 'codigo', 'nombre')
+    return JsonResponse(list(productos), safe=False)
+
+@login_required
 def update_producto(request, id):
     producto = Producto.objects.get(id=id)
 
