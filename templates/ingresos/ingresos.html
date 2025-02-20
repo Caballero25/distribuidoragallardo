@@ -3,8 +3,300 @@
 
 {% block title %} Ingresos {% endblock %}
 
+{% block extra_head %}
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Título */
+    h1 {
+        font-size: 36px; /* Tamaño un poco más grande */
+        font-weight: bold;
+        color: #333;
+        margin-top: 20px; /* Mayor separación desde arriba */
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    /* Filtros */
+    .filtros {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .filtros label {
+        font-weight: bold;
+    }
+
+    .filtros input, .filtros button {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .filtros button {
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .filtros button:hover {
+        background: #0056b3;
+    }
+
+    /* Tabla */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        background: white;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+        background: #f9f9f9;
+    }
+
+    /* Íconos */
+    .actions a {
+        text-decoration: none;
+        font-size: 18px;
+        margin-right: 10px;
+    }
+
+    .actions .edit {
+        color: #007bff;
+    }
+
+    .actions .delete {
+        color: #ff4d4d;
+    }
+
+    .actions a:hover {
+        opacity: 0.7;
+    }
+
+    /* Paginación */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    .pagination a {
+        padding: 8px 12px;
+        margin: 0 5px;
+        text-decoration: none;
+        background: #007bff;
+        color: white;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: 0.3s;
+    }
+
+    .pagination a:hover {
+        background: #0056b3;
+    }
+
+    /* Contenedor de filtros */
+    .filtros-container {
+        display: flex;
+        gap: 15px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+    }
+
+    /* Formularios de filtros */
+    .filtros {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 6px;
+        flex-grow: 1;
+    }
+
+    /* Inputs y botones */
+    .filtros input, .filtros button {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .filtros button {
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+        border: none;
+        font-weight: bold;
+    }
+
+    .filtros button:hover {
+        background: #0056b3;
+    }
+
+    /* Encabezado del modal */
+    .ingreso-modal {
+        display: none; /* Ocultar el modal inicialmente */
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .ingreso-modal .modal-content {
+        background: #fff;
+        width: 70%;
+        max-width: 800px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        animation: fadeIn 0.3s ease-in-out;
+        position: relative; /* Asegura que el contenido del modal esté posicionado correctamente */
+        margin: auto; /* Centra el modal horizontalmente */
+        top: 50%; /* Centra el modal verticalmente */
+        transform: translateY(-50%); /* Ajusta la posición vertical */
+    }
+
+
+    /* Encabezado del modal */
+    .ingreso-modal .modal-header {
+        display: flex;
+        justify-content: center; /* Centra horizontalmente */
+        align-items: center;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        position: relative; /* Permite posicionar el botón de cierre */
+    }
+
+    .ingreso-modal .modal-header h5 {
+        font-size: 26px;
+        font-weight: bold;
+        color: #007bff;
+        margin: 0;
+        flex-grow: 1; /* Hace que ocupe el espacio disponible */
+        text-align: center;
+    }
+
+    .ingreso-modal .close-modal {
+        position: absolute;
+        right: 10px; /* Asegura que el botón de cierre se mantenga en su lugar */
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+
+    /* Contenido del modal */
+    .ingreso-modal .modal-body {
+        font-size: 18px;
+        line-height: 1.6;
+        color: #444;
+    }
+
+    .ingreso-modal .modal-body p {
+        margin-bottom: 12px;
+    }
+
+    .ingreso-modal .modal-body p strong {
+        color: #222;
+    }
+
+
+    .ingreso-modal .modal-footer {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #ccc;
+        font-size: 16px;
+        color: #555;
+    }
+
+    .ingreso-modal .modal-footer .left{
+        text-align: left;
+    }
+
+    .ingreso-modal .modal-body ul {
+        list-style-type: none; /* Elimina los puntos de la lista */
+        padding: 0;
+        margin: 0;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #f9f9f9;
+    }
+
+    .ingreso-modal .modal-body ul li {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        font-size: 16px;
+        color: #444;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.3s ease;
+    }
+
+    .ingreso-modal .modal-body ul li:last-child {
+        border-bottom: none; /* Elimina el borde inferior del último elemento */
+    }
+
+    .ingreso-modal .modal-body ul li:hover {
+        background: #f1f1f1; /* Efecto hover para cada elemento de la lista */
+    }
+
+    .ingreso-modal .modal-body ul li a.btn {
+        padding: 6px 12px;
+        font-size: 14px;
+        background: #007bff;
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background 0.3s ease;
+    }
+
+    .ingreso-modal .modal-body ul li a.btn:hover {
+        background: #0056b3; /* Efecto hover para el botón */
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <h1>Ingresos</h1>
+
 
 {% if messages %}
 {% for message in messages %}
@@ -64,13 +356,14 @@
             </a>
         </td>
         <td>
+            <!-- Ícono de eliminar (caneca de basura) -->
             <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ ingreso.id }}">
-                <i class="fi fi-rs-trash-can-slash"></i>
+                <i class="fi fi-rs-trash-can-slash"></i> <!-- Caneca de basura -->
             </a>
         </td>
     </tr>
 
-    <div class="modal venta-modal" id="viewModal{{ ingreso.id }}">
+    <div class="modal ingreso-modal" id="viewModal{{ ingreso.id }}">
         <div class="modal-content">
             <div class="modal-header">
                 <h5><p><strong>Ingreso N°</strong> {{ ingreso.id }}</p></h5>
@@ -94,6 +387,7 @@
                     {% endif %}
                 </p>
                 <p><strong>Método de Pago:</strong>{{ ingreso.metodo_de_pago }}</span></p>
+
             </div>
             <div class="modal-footer">
                 <div class="left-info">
@@ -126,7 +420,7 @@
     </div>
 
     <!-- Modal Ver Detalles de la Cuenta por Cobrar -->
-    <div class="modal venta-modal" id="cuentaModal{{ ingreso.cuenta_por_cobrar.id }}">
+    <div class="modal ingreso-modal" id="cuentaModal{{ ingreso.cuenta_por_cobrar.id }}">
         <div class="modal-content">
             <div class="modal-header">
                 <h5><p><strong>Cuenta por Cobrar N°</strong> {{ ingreso.cuenta_por_cobrar.id }}</p></h5>
@@ -161,7 +455,7 @@
     </div>
 
     <!-- Modal para ver detalles de la venta -->
-    <div class="modal venta-modal" id="ventaModal{{ ingreso.cuenta_por_cobrar.venta.id }}">
+    <div class="modal ingreso-modal" id="ventaModal{{ ingreso.cuenta_por_cobrar.venta.id }}">
         <div class="modal-content">
             <div class="modal-header">
                 <h5><p><strong>Venta N°</strong> {{ ingreso.cuenta_por_cobrar.venta.id }}</p></h5>
@@ -256,7 +550,7 @@
         }
     }
 
-    document.querySelectorAll(".venta-modal").forEach(modal => {
+    document.querySelectorAll(".ingreso-modal").forEach(modal => {
         modal.addEventListener("click", function (event) {
             if (event.target === this) {
                 this.style.display = "none";
@@ -329,7 +623,7 @@
         });
 
         // Cerrar el modal si se hace clic fuera del contenido
-        document.querySelectorAll(".venta-modal").forEach(modal => {
+        document.querySelectorAll(".ingreso-modal").forEach(modal => {
             modal.addEventListener("click", function (event) {
                 if (event.target === this) {
                     this.style.display = "none";

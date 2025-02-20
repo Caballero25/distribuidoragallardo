@@ -47,7 +47,7 @@ def create_ingreso(request, cuenta_id):
         ingreso.save()
         cuenta_por_cobrar.ingresos.add(ingreso)
         cuenta_por_cobrar.save()
-        messages.success(request, "Pago registrado correctamente.")
+        messages.success(request, "Cobro registrado correctamente.")
         return redirect('get_all_cuentas_por_cobrar')
 
     return HttpResponse("Método no permitido", status=405)

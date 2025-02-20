@@ -467,18 +467,18 @@
                 <p><strong>Saldo:</strong> <span class="saldo">{{ venta.cuenta_por_cobrar.saldo }}</span></p>
                 <p><strong>Estado:</strong> {{ venta.cuenta_por_cobrar.estado|capfirst }}</p>
 
-                <p><strong>Egresos:</strong></p>
-                {% if venta.cuenta_por_cobrar.egresos.all %}
+                <p><strong>Ingresos:</strong></p>
+                {% if venta.cuenta_por_cobrar.ingresos.all %}
                 <ul>
-                    {% for egreso in venta.cuenta_por_cobrar.egresos.all %}
+                    {% for ingreso in venta.cuenta_por_cobrar.ingresos.all %}
                     <li class="actions">
-                        {{ egreso.fecha|date:"d/m/Y" }} - ${{ egreso.valor }} - {{ egreso.metodo_de_pago }}
-                        <a href="#egresoModal{{ egreso.id }}" class="view btn-ver-egresos" data-id="{{ egreso.id }}">Ver Egreso</a>
+                        {{ ingreso.fecha|date:"d/m/Y" }} - ${{ ingreso.valor }} - {{ ingreso.metodo_de_pago }}
+                        <a href="#ingresoModal{{ ingreso.id }}" class="view btn-ver-ingresos" data-id="{{ ingreso.id }}">Ver Ingreso</a>
                     </li>
                     {% endfor %}
                 </ul>
                 {% else %}
-                <p class="no-egresos">No hay egresos registrados.</p>
+                <p class="no-ingresos">No hay ingresos registrados.</p>
                 {% endif %}
                 {% if venta.cuenta_por_cobrar.saldo > 0 %}
                 <button class="btn btn-success" onclick="location.href='{% url 'get_all_cuentas_por_cobrar' %}'">
@@ -490,23 +490,23 @@
     </div>
 
     <!-- Modal Egreso -->
-    {% for egreso in venta.cuenta_por_cobrar.egresos.all %}
-    <div class="modal venta-modal" id="egresoModal{{ egreso.id }}">
+    {% for ingreso in venta.cuenta_por_cobrar.ingresos.all %}
+    <div class="modal venta-modal" id="ingresoModal{{ ingreso.id }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5><p><strong>Egreso N°</strong> {{ egreso.id }}</p></h5>
+                <h5><p><strong>Ingreso N°</strong> {{ ingreso.id }}</p></h5>
             </div>
             <div class="modal-body">
-                <p><strong>Fecha:</strong> {{ egreso.fecha|date:"d/m/Y" }}</p>
-                <p><strong>Tercero:</strong> {{ egreso.tercero.nombre }}</p>
-                <p><strong>Valor:</strong> <span id="modal-valor">{{ egreso.valor }}</span></p>
-                <p><strong>Método de Pago:</strong> {{ egreso.metodo_de_pago }}</p>
+                <p><strong>Fecha:</strong> {{ ingreso.fecha|date:"d/m/Y" }}</p>
+                <p><strong>Tercero:</strong> {{ ingreso.tercero.nombre }}</p>
+                <p><strong>Valor:</strong> <span id="modal-valor">{{ ingreso.valor }}</span></p>
+                <p><strong>Método de Pago:</strong> {{ ingreso.metodo_de_pago }}</p>
 
             </div>
             <div class="modal-footer">
                 <div class="left-info">
-                    <p><strong>Creado por:</strong> {{ egreso.creado_por.username|default:"-" }}</p>
-                    <p><strong>Fecha de Creación:</strong> {{ egreso.fecha_creacion|date:"d/m/Y" }}</p>
+                    <p><strong>Creado por:</strong> {{ ingreso.creado_por.username|default:"-" }}</p>
+                    <p><strong>Fecha de Creación:</strong> {{ ingreso.fecha_creacion|date:"d/m/Y" }}</p>
                 </div>
             </div>
         </div>
@@ -677,7 +677,7 @@
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll(".btn-ver-egresos").forEach(button => {
+        document.querySelectorAll(".btn-ver-ingresos").forEach(button => {
             button.addEventListener("click", function (event) {
                 event.preventDefault();
 
