@@ -17,3 +17,5 @@ class Egreso(models.Model):
     cuenta_por_pagar = models.ForeignKey('cuentasporpagar.CuentaPorPagar', on_delete=models.CASCADE, null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return "$"+str(self.valor) + " " + self.tercero.nombre + " | " + str(self.fecha)

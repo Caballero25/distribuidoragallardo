@@ -1,0 +1,43 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>{% trans "Change history" %}</h1>
+    </section>
+
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">{% trans "Object History" %}</h3>
+            </div>
+            <div class="card-body">
+                {% if action_list %}
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Date/time" %}</th>
+                                <th>{% trans "User" %}</th>
+                                <th>{% trans "Action" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for action in action_list %}
+                                <tr>
+                                    <td>{{ action.action_time }}</td>
+                                    <td>{{ action.user.get_full_name|default:action.user.username }}</td>
+                                    <td>{{ action.get_change_message }}</td>
+                                    
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>{% trans "This object has no change history." %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

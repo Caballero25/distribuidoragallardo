@@ -20,3 +20,6 @@ class CuentaPorPagar(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='cuentas_por_pagar')
     estado = models.CharField(max_length=255, choices=ESTADO_CHOICES)
     fecha_creacion = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.tercero.nombre + " - " + "$"+str(self.saldo) + " | " + self.estado

@@ -11,3 +11,6 @@ class Producto(models.Model):
     salidas = models.IntegerField()
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='productos_creados')
     editado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='productos_editados')
+
+    def __str__(self):
+        return self.nombre + " | " + "en stock :" + str(self.existencia)
