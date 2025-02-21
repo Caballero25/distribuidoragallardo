@@ -113,6 +113,11 @@
                     <span id="valor_unitario_error" style="color: red; display: none;">El valor unitario no puede estar vacío o ser cero.</span>
                 </div>
 
+                <div class="col-md-2">
+                    <label for="existencia" class="form-label">Existencia:</label>
+                    <input type="number" class="form-control" id="existencia" readonly>
+                </div>
+
                 <div class="col-md-2 d-grid">
                     <button type="button" class="btn btn-primary mt-4" id="agregar-producto-tabla">Agregar</button>
                 </div>
@@ -275,6 +280,68 @@
                     $("#valor_unitario").val(ui.item.valor_unitario).prop("readonly", true);
                 } else {
                     $("#valor_unitario").val("").prop("readonly", false); // Si no hay valor unitario, desbloquear el campo
+                }
+
+                // Llamar a la vista para obtener la existencia del producto
+                $.ajax({
+                    url: "{% url 'get_existencia_producto' %}",
+                    dataType: "json",
+                    data: { producto_id: ui.item.id },
+                    success: function(data) {
+                        if (data.existencia !== "") {
+                            $("#existencia").val(data.existencia); // Mostrar la existencia del producto
+                        } else {
+                            $("#existencia").val(""); // Limpiar el campo si no hay existencia
+                        }
+                    }
+                });
+            }
+        });
+
+        $("#producto_codigo").autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'get_producto_by_codigo_din' %}",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function(data) {
+                        if (data.length === 0) {
+                            $("#producto_error").show(); // Mostrar mensaje de error
+                        } else {
+                            $("#producto_error").hide(); // Ocultar mensaje de error
+                        }
+                        response($.map(data, function(item) {
+                            return {
+                                label: item.codigo,
+                                value: item.codigo,
+                                id: item.id,
+                                nombre: item.nombre,
+                                valor_unitario: item.valor_unitario,
+                                existencia: item.existencia // Asegúrate de que la existencia esté en la respuesta
+                            };
+                        }));
+                    }
+                });
+            },
+            minLength: 1,
+            select: function(event, ui) {
+                $("#producto_id").val(ui.item.id); // Guardar ID del producto
+                $("#producto_nombre").val(ui.item.nombre); // Mostrar el nombre del producto
+                $("#producto_codigo").val(ui.item.codigo); // Mostrar el código del producto
+                $("#producto_error").hide(); // Ocultar mensaje de error al seleccionar un producto
+
+                // Cargar el valor unitario desde la respuesta JSON y bloquear el campo
+                if (ui.item.valor_unitario) {
+                    $("#valor_unitario").val(ui.item.valor_unitario).prop("readonly", true);
+                } else {
+                    $("#valor_unitario").val("").prop("readonly", false); // Si no hay valor unitario, desbloquear el campo
+                }
+
+                // Cargar la existencia del producto
+                if (ui.item.existencia !== undefined) {
+                    $("#existencia").val(ui.item.existencia); // Mostrar la existencia del producto
+                } else {
+                    $("#existencia").val(""); // Limpiar el campo si no hay existencia
                 }
             }
         });

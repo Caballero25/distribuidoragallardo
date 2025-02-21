@@ -95,13 +95,13 @@ def get_producto_by_name(request):
 def get_producto_by_name_din(request):
     query = request.GET.get('term', '').strip()  # Cambiar 'q' por 'term'
     productos = Producto.objects.filter(nombre__icontains=query)[:5]  # Limitar a 5 resultados
-    data = [{'id': producto.id, 'nombre': producto.nombre} for producto in productos]
+    data = [{'id': producto.id, 'nombre': producto.nombre, 'valor_unitario' : producto.valor_unitario} for producto in productos]
     return JsonResponse(data, safe=False)
 
 @login_required
 def get_producto_by_codigo_din(request):
     term = request.GET.get('term')
-    productos = Producto.objects.filter(codigo__icontains=term).values('id', 'codigo', 'nombre')
+    productos = Producto.objects.filter(codigo__icontains=term).values('id', 'codigo', 'nombre', 'valor_unitario', 'existencia')
     return JsonResponse(list(productos), safe=False)
 
 @login_required
