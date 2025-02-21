@@ -1,0 +1,22 @@
+{% extends "base/base_adminlte.html" %} 
+
+{% block title %}Panel de Administración{% endblock %}
+{% block extra_head %}
+<style>
+    a {
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+{% block content %}
+    <div class="content-wrapper">
+        {% block content_title %}
+            <h1>{{ title }}</h1>
+        {% endblock %}
+        <section class="content">
+            {% block content_body %}
+                {{ content }}
+            {% endblock %}
+        </section>
+    </div>
+{% endblock %}
