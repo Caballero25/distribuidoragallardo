@@ -18,3 +18,6 @@ class Ingreso(models.Model):
     metodo_de_pago = models.CharField(max_length=255, choices=METODO_PAGO_CHOICES)
     cuenta_por_cobrar = models.ForeignKey('cuentasporcobrar.CuentaPorCobrar', on_delete=models.CASCADE, null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "$"+str(self.valor) + " " + self.tercero.nombre + " | " + str(self.fecha)
