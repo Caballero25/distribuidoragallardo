@@ -105,7 +105,7 @@ def create_compra(request):
                         codigo=codigo_producto,
                         defaults={
                             'existencia': 0,
-                            'valor_unitario': float(valor_unitario),
+                            'valor_unitario': 0,
                             'entradas': 0,
                             'salidas': 0,
                         },
