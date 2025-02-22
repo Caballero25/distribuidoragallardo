@@ -355,7 +355,7 @@ text-align: left;
     {% for cuenta_por_pagar in cuentas_por_pagar %}
     <tr>
         <td>{{ cuenta_por_pagar.fecha|date:"d/m/Y" }}</td>
-        {% if cuenta_por_pagar.tercero %}z
+        {% if cuenta_por_pagar.tercero %}
         <td>{{ cuenta_por_pagar.tercero.nombre }}</td>
         {% else %}
         <td>Sin tercero disponible</td>

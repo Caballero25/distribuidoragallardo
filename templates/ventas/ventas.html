@@ -489,7 +489,7 @@
         </div>
     </div>
 
-    <!-- Modal Egreso -->
+    <!-- Modal Ingreso -->
     {% for ingreso in venta.cuenta_por_cobrar.ingresos.all %}
     <div class="modal venta-modal" id="ingresoModal{{ ingreso.id }}">
         <div class="modal-content">
@@ -682,7 +682,7 @@
                 event.preventDefault();
 
                 let cuentaId = this.getAttribute("data-id");
-                let modal = document.getElementById(`egresoModal${cuentaId}`);
+                let modal = document.getElementById(`ingresoModal${cuentaId}`);
 
                 if (modal) {
                     modal.style.display = "block";
