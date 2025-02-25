@@ -386,6 +386,14 @@ text-align: left;
                     No asignada
                     {% endif %}
                 </p>
+                <p>
+                    <strong>Descripción: </strong>
+                    {% if egreso.descripcion %}
+                        {{egreso.descripcion}}
+                    {% else %}
+                        Sin descripción
+                    {% endif %}
+                </p>
                 <p><strong>Método de Pago:</strong>{{ egreso.metodo_de_pago }}</span></p>
 
             </div>

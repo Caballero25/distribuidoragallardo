@@ -386,6 +386,14 @@
                     No asignada
                     {% endif %}
                 </p>
+                <p>
+                    <strong>Descripción: </strong>
+                    {% if ingreso.descripcion %}
+                        {{ingreso.descripcion}}
+                    {% else %}
+                        Sin descripción
+                    {% endif %}
+                </p>
                 <p><strong>Método de Pago:</strong>{{ ingreso.metodo_de_pago }}</span></p>
 
             </div>

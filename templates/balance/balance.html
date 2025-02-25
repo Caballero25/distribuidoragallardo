@@ -150,7 +150,12 @@
         <button type="submit">Filtrar</button>
     </form>
 </div>
-
+<!-- Totales -->
+<div class="totales-container">
+    <div class="total-ingresos"><span id="total-ingresos">Total Ingresos: ${{ total_ingresos }}</span></div>
+    <div class="balance-neto"><span id="balance-neto">Balance Neto: ${{ balance_neto }}</span></div>
+    <div class="total-egresos"><span id="total-egresos">Total Egresos: ${{ total_egresos }}</span></div>
+</div>
 <table>
     <thead>
     <tr>
@@ -174,12 +179,7 @@
     </tbody>
 </table>
 
-<!-- Totales -->
-<div class="totales-container">
-    <div class="total-ingresos"><span id="total-ingresos">Total Ingresos: ${{ total_ingresos }}</span></div>
-    <div class="balance-neto"><span id="balance-neto">Balance Neto: ${{ balance_neto }}</span></div>
-    <div class="total-egresos"><span id="total-egresos">Total Egresos: ${{ total_egresos }}</span></div>
-</div>
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {

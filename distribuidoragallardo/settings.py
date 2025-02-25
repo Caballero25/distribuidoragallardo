@@ -42,7 +42,8 @@ OUR_APPS = [
     'ventas',
     'ingresos',
     'cuentasporcobrar',
-    'balance'
+    'balance',
+    'finanzas',
 ]
 
 DEFAULT_APPS = [

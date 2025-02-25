@@ -16,6 +16,7 @@ class Egreso(models.Model):
     metodo_de_pago = models.CharField(max_length=255, choices=METODO_PAGO_CHOICES)
     cuenta_por_pagar = models.ForeignKey('cuentasporpagar.CuentaPorPagar', on_delete=models.CASCADE, null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now=True)
+    descripcion = models.TextField(null=True, blank=True, default=None)
 
     def __str__(self):
         return "$"+str(self.valor) + " " + self.tercero.nombre + " | " + str(self.fecha)
