@@ -88,7 +88,7 @@
             <h4>Agregar Productos</h4>
 
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <label for="producto_nombre" class="form-label">Producto:</label>
                     <input type="text" id="producto_nombre" class="form-control" placeholder="Buscar producto...">
                     <input type="hidden" name="producto_id" id="producto_id">
@@ -99,6 +99,14 @@
                     <label for="producto_codigo" class="form-label">Código:</label>
                     <input type="text" id="producto_codigo" class="form-control" placeholder="Código del producto" maxlength="4">
                     <span id="producto_codigo_error" style="color: red; display: none;">El código no puede estar vacío.</span>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="tipo_pago" class="form-label">Tipo de Pago:</label>
+                    <select class="form-control" id="tipo_pago">
+                        <option value="contado">Contado</option>
+                        <option value="credito">Crédito</option>
+                    </select>
                 </div>
 
                 <div class="col-md-2">
@@ -251,7 +259,8 @@
                                 value: item.nombre,
                                 id: item.id,
                                 codigo: item.codigo,
-                                valor_unitario: item.valor_unitario // Asegúrate de que esto esté en la respuesta
+                                valor_unitario: item.valor_unitario, // Valor unitario para contado
+                                valor_unitario_credito: item.valor_unitario_credito // Valor unitario para crédito
                             };
                         }));
                     }
@@ -275,12 +284,23 @@
                     }
                 });
 
-                // Cargar el valor unitario desde la respuesta JSON y bloquear el campo
-                if (ui.item.valor_unitario) {
-                    $("#valor_unitario").val(ui.item.valor_unitario).prop("readonly", true);
-                } else {
-                    $("#valor_unitario").val("").prop("readonly", false); // Si no hay valor unitario, desbloquear el campo
+                // Función para actualizar el valor unitario según el tipo de pago
+                function actualizarValorUnitario() {
+                    const tipoPago = $("#tipo_pago").val(); // Obtener el valor seleccionado en el select
+                    if (tipoPago === "contado") {
+                        $("#valor_unitario").val(ui.item.valor_unitario).prop("readonly", true);
+                    } else if (tipoPago === "credito") {
+                        $("#valor_unitario").val(ui.item.valor_unitario_credito).prop("readonly", true);
+                    }
                 }
+
+                // Actualizar el valor unitario al seleccionar el producto
+                actualizarValorUnitario();
+
+                // Escuchar cambios en el select para actualizar el valor unitario
+                $("#tipo_pago").on("change", function() {
+                    actualizarValorUnitario();
+                });
 
                 // Llamar a la vista para obtener la existencia del producto
                 $.ajax({
@@ -316,8 +336,9 @@
                                 value: item.codigo,
                                 id: item.id,
                                 nombre: item.nombre,
-                                valor_unitario: item.valor_unitario,
-                                existencia: item.existencia // Asegúrate de que la existencia esté en la respuesta
+                                valor_unitario: item.valor_unitario, // Valor unitario para contado
+                                valor_unitario_credito: item.valor_unitario_credito, // Valor unitario para crédito
+                                existencia: item.existencia
                             };
                         }));
                     }
@@ -330,12 +351,23 @@
                 $("#producto_codigo").val(ui.item.codigo); // Mostrar el código del producto
                 $("#producto_error").hide(); // Ocultar mensaje de error al seleccionar un producto
 
-                // Cargar el valor unitario desde la respuesta JSON y bloquear el campo
-                if (ui.item.valor_unitario) {
-                    $("#valor_unitario").val(ui.item.valor_unitario).prop("readonly", true);
-                } else {
-                    $("#valor_unitario").val("").prop("readonly", false); // Si no hay valor unitario, desbloquear el campo
+                // Función para actualizar el valor unitario según el tipo de pago
+                function actualizarValorUnitario() {
+                    const tipoPago = $("#tipo_pago").val(); // Obtener el valor seleccionado en el select
+                    if (tipoPago === "contado") {
+                        $("#valor_unitario").val(ui.item.valor_unitario).prop("readonly", true);
+                    } else if (tipoPago === "credito") {
+                        $("#valor_unitario").val(ui.item.valor_unitario_credito).prop("readonly", true);
+                    }
                 }
+
+                // Actualizar el valor unitario al seleccionar el producto
+                actualizarValorUnitario();
+
+                // Escuchar cambios en el select para actualizar el valor unitario
+                $("#tipo_pago").on("change", function() {
+                    actualizarValorUnitario();
+                });
 
                 // Cargar la existencia del producto
                 if (ui.item.existencia !== undefined) {

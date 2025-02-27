@@ -449,7 +449,7 @@
         {% else %}
         <td>Sin tercero disponible</td>
         {% endif %}
-        <td class="saldo">{{ cuenta_por_cobrar.saldo }}</td>
+        <td class="saldo">${{ cuenta_por_cobrar.saldo }}</td>
         <td>{{ cuenta_por_cobrar.estado|capfirst }}</td>
 
         <!-- Columna Ver: abre el modal con todos los datos -->
@@ -852,13 +852,14 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         function formatCurrency(value) {
-            return "$" + value.toFixed(2).replace(".", ",");
+            return value.toFixed(2).replace(".", ",");
         }
 
         // Formatear los saldos en la tabla
         document.querySelectorAll(".saldo").forEach(function (element) {
             let saldo = parseFloat(element.textContent.replace("$", "").trim());
             if (!isNaN(saldo)) {
+                saldo = saldo.toFixed(2);  // Forzar dos decimales
                 element.textContent = formatCurrency(saldo);
             }
 
@@ -867,7 +868,7 @@
             if (modalValor) {
                 let valor = parseFloat(modalValor.textContent.replace("$", "").trim());
                 if (!isNaN(valor)) {
-                    modalValor.textContent = formatCurrency(valor);
+                    modalValor.textContent = formatCurrency(saldo);
                 }
             }
         });

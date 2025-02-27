@@ -360,7 +360,7 @@ text-align: left;
         {% else %}
         <td>Sin tercero disponible</td>
         {% endif %}
-        <td class="saldo">{{ cuenta_por_pagar.saldo }}</td>
+        <td class="saldo">${{ cuenta_por_pagar.saldo }}</td>
         <td>{{ cuenta_por_pagar.estado|capfirst }}</td>
 
         <!-- Columna Ver: abre el modal con todos los datos -->
@@ -467,7 +467,7 @@ text-align: left;
 
                         <div class="form-group">
                             <label for="valor">Valor del Pago</label>
-                            <input type="number" step="0.01" name="valor" class="form-control" required oninput="validarPago(this, {{ cuenta_por_pagar.saldo }}, {{ cuenta_por_pagar.id }})">
+                            <input type="number" step="0.01" name="valor" class="form-control" required>
                             <small id="errorPago{{ cuenta_por_pagar.id }}" class="text-danger" style="display: none;">
                                 El pago no puede ser mayor al saldo de la cuenta por pagar.
                             </small>
@@ -612,25 +612,7 @@ text-align: left;
             event.target.style.display = 'none';
         }
     }
-
-    function validarPago(input, saldo, id) {
-        let errorMsg = document.getElementById('errorPago' + id);
-        let valor = parseFloat(input.value);
-
-        if (isNaN(valor) || valor <= 0) {
-            errorMsg.textContent = "El pago debe ser mayor a 0.";
-            errorMsg.style.display = 'block';
-            input.setCustomValidity('El pago debe ser mayor a 0.');
-        } else if (valor > saldo) {
-            errorMsg.textContent = "El pago no puede ser mayor al saldo.";
-            errorMsg.style.display = 'block';
-            input.setCustomValidity('El pago no puede ser mayor al saldo.');
-        } else {
-            errorMsg.style.display = 'none';
-            input.setCustomValidity('');
-        }
-    }
-
+    
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', function (event) {
             let input = form.querySelector('input[name="valor"]');
@@ -770,6 +752,7 @@ text-align: left;
         document.querySelectorAll(".saldo").forEach(function (element) {
             let saldo = parseFloat(element.textContent.replace("$", "").trim());
             if (!isNaN(saldo)) {
+                saldo = saldo.toFixed(2);  // Forzar dos decimales
                 element.textContent = formatCurrency(saldo);
             }
 
@@ -778,7 +761,7 @@ text-align: left;
             if (modalValor) {
                 let valor = parseFloat(modalValor.textContent.replace("$", "").trim());
                 if (!isNaN(valor)) {
-                    modalValor.textContent = formatCurrency(valor);
+                    modalValor.textContent = formatCurrency(saldo);
                 }
             }
         });
