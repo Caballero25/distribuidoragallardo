@@ -60,15 +60,39 @@ def get_all_ingresos(request):
     fecha_inicio = request.GET.get('fecha_inicio', '').strip()
     fecha_fin = request.GET.get('fecha_fin', '').strip()
     tercero = request.GET.get('tercero', '').strip()
+    ingresos_contado = ingresos.filter(pertenece_credito=False)
+    ingresos_credito = ingresos.filter(pertenece_credito=True)
 
     if fecha_inicio and fecha_fin:
         fecha_inicio = parse_date(fecha_inicio)
         fecha_fin = parse_date(fecha_fin)
         if fecha_inicio and fecha_fin:
             ingresos = ingresos.filter(fecha__range=[fecha_inicio, fecha_fin])
+            ingresos_contado = ingresos.filter(fecha__range=[fecha_inicio, fecha_fin], pertenece_credito=False)
+            ingresos_credito = ingresos.filter(fecha__range=[fecha_inicio, fecha_fin], pertenece_credito=True)
 
     if tercero:
         ingresos = ingresos.filter(tercero__nombre__icontains=tercero)
+        ingresos_contado = ingresos.filter(tercero__nombre__icontains=tercero, pertenece_credito=False)
+        ingresos_credito = ingresos.filter(tercero__nombre__icontains=tercero, pertenece_credito=True)
+    total = 0
+    total_credito = 0
+    total_contado = 0
+    try:
+         for ing in ingresos: total += ing.valor 
+    except Exception as e: 
+        total = 0
+        print("Error: ingresos_todo" + str(e))
+    try: 
+        for ing_con in ingresos_contado: total_contado += ing_con.valor
+    except Exception as e:
+        total_contado = 0
+        print("Error: ingresos_contado" + str(e))
+    try: 
+        for ing_cred in ingresos_credito: total_credito += ing_cred.valor 
+    except Exception as e: 
+        total_credito = 0
+        print("Error: ingresos_credito" + str(e))
 
     paginator = Paginator(ingresos, 20)
     page_number = request.GET.get('page')
@@ -76,9 +100,13 @@ def get_all_ingresos(request):
 
     # Si es una solicitud AJAX, devolvemos solo la tabla
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'ingresos/ingresos_table.html', {'ingresos': page_obj})
+        return render(request, 'ingresos/ingresos_table.html', {'ingresos': page_obj, "total_todo": total,
+               "total_credito": total_credito,
+               "total_contado": total_contado})
 
-    return render(request, 'ingresos/ingresos.html', {'ingresos': page_obj})
+    return render(request, 'ingresos/ingresos.html', {'ingresos': page_obj, "total_todo": total,
+               "total_credito": total_credito,
+               "total_contado": total_contado})
 
 @login_required
 def delete_ingreso(request, id):

@@ -126,7 +126,7 @@
     .filtros-container {
         display: flex;
         gap: 15px;
-        justify-content: space-between;
+        justify-content: space-evenly;
         flex-wrap: wrap;
         margin-bottom: 15px;
     }
@@ -292,6 +292,34 @@
         background: #0056b3; /* Efecto hover para el botón */
     }
 </style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const filtroTipo = document.getElementById("filtro_tipo");
+    const filas = document.querySelectorAll("tbody tr");
+
+    filtroTipo.addEventListener("change", function () {
+        const filtro = filtroTipo.value;
+        total_ingresos_container = document.getElementById("total_ingresos")
+
+        if (filtro == 'todo') {
+            total_ingresos_container.textContent = (`{{total_todo}}`);
+        } else if (filtro == 'contado'){
+            total_ingresos_container.textContent = (`{{total_contado}}`);
+        } else if (filtro == 'credito') {
+            total_ingresos_container.textContent = (`{{total_credito}}`);
+        }
+
+        filas.forEach(fila => {
+            const tipo = fila.querySelector("td:nth-child(5)").textContent.trim();
+            if (filtro === "todo" || (filtro === "credito" && tipo === "Crédito") || (filtro === "contado" && tipo === "Contado")) {
+                fila.style.display = "";
+            } else {
+                fila.style.display = "none";
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
 
 {% block content %}
@@ -326,6 +354,21 @@
         <button type="submit">Buscar</button>
         <button type="button" id="limpiar-tercero">Limpiar</button>
     </form>
+    <div class="col-5" style="display: flex; ">
+        <label >Tipo de pago</label>
+        <div style="margin-left: 2.5px;"></div>
+        <select id="filtro_tipo" class="form-control" >
+            <option value="todo">Todo</option>
+            <option value="credito">Crédito</option>
+            <option value="contado">Contado</option>
+        </select>
+    </div>
+    <div class="col-6" style="align-self:center;">
+        <p><strong>Total de ingresos:</strong> $<label id="total_ingresos">{{total_todo}}</label></p>
+        
+    </div>
+    
+
 </div>
 
 <table>
@@ -349,7 +392,7 @@
         {% else %}
         <td>Sin tercero disponible</td>
         {% endif %}
-        <td class="valor">{{ ingreso.valor }}</td>
+        <td class="valor">${{ ingreso.valor }}</td>
         <td>{{ ingreso.metodo_de_pago|capfirst }}</td>
         <td>{% if ingreso.pertenece_credito %}Crédito{% else %}Contado{% endif %}</td>
         <td class="actions">
