@@ -171,7 +171,7 @@
     <tr>
         <td>{{ movimiento.fecha|date:"d/m/Y" }}</td>
         <td>{{ movimiento.tercero.nombre }}</td>
-        <td class="valor">{{ movimiento.valor }}</td>
+        <td class="valor">${{ movimiento.valor }}</td>
         <td>{{ movimiento.metodo_de_pago }}</td>
         <td>{{ movimiento.tipo }}</td>
     </tr>
@@ -184,13 +184,14 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         function formatCurrency(value) {
-            return "$" + value.toFixed(2).replace(".", ",");
+            return value.toFixed(2).replace(".", ",");
         }
 
         // Formatear los saldos en la tabla
         document.querySelectorAll(".valor").forEach(function (element) {
             let valor = parseFloat(element.textContent.replace("$", "").trim());
             if (!isNaN(valor)) {
+                valor = valor.toFixed(2);
                 element.textContent = formatCurrency(valor);
             }
         });
