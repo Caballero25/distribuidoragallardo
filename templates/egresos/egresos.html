@@ -348,7 +348,7 @@ text-align: left;
         {% else %}
         <td>Sin tercero disponible</td>
         {% endif %}
-        <td class="valor">{{ egreso.valor }}</td>
+        <td class="valor">${{ egreso.valor }}</td>
         <td>{{ egreso.metodo_de_pago|capfirst }}</td>
         <td class="actions">
             <a href="#viewModal{{ egreso.id }}" class="view btn-ver" data-id="{{ egreso.id }}">
@@ -375,7 +375,7 @@ text-align: left;
                 {% else %}
                 <p><strong>Tercero:</strong> Sin tercero disponible</p>
                 {% endif %}
-                <p><strong>Valor:</strong> <span class="valor">{{ egreso.valor }}</span></p>
+                <p><strong>Valor:</strong> <span class="valor">${{ egreso.valor }}</span></p>
                 <p class="actions">
                     <strong>Cuenta por Pagar:</strong>
                     {% if egreso.cuenta_por_pagar.id %}
@@ -450,7 +450,7 @@ text-align: left;
                     No asignada
                     {% endif %}
                 </p>
-                <p><strong>Saldo:</strong> <span class="valor">{{ egreso.cuenta_por_pagar.saldo }}</span></p>
+                <p><strong>Saldo:</strong> <span class="valor">${{ egreso.cuenta_por_pagar.saldo }}</span></p>
                 <p><strong>Estado:</strong> {{ egreso.cuenta_por_pagar.estado|capfirst }}</p>
             </div>
             <div class="modal-footer">
@@ -568,13 +568,14 @@ text-align: left;
 
     document.addEventListener("DOMContentLoaded", function () {
         function formatCurrency(value) {
-            return "$" + value.toFixed(2).replace(".", ",");
+            return value.toFixed(2).replace(".", ",");
         }
 
         // Formatear los saldos en la tabla
         document.querySelectorAll(".valor").forEach(function (element) {
             let valor = parseFloat(element.textContent.replace("$", "").trim());
             if (!isNaN(valor)) {
+                valor = valor.toFixed(2);
                 element.textContent = formatCurrency(valor);
             }
         });
