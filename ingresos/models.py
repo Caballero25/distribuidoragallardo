@@ -17,6 +17,7 @@ class Ingreso(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     metodo_de_pago = models.CharField(max_length=255, choices=METODO_PAGO_CHOICES)
     cuenta_por_cobrar = models.ForeignKey('cuentasporcobrar.CuentaPorCobrar', on_delete=models.CASCADE, null=True, blank=True)
+    pertenece_credito = models.BooleanField(default=False)
     fecha_creacion = models.DateTimeField(auto_now=True)
     descripcion = models.TextField(null=True, blank=True, default=None)
 

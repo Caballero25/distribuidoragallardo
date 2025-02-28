@@ -131,7 +131,8 @@ def create_venta(request):
         saldo = valor - cobrado
 
         # Determinar el estado de la cuenta por cobrar
-        estado = 'PAGADO' if saldo <= 0 else 'PENDIENTE'
+        estado = 'PAGADO' if saldo <= 0 else 'PENDIENTE'    
+        es_credito = True if estado == 'PENDIENTE' else 'False'
 
         # Crear la cuenta por cobrar asociada a la venta
         cuenta_por_cobrar = CuentaPorCobrar(
@@ -140,6 +141,7 @@ def create_venta(request):
             venta=venta,
             saldo=saldo,
             estado=estado,
+            pertenece_credito=es_credito,
             creado_por=creado_por,
         )
         cuenta_por_cobrar.save()
@@ -157,6 +159,7 @@ def create_venta(request):
                 valor=cobrado,
                 metodo_de_pago=metodo_pago,
                 cuenta_por_cobrar=cuenta_por_cobrar,
+                pertenece_credito=es_credito,
                 creado_por=creado_por,
             )
             ingreso.save()

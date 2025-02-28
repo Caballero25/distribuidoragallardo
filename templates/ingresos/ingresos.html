@@ -335,6 +335,7 @@
         <th>Tercero</th>
         <th>Valor</th>
         <th>Método de Pago</th>
+        <th>Tipo</th>
         <th>Ver</th>
         <th>Eliminar</th>
     </tr>
@@ -350,6 +351,7 @@
         {% endif %}
         <td class="valor">{{ ingreso.valor }}</td>
         <td>{{ ingreso.metodo_de_pago|capfirst }}</td>
+        <td>{% if ingreso.pertenece_credito %}Crédito{% else %}Contado{% endif %}</td>
         <td class="actions">
             <a href="#viewModal{{ ingreso.id }}" class="view btn-ver" data-id="{{ ingreso.id }}">
                 <i class="fi fi-rr-eye"></i>
@@ -358,7 +360,7 @@
         <td>
             <!-- Ícono de eliminar (caneca de basura) -->
             <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ ingreso.id }}">
-                <i class="fi fi-rs-trash-can-slash"></i> <!-- Caneca de basura -->
+                <i class="fi fi-rs-trash-can-slash"></i>
             </a>
         </td>
     </tr>
@@ -375,7 +377,7 @@
                 {% else %}
                 <p><strong>Tercero:</strong> Sin tercero disponible</p>
                 {% endif %}
-                <p><strong>Valor:</strong> <span class="valor">{{ ingreso.valor }}</span></p>
+                <p><strong>Valor:</strong> <span class="valor">${{ ingreso.valor }}</span></p>
                 <p class="actions">
                     <strong>Cuenta por Cobrar:</strong>
                     {% if ingreso.cuenta_por_cobrar.id %}
@@ -450,7 +452,7 @@
                     No asignada
                     {% endif %}
                 </p>
-                <p><strong>Saldo:</strong> <span class="valor">{{ ingreso.cuenta_por_cobrar.saldo }}</span></p>
+                <p><strong>Saldo:</strong> <span class="valor">${{ ingreso.cuenta_por_cobrar.saldo }}</span></p>
                 <p><strong>Estado:</strong> {{ ingreso.cuenta_por_cobrar.estado|capfirst }}</p>
             </div>
             <div class="modal-footer">
@@ -568,13 +570,14 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         function formatCurrency(value) {
-            return "$" + value.toFixed(2).replace(".", ",");
+            return value.toFixed(2).replace(".", ",");
         }
 
         // Formatear los saldos en la tabla
         document.querySelectorAll(".valor").forEach(function (element) {
             let valor = parseFloat(element.textContent.replace("$", "").trim());
             if (!isNaN(valor)) {
+                valor = valor.toFixed(2);
                 element.textContent = formatCurrency(valor);
             }
         });

@@ -35,7 +35,8 @@ def create_ingreso(request, cuenta_id):
             valor=valor,
             creado_por=request.user,
             metodo_de_pago=metodo_de_pago,
-            cuenta_por_cobrar=cuenta_por_cobrar
+            cuenta_por_cobrar=cuenta_por_cobrar,
+            pertenece_credito = cuenta_por_cobrar.pertenece_credito
         )
 
 
