@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db import models
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
@@ -12,7 +13,16 @@ from productos.models import Producto
 @login_required
 def home(request):
     productos_escasos = Producto.objects.all().order_by('existencia')[:5]
-    return render(request, 'home/home.html', {"productos_escasos": productos_escasos})
+    cantidad_total_productos = Producto.objects.aggregate(total_existencia=models.Sum('existencia'))['total_existencia'] or 0
+    total_inventario = Producto.objects.aggregate(total_valor=models.Sum(models.F('existencia') * models.F('valor_unitario')))['total_valor'] or 0
+
+    context = {
+        "productos_escasos": productos_escasos,
+        "cantidad_total_productos": cantidad_total_productos,
+        "total_inventario": total_inventario
+    }
+
+    return render(request, 'home/home.html',context)
     
 
 def obtener_ventas(request):

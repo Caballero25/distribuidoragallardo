@@ -223,7 +223,7 @@
     <th>Valor Unitario</th>
     <th>Entradas</th>
     <th>Salidas</th>
-    <th>Editar</th>
+    
   </tr>
   </thead>
   <tbody>
@@ -232,16 +232,18 @@
     <td>{{ producto.codigo }}</td>
     <td>{{ producto.nombre }}</td>
     <td>{{ producto.existencia }}</td>
-    <td class="valor">{{ producto.valor_unitario }}</td>
+    <td class="valor">${{ producto.valor_unitario }}</td>
     <td>{{ producto.entradas }}</td>
     <td>{{ producto.salidas }}</td>
-
+<!-- Ícono de edición | deshabilitado
     <td>
-      <!-- Ícono de edición -->
+      
       <a href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ producto.id }}">
-        <i class="fi-rr-pencil"></i> <!-- Icono de edición -->
+        <i class="fi-rr-pencil"></i> <!-- Icono de edición 
       </a>
     </td>
+    -->
+
   </tr>
 
   <!-- MODAL PARA EDITAR PRODUCTO -->
@@ -390,13 +392,14 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     function formatCurrency(value) {
-      return "$" + value.toFixed(2).replace(".", ",");
+      return value.toFixed(2).replace(".", ",");
     }
 
     // Formatear los saldos en la tabla
     document.querySelectorAll(".valor").forEach(function (element) {
       let valor = parseFloat(element.textContent.replace("$", "").trim());
       if (!isNaN(valor)) {
+        valor = valor.toFixed(2);
         element.textContent = formatCurrency(valor);
       }
     });

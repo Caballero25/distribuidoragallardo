@@ -21,10 +21,11 @@ def create_producto(request):
         existencia = entradas - salidas
         costo_unitario = Decimal(request.POST.get('costo_unitario', 0))
         valor_unitario = Decimal(request.POST.get('valor_unitario', 0))
+        valor_unitario_credito = Decimal(request.POST.get('valor_unitario_credito', 0))
         creado_por = request.user
 
         # Validaciones básicas
-        if not nombre or not codigo or entradas < 0 or costo_unitario < 0 or valor_unitario < 0:
+        if not nombre or not codigo or entradas < 0 or costo_unitario < 0 or valor_unitario < 0 or valor_unitario_credito < 0:
             messages.error(request, "Los valores ingresados no pueden ser negativos o estar vacíos.")
             return render(request, 'productos/create_producto.html')
 
@@ -39,6 +40,7 @@ def create_producto(request):
             codigo=codigo,
             existencia=existencia,
             valor_unitario=valor_unitario,
+            valor_unitario_credito = valor_unitario_credito,
             entradas=entradas,
             salidas=salidas,
             creado_por=creado_por

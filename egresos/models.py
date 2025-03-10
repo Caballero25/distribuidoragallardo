@@ -19,4 +19,5 @@ class Egreso(models.Model):
     descripcion = models.TextField(null=True, blank=True, default=None)
 
     def __str__(self):
-        return "$"+str(self.valor) + " " + self.tercero.nombre + " | " + str(self.fecha)
+        nombre_tercero = self.tercero.nombre if self.tercero else "Sin tercero"
+        return "$"+str(self.valor) + " " + nombre_tercero + " | " + str(self.fecha)
