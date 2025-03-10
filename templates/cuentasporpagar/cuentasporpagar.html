@@ -343,6 +343,7 @@ text-align: left;
 <table>
     <thead>
     <tr>
+        <th>ID</th>
         <th>Fecha</th>
         <th>Tercero</th>
         <th>Saldo</th>
@@ -354,6 +355,7 @@ text-align: left;
     <tbody>
     {% for cuenta_por_pagar in cuentas_por_pagar %}
     <tr>
+        <td>{{cuenta_por_pagar.id}}</td>
         <td>{{ cuenta_por_pagar.fecha|date:"d/m/Y" }}</td>
         {% if cuenta_por_pagar.tercero %}
         <td>{{ cuenta_por_pagar.tercero.nombre }}</td>

@@ -432,6 +432,7 @@
 <table>
     <thead>
     <tr>
+        <th>ID</th>
         <th>Fecha</th>
         <th>Tercero</th>
         <th>Saldo</th>
@@ -443,6 +444,7 @@
     <tbody>
     {% for cuenta_por_cobrar in cuentas_por_cobrar %}
     <tr>
+        <td>{{cuenta_por_cobrar.id}}</td>
         <td>{{ cuenta_por_cobrar.fecha|date:"d/m/Y" }}</td>
         {% if cuenta_por_cobrar.tercero %}
         <td>{{ cuenta_por_cobrar.tercero.nombre }}</td>
