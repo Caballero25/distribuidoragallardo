@@ -27,14 +27,4 @@ class TerceroForm(forms.ModelForm):
             raise forms.ValidationError("Ya existe un tercero con este nombre.")
         return nombre
 
-    def clean_telefono(self):
-        telefono = self.cleaned_data.get('telefono')
-        if Tercero.objects.filter(telefono=telefono).exists():
-            raise forms.ValidationError("Este número de teléfono ya está registrado.")
-        return telefono
-
-    def clean_direccion(self):
-        direccion = self.cleaned_data.get('direccion').strip().lower()  # Convertir a minúsculas
-        if Tercero.objects.filter(direccion__iexact=direccion).exists():
-            raise forms.ValidationError("Esta dirección ya está registrada.")
-        return self.cleaned_data["direccion"]
+    

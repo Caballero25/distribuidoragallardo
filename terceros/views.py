@@ -17,10 +17,10 @@ def validate_tercero(request):
             return JsonResponse({"error": "Ya existe un tercero con este nombre."})
 
         if telefono and Tercero.objects.filter(telefono=telefono).exists():
-            return JsonResponse({"error": "Ya existe un tercero con este teléfono."})
+            return JsonResponse({"error": "Consideración: Ya existe un tercero con este teléfono."})
 
         if direccion and Tercero.objects.filter(direccion__iexact=direccion).exists():
-            return JsonResponse({"error": "Ya existe un tercero con esta dirección."})
+            return JsonResponse({"error": "Consideración: Ya existe un tercero con esta dirección."})
 
     return JsonResponse({"error": None})
 
@@ -95,24 +95,9 @@ def update_tercero(request, id):
             messages.error(request, "Todos los campos son obligatorios.")
             return redirect('get_all_terceros')
 
-        # Validar que el teléfono tenga exactamente 10 dígitos
-        if len(telefono) != 10 or not telefono.isdigit():
-            messages.error(request, "El teléfono debe contener exactamente 10 dígitos.")
-            return redirect('get_all_terceros')
-
         # Validar que el nombre no esté duplicado (excluyendo el actual)
         if Tercero.objects.filter(nombre=nombre).exclude(id=tercero.id).exists():
             messages.error(request, "Ya existe un tercero con este nombre.")
-            return redirect('get_all_terceros')
-
-        # Validar que el teléfono no esté duplicado (excluyendo el actual)
-        if Tercero.objects.filter(telefono=telefono).exclude(id=tercero.id).exists():
-            messages.error(request, "Ya existe un tercero con este teléfono.")
-            return redirect('get_all_terceros')
-
-        # Validar que la dirección no esté duplicada (excluyendo el actual)
-        if Tercero.objects.filter(direccion=direccion).exclude(id=tercero.id).exists():
-            messages.error(request, "Ya existe un tercero con esta dirección.")
             return redirect('get_all_terceros')
 
         # Actualizar los campos del tercero
