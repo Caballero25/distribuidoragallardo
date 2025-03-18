@@ -19,7 +19,8 @@ class Venta(models.Model):
                                    related_name='ventas_creadas')
     fecha_creacion = models.DateTimeField(auto_now=True)
     def __str__(self):
-        return "Venta: " + self.creado_por.username +" a " + self.tercero.nombre +" "+ "$"+str(self.valor) + " | " + str(self.fecha)
+        nombre_tercero = self.tercero.nombre or "Sin tercero "
+        return "Venta: " + self.creado_por.username +" a " + nombre_tercero +" "+ "$"+str(self.valor) + " | " + str(self.fecha)
 class ProductosVendidos(models.Model):
     venta = models.ForeignKey('Venta', on_delete=models.CASCADE, related_name='productos_vendidos')
     producto = models.ForeignKey('productos.Producto', on_delete=models.CASCADE, null=True, blank=True)
