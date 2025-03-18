@@ -1,0 +1,78 @@
+{% extends 'base/base_adminlte.html' %}
+{% block extra_head %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector("form");
+        form.addEventListener("submit", function(event) {
+            event.preventDefault();
+            Swal.fire({
+                title: "¿Está seguro?",
+                text: "Esta acción actualizará el registro.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#0077cc",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, guardar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}
+
+{% block content %}
+    
+<div class="container-fluid mt-3">
+    {% if error_message %}
+    <div class="alert alert-danger" role="alert">
+        {{ error_message }}
+    </div>
+    {% endif %}
+    
+    <div class="card">
+        <div class="card-header text-center">
+            <strong style="font-size: 1.5rem; color: #1E3A5F;"><i class="bi bi-pencil-fill" style="color: #ffc107;"></i> {{title}}</strong>
+            <p class="card-text">Registro seleccionado: {{record.id}} - {{record}}.</p>
+        </div>
+        <div class="container-fluid mt-3 pb-4">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="mb-3">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.name == 'password' %} <div style="margin-left: 3px; padding: 5px;"><i class="bi bi-eye" id="toggle-password" style="cursor: pointer; height: 50px;"></i></div>  {% endif %}
+                        {% if field.errors %}
+                            <div class="text-danger">
+                                {{ field.errors|striptags }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                {% endfor %}
+                <button type="submit" class="btn btn-primary mt-2">Guardar Cambios</button>
+            </form>
+            
+        </div>
+</div>
+<script>
+    document.getElementById('toggle-password').addEventListener('click', function() {
+        var passwordField = document.getElementById('id_password');
+        var icon = this;
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash-fill');
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('bi-eye-slash-fill');
+            icon.classList.add('bi-eye');
+        }
+    });
+</script>
+{% endblock %}

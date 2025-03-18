@@ -450,6 +450,7 @@
                 <div class="left-info">
                     <p><strong>Creado por:</strong> {{ venta.creado_por.username|default:"-" }}</p>
                     <p><strong>Fecha de Creación:</strong> {{ venta.fecha_creacion|date:"d/m/Y" }}</p>
+                    <a href="{% url 'venta_edit' venta.id %}" class="btn btn-outline-secondary">Editar Venta</a>
                 </div>
             </div>
         </div>

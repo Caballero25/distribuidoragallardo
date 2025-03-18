@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from cuentasporcobrar.models import CuentaPorCobrar
 from ingresos.models import Ingreso
@@ -11,6 +11,8 @@ from terceros.models import Tercero
 from ventas.models import Venta, ProductosVendidos
 from django.utils.dateparse import parse_date
 from django.db import transaction
+from .forms import VentaEditForm
+from home.models import Parametrizacion
 
 # Create your views here.
 
@@ -202,3 +204,28 @@ def delete_venta(request, id):
         return redirect('get_all_ventas')
 
     return render(request, 'ventas/delete_confirm.html', {'venta': venta})
+
+def ventaUpdateView(request, id):
+    passwords = Parametrizacion.objects.filter()[0]
+    editar_password = passwords.clave_editar_ventas
+    record = get_object_or_404(Venta, id=id)
+    context = {}
+    context['title'] = 'Editar Venta'
+    context['record'] = record
+    if request.method == 'POST':
+        form = VentaEditForm(request.POST, instance=record)
+        if form.is_valid():
+            password = form.cleaned_data.get('password')  
+            if password == editar_password:
+                form.save()
+                return redirect('get_all_ventas')
+            else:
+                context['error_message'] = "Contraseña incorrecta"
+                context['form'] = form
+                return render(request, 'ventas/edit.html', context)
+        else:
+            return render(request, 'ventas/edit.html', context)
+    else:
+        form = VentaEditForm(instance=record)
+    context['form'] = form
+    return render(request, 'ventas/edit.html', context)
