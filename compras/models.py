@@ -18,7 +18,8 @@ class Compra(models.Model):
     fecha_creacion = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return "Compra: " + self.creado_por.username +" a " + self.tercero.nombre +" "+ "$"+str(self.valor) + " | " + str(self.fecha)
+        nombre_tercero = self.tercero.nombre if self.tercero and self.tercero.nombre else "Sin tercero"
+        return "Compra: " + self.creado_por.username +" a " + nombre_tercero +" "+ "$"+str(self.valor) + " | " + str(self.fecha)
  
 class ProductosComprados(models.Model):
     compra = models.ForeignKey('Compra', on_delete=models.CASCADE, related_name='productos_comprados')

@@ -19,7 +19,7 @@ class Venta(models.Model):
                                    related_name='ventas_creadas')
     fecha_creacion = models.DateTimeField(auto_now=True)
     def __str__(self):
-        nombre_tercero = self.tercero.nombre if self.tercero.nombre  else "Sin tercero"
+        nombre_tercero = self.tercero.nombre if self.tercero and self.tercero.nombre else "Sin tercero"
         return "Venta: " + self.creado_por.username +" a " + nombre_tercero +" "+ "$"+str(self.valor) + " | " + str(self.fecha)
 class ProductosVendidos(models.Model):
     venta = models.ForeignKey('Venta', on_delete=models.CASCADE, related_name='productos_vendidos')
