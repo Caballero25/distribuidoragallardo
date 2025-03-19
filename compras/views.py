@@ -1,18 +1,20 @@
 from datetime import date
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.dateparse import parse_date, parse_datetime
 
 from compras.models import ProductosComprados
 from egresos.models import Egreso
 from terceros.models import Tercero
 from .models import Compra
+from home.models import Parametrizacion
 from productos.models import Producto
 from django.contrib import messages
 from cuentasporpagar.models import CuentaPorPagar
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 from django.db import transaction
+from .forms import CompraEditForm
 
 # Create your views here.
 @login_required
@@ -204,3 +206,33 @@ def delete_compra(request, id):
         return redirect('get_all_compras')
 
     return render(request, 'compras/delete_confirm.html', {'compra': compra})
+
+
+
+def compraUpdateView(request, id):
+    passwords = Parametrizacion.objects.filter()[0]
+    if passwords:
+        editar_password = passwords.clave_editar_compras
+    else:
+        editar_password = ""
+    record = get_object_or_404(Compra, id=id)
+    context = {}
+    context['title'] = 'Editar Compra'
+    context['record'] = record
+    if request.method == 'POST':
+        form = CompraEditForm(request.POST, instance=record)
+        if form.is_valid():
+            password = form.cleaned_data.get('password')  
+            if password == editar_password:
+                form.save()
+                return redirect('get_all_compras')
+            else:
+                context['error_message'] = "Contraseña incorrecta"
+                context['form'] = form
+                return render(request, 'ventas/edit.html', context)
+        else:
+            return render(request, 'ventas/edit.html', context)
+    else:
+        form = CompraEditForm(instance=record)
+    context['form'] = form
+    return render(request, 'ventas/edit.html', context)

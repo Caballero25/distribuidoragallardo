@@ -207,7 +207,10 @@ def delete_venta(request, id):
 
 def ventaUpdateView(request, id):
     passwords = Parametrizacion.objects.filter()[0]
-    editar_password = passwords.clave_editar_ventas
+    if passwords:
+        editar_password = passwords.clave_editar_ventas
+    else:
+        editar_password = ""
     record = get_object_or_404(Venta, id=id)
     context = {}
     context['title'] = 'Editar Venta'

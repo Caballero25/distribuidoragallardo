@@ -450,6 +450,7 @@
                 <div class="left-info">
                     <p><strong>Creado por:</strong> {{ compra.creado_por.username|default:"-" }}</p>
                     <p><strong>Fecha de Creación:</strong> {{ compra.fecha_creacion|date:"d/m/Y" }}</p>
+                    <a href="{% url 'compra_edit' compra.id %}" class="btn btn-outline-secondary">Editar Compra</a>
                 </div>
             </div>
         </div>
