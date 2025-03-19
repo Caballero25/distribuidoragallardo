@@ -36,9 +36,7 @@ def get_all_cuentas_por_cobrar(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # Si es una solicitud AJAX, devolvemos solo la tabla
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'cuentas_por_cobrar/cuentas_por_cobrar_table.html', {'cuentas_por_cobrar': page_obj})
+
 
     return render(request, 'cuentasporcobrar/cuentasporcobrar.html', {'cuentas_por_cobrar': page_obj})
 
