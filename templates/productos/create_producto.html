@@ -55,6 +55,11 @@
             <input type="number" name="valor_unitario_credito" id="valor_unitario_credito" step="0.01" class="form-control" required>
             <span id="valor_unitario_credito_error" style="color: red; display: none;">El valor unitario por crédito debe ser mayor a 0.</span>
         </div>
+        <div class="form-group">
+            <label for="precio_compra">Precio de Compra</label>
+            <input type="number" name="precio_compra" id="precio_compra" step="0.01" class="form-control" required>
+            <span id="valor_compra_error" style="color: red; display: none;">El precio de compra debe ser mayor a 0.</span>
+        </div>
 
 
         <button type="submit" id="submit_btn" class="btn btn-primary btn-block mt-4">Crear Producto</button>
@@ -147,6 +152,7 @@
         function validarValorUnitario() {
             let valor = parseFloat($("#valor_unitario").val());
             let valor_credito = parseFloat($("#valor_unitario_credito").val());
+            let precio_compra = parseFloat($("#precio_compra").val());
             if (isNaN(valor) || valor <= 0) {
                 $("#valor_unitario_error").show();
             } else {
@@ -156,6 +162,11 @@
                 $("#valor_unitario_credito_error").show();
             } else {
                 $("#valor_unitario_credito_error").hide();
+            }
+            if (isNaN(precio_compra) || precio_compra <= 0) {
+                $("#valor_compra_error").show();
+            } else {
+                $("#valor_compra_error").hide();
             }
         }
 

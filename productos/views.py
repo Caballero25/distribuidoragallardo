@@ -21,6 +21,7 @@ def create_producto(request):
         existencia = entradas - salidas
         costo_unitario = Decimal(request.POST.get('costo_unitario', 0))
         valor_unitario = Decimal(request.POST.get('valor_unitario', 0))
+        precio_compra = Decimal(request.POST.get('precio_compra', 0))
         valor_unitario_credito = Decimal(request.POST.get('valor_unitario_credito', 0))
         creado_por = request.user
 
@@ -41,6 +42,7 @@ def create_producto(request):
             existencia=existencia,
             valor_unitario=valor_unitario,
             valor_unitario_credito = valor_unitario_credito,
+            precio_compra = precio_compra,
             entradas=entradas,
             salidas=salidas,
             creado_por=creado_por
@@ -97,7 +99,7 @@ def get_producto_by_name(request):
 def get_producto_by_name_din(request):
     query = request.GET.get('term', '').strip()  # Cambiar 'q' por 'term'
     productos = Producto.objects.filter(nombre__icontains=query)[:5]  # Limitar a 5 resultados
-    data = [{'id': producto.id, 'nombre': producto.nombre, 'valor_unitario' : producto.valor_unitario, "valor_unitario_credito": producto.valor_unitario_credito} for producto in productos]
+    data = [{'id': producto.id, 'nombre': producto.nombre, 'valor_unitario' : producto.valor_unitario, "valor_unitario_credito": producto.valor_unitario_credito, 'precio_compra': producto.precio_compra} for producto in productos]
     return JsonResponse(data, safe=False)
 
 @login_required

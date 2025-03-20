@@ -107,7 +107,7 @@
                 </div>
 
                 <div class="col-md-2">
-                    <label for="valor_unitario" class="form-label">Valor Unitario:</label>
+                    <label for="valor_unitario" class="form-label">Precio Unitario:</label>
                     <input type="number" step="0.01" class="form-control" id="valor_unitario">
                     <span id="valor_unitario_error" style="color: red; display: none;">El valor unitario no puede estar vacío o ser cero.</span>
                 </div>
@@ -236,7 +236,7 @@
                     data: { term: request.term },
                     success: function(data) {
                         response($.map(data, function(item) {
-                            return { label: item.nombre, value: item.nombre, id: item.id };
+                            return { label: item.nombre, value: item.nombre, id: item.id, precio_compra: item.precio_compra };
                         }));
                     }
                 });
@@ -245,6 +245,8 @@
             select: function(event, ui) {
                 $("#producto_id").val(ui.item.id); // Guardar ID del producto
                 $("#producto_nombre").val(ui.item.label); // Mostrar el nombre del producto
+                $("#valor_unitario").val(ui.item.precio_compra); // Mostrar el nombre del producto
+
 
                 // Obtener el código del producto mediante AJAX
                 $.ajax({
