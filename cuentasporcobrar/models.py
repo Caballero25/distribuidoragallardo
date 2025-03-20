@@ -23,4 +23,5 @@ class CuentaPorCobrar(models.Model):
     fecha_creacion = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.tercero.nombre + " " + "$"+str(self.saldo) + " | " + self.estado
+        nombre_tercero = self.tercero.nombre if self.tercero and self.tercero.nombre else "Sin tercero"
+        return nombre_tercero + " " + "$"+str(self.saldo) + " | " + self.estado

@@ -428,7 +428,28 @@
         <button type="button" id="limpiar-tercero">Limpiar</button>
     </form>
 </div>
-
+{% if saldo_por_tercero %}
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Tercero</th>
+            <th>Saldo Pendiente</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for saldo_pendiente in saldo_por_tercero %}
+            <tr>
+                <td>
+                    {{ saldo_pendiente.tercero__nombre }}
+                </td>
+                <td>
+                    ${{ saldo_pendiente.total_saldo }}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
 <table>
     <thead>
     <tr>
