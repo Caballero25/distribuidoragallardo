@@ -14,7 +14,7 @@ from productos.models import Producto
 def home(request):
     productos_escasos = Producto.objects.all().order_by('existencia')[:5]
     cantidad_total_productos = Producto.objects.aggregate(total_existencia=models.Sum('existencia'))['total_existencia'] or 0
-    total_inventario = Producto.objects.aggregate(total_valor=models.Sum(models.F('existencia') * models.F('valor_unitario')))['total_valor'] or 0
+    total_inventario = Producto.objects.aggregate(total_valor=models.Sum(models.F('existencia') * models.F('precio_compra')))['total_valor'] or 0
 
     context = {
         "productos_escasos": productos_escasos,
