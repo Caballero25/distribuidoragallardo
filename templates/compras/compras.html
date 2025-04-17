@@ -336,6 +336,7 @@
 <table id="tabla-compra">
     <thead>
     <tr>
+        <th>ID</th>
         <th>Fecha</th>
         <th>Tercero</th>
         <th>Valor</th>
@@ -347,6 +348,7 @@
     {% if compras %}
     {% for compra in compras %}
     <tr>
+        <td>{{compra.id}}</td>
         <td>{{ compra.fecha|date:"d/m/Y" }}</td>
         {% if compra.tercero %}
         <td>{{ compra.tercero.nombre }}</td>

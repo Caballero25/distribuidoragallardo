@@ -1,0 +1,147 @@
+{% extends 'base/base_adminlte.html' %}
+{% load static %}
+
+{% block title %} Nueva Venta {% endblock %}
+
+{% block extra_head %}
+<script>
+    function eliminarProducto(productoId) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{% url 'editar_venta_completa' venta.id %}";
+    
+        const csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = 'csrfmiddlewaretoken';
+        csrf.value = '{{ csrf_token }}';
+    
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'delete_product_id';
+        idInput.value = productoId;
+    
+        const deleteFlag = document.createElement('input');
+        deleteFlag.type = 'hidden';
+        deleteFlag.name = 'delete_product';
+        deleteFlag.value = '1';
+    
+        form.appendChild(csrf);
+        form.appendChild(idInput);
+        form.appendChild(deleteFlag);
+    
+        document.body.appendChild(form);
+        form.submit();
+    }
+    </script>
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    
+    <div class="card-header text-center">
+        <strong style="font-size: 1.5rem; color: #1E3A5F;"><i class="bi bi-pencil-fill" style="color: #ffc107;"></i> Editar Venta #{{ venta.id }}</strong>
+        
+    </div>
+    <p><strong>Fecha:</strong> {{ venta.fecha }}</p>
+    <p><strong>Tercero:</strong> {{ venta.tercero.nombre|default:"Sin tercero" }}</p>
+    <p><strong>Valor Total:</strong> ${{ venta.valor }}</p>
+    <p><strong>Descripción:</strong> {{ venta.descripcion|default:"Sin descripción" }}</p>
+    
+    <hr>
+    
+    <h3>Productos Vendidos</h3>
+    <form method="post" action="{% url 'editar_venta_completa' venta.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="update_products" value="1">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Disponible</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pv in productos_vendidos %}
+                <tr>
+                    <td>{{pv.producto.existencia}}</td>
+                    <td>{{ pv.producto.nombre }}</td>
+                    <td>
+                        <input type="number" name="cantidad" value="{{ pv.cantidad }}" class="form-control">
+                    </td>
+                    <td>
+                        <input type="text" name="valor_unitario" value="{{ pv.valor_unitario }}" step="0.01" min="0" class="form-control" placeholder="{{ pv.valor_unitario }}">
+                        <input type="hidden" name="producto_id" value="{{ pv.id }}">
+                    </td>
+                    <td>${{ pv.valor_total }}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ pv.id }}">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+                
+                <!-- Modal de confirmación para eliminar -->
+                <div class="modal fade" id="deleteModal{{ pv.id }}" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirmar Eliminación</h5>
+                                <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="modal">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                ¿Estás seguro de eliminar este producto de la venta? - {{ pv.producto.nombre }}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-danger" onclick="eliminarProducto({{ pv.id }})">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">Guardar Cambios en Productos</button>
+    </form>
+    
+    {% if cuenta_por_cobrar %}
+    <hr>
+    
+    <h3>Ingresos Registrados</h3>
+    <p><strong>Saldo Pendiente:</strong> ${{ cuenta_por_cobrar.saldo }}</p>
+    <p><strong>Estado:</strong> {{ cuenta_por_cobrar.get_estado_display }}</p>
+    
+    <form method="post" action="{% url 'editar_venta_completa' venta.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="update_ingresos" value="1">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Valor</th>
+                    <th>Método de Pago</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ingreso in ingresos %}
+                <tr>
+                    <td>{{ ingreso.fecha }}</td>
+                    <td>
+                        <input type="text" name="valor" value="{{ ingreso.valor }}" step="0.01" min="0" class="form-control" placeholder="{{ingreso.valor}}">
+                        <input type="hidden" name="ingreso_id" value="{{ ingreso.id }}">
+                    </td>
+                    <td>{{ ingreso.get_metodo_de_pago_display }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">Guardar Cambios en Ingresos</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

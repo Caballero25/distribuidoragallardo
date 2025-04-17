@@ -336,6 +336,7 @@
 <table id="tabla-venta">
     <thead>
     <tr>
+        <th>ID</th>
         <th>Fecha</th>
         <th>Tercero</th>
         <th>Valor</th>
@@ -347,13 +348,14 @@
     {% if ventas %}
     {% for venta in ventas %}
     <tr>
+        <td>{{ venta.id }}</td>
         <td>{{ venta.fecha|date:"d/m/Y" }}</td>
         {% if venta.tercero %}
         <td>{{ venta.tercero.nombre }}</td>
         {% else %}
         <td>Sin tercero disponible</td>
         {% endif %}
-        <td class="saldo">{{ venta.valor }}</td>
+        <td class="saldo">${{ venta.valor }}</td>
         {% if venta.descripcion %}
         <td>{{ venta.descripcion }}</td>
         {% else %}
@@ -444,7 +446,8 @@
                 <div class="left-info">
                     <p><strong>Creado por:</strong> {{ venta.creado_por.username|default:"-" }}</p>
                     <p><strong>Fecha de Creación:</strong> {{ venta.fecha_creacion|date:"d/m/Y" }}</p>
-                    <a href="{% url 'venta_edit' venta.id %}" class="btn btn-outline-secondary">Editar Venta</a>
+                    <a href="{% url 'venta_edit' venta.id %}" class="btn btn-outline-secondary">Editar Info</a>
+                    <a href="{% url 'editar_venta_completa' venta.id %}" class="btn btn-outline-secondary">Editar Venta</a>
                 </div>
             </div>
         </div>
@@ -688,13 +691,14 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         function formatCurrency(value) {
-            return "$" + value.toFixed(2).replace(".", ",");
+            return value.toFixed(2).replace(".", ",");
         }
 
         // Formatear los saldos en la tabla
         document.querySelectorAll(".saldo").forEach(function (element) {
             let saldo = parseFloat(element.textContent.replace("$", "").trim());
             if (!isNaN(saldo)) {
+                saldo = saldo.toFixed(2),
                 element.textContent = formatCurrency(saldo);
             }
         });
