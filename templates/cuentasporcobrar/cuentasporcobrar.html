@@ -579,7 +579,7 @@
 
                         <div class="form-group">
                             <label for="valor">Valor del Cobro</label>
-                            <input type="number" step="0.01" name="valor" class="form-control" required oninput="validarCobro(this, {{ cuenta_por_cobrar.saldo }}, {{ cuenta_por_cobrar.id }})">
+                            <input type="number" step="0.01" name="valor" class="form-control" required>
                             <small id="errorCobro{{ cuenta_por_cobrar.id }}" class="text-danger" style="display: none;">
                                 El cobro no puede ser mayor al saldo de la cuenta por cobrar.
                             </small>
@@ -722,24 +722,6 @@
     window.onclick = function(event) {
         if (event.target.classList.contains('modal')) {
             event.target.style.display = 'none';
-        }
-    }
-
-    function validarCobro(input, saldo, id) {
-        let errorMsg = document.getElementById('errorCobro' + id);
-        let valor = parseFloat(input.value);
-
-        if (isNaN(valor) || valor <= 0) {
-            errorMsg.textContent = "El cobro debe ser mayor a 0.";
-            errorMsg.style.display = 'block';
-            input.setCustomValidity('El cobro debe ser mayor a 0.');
-        } else if (valor > saldo) {
-            errorMsg.textContent = "El cobro no puede ser mayor al saldo.";
-            errorMsg.style.display = 'block';
-            input.setCustomValidity('El cobro no puede ser mayor al saldo.');
-        } else {
-            errorMsg.style.display = 'none';
-            input.setCustomValidity('');
         }
     }
 
