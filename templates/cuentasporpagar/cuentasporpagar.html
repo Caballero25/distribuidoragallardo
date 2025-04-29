@@ -370,7 +370,7 @@ text-align: left;
         <th>Saldo</th>
         <th>Estado</th>
         <th>Ver</th>
-        <th>Eliminar</th>
+        
     </tr>
     </thead>
     <tbody>
@@ -394,11 +394,7 @@ text-align: left;
         </td>
 
         <!-- Columna Eliminar -->
-        <td>
-            <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ cuenta_por_pagar.id }}">
-                <i class="fi fi-rs-trash-can-slash"></i> <!-- Caneca de basura -->
-            </a>
-        </td>
+        
     </tr>
 
     <!-- Modal Ver Detalles de la Cuenta por Pagar -->
@@ -451,26 +447,7 @@ text-align: left;
         </div>
     </div>
 
-    <div class="modal fade" id="deleteModal{{ cuenta_por_pagar.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ cuenta_por_pagar.id }}" aria-hidden="true" data-bs-backdrop="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel{{ cuenta_por_pagar.id }}">Confirmar eliminación</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    ¿Estás seguro de que deseas eliminar la cuenta por pagar?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <form action="{% url 'delete_cuenta_por_pagar' cuenta_por_pagar.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Modal Pagar -->
     <div class="modal fade" id="pagarModal{{ cuenta_por_pagar.id }}" tabindex="-1" aria-labelledby="pagarModalLabel{{ cuenta_por_pagar.id }}" aria-hidden="true" data-bs-backdrop="true">
