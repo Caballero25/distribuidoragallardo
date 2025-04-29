@@ -434,6 +434,7 @@
         <tr>
             <th>Tercero</th>
             <th>Saldo Pendiente</th>
+            <th>Pago Masivo</th>
         </tr>
     </thead>
     <tbody>
@@ -445,7 +446,62 @@
                 <td>
                     ${{ saldo_pendiente.total_saldo }}
                 </td>
+                <td class="actions">
+                    <!-- Botón corregido para abrir modal -->
+                    <button type="button" class="btn " 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#cobrarMasivoModal{{ saldo_pendiente.tercero__id }}">
+                            <i class="bi bi-cash-stack" style="color: #14563d;"></i>
+                    </button>
+                </td>
             </tr>
+            
+            <!-- Modal Cobrar -->
+            <div class="modal fade" id="cobrarMasivoModal{{ saldo_pendiente.tercero__id }}" tabindex="-1" 
+                 aria-labelledby="cobrarMasivoModalLabel{{ saldo_pendiente.tercero__id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="cobrarMasivoModalLabel{{ saldo_pendiente.tercero__id }}">
+                                 Tercero: {{ saldo_pendiente.tercero__nombre }}<br>
+                                Saldo total por cobrar ${{ saldo_pendiente.total_saldo }}
+                            </h5> 
+                            
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{% url 'pago-masivo-cobro' saldo_pendiente.tercero__id %}" method="post">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="fecha{{ saldo_pendiente.tercero__id }}" class="form-label">Fecha de Cobro</label>
+                                    <input type="date" name="fecha" class="form-control" id="fecha{{ saldo_pendiente.tercero__id }}" required>
+                                </div>
+        
+                                <div class="mb-3">
+                                    <label for="valor{{ saldo_pendiente.tercero__id }}" class="form-label">Valor del Cobro</label>
+                                    <input type="number" step="0.01" name="valor" class="form-control" id="valor{{ saldo_pendiente.tercero__id }}" 
+                                            required>
+                                </div>
+
+                                <input name="valor_adeudado" value="{{ saldo_pendiente.total_saldo }}" hidden>
+        
+                                <div class="mb-3">
+                                    <label for="metodo_de_pago{{ saldo_pendiente.tercero__id }}" class="form-label">Método de Pago</label>
+                                    <select name="metodo_de_pago" class="form-select" id="metodo_de_pago{{ saldo_pendiente.tercero__id }}" required>
+                                        <option value="EFECTIVO">Efectivo</option>
+                                        <option value="TRANSFERENCIA">Transferencia</option>
+                                    </select>
+                                </div>
+        
+                                <button type="submit" class="btn btn-success w-100 mt-3">Registrar Cobro</button>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
     </tbody>
 </table>
@@ -459,7 +515,6 @@
         <th>Saldo</th>
         <th>Estado</th>
         <th>Ver</th>
-        <th>Eliminar</th>
     </tr>
     </thead>
     <tbody>
@@ -479,13 +534,6 @@
         <td class="actions">
             <a href="#cuentaModal{{ cuenta_por_cobrar.id }}" class="view btn-ver-cuenta" data-id="{{ cuenta_por_cobrar.id }}">
                 <i class="fi fi-rr-eye"></i>
-            </a>
-        </td>
-
-        <!-- Columna Eliminar -->
-        <td>
-            <a href="#" data-bs-toggle="modal" data-bs-target="#deleteModal{{ cuenta_por_cobrar.id }}">
-                <i class="fi fi-rs-trash-can-slash"></i>
             </a>
         </td>
     </tr>
@@ -540,26 +588,6 @@
         </div>
     </div>
 
-    <div class="modal fade" id="deleteModal{{ cuenta_por_cobrar.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ cuenta_por_cobrar.id }}" aria-hidden="true" data-bs-backdrop="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel{{ cuenta_por_cobrar.id }}">Confirmar eliminación</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    ¿Estás seguro de que deseas eliminar la cuenta por cobrar?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <form action="{% url 'delete_cuenta_por_cobrar' cuenta_por_cobrar.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Modal Cobrar -->
     <div class="modal fade" id="cobrarModal{{ cuenta_por_cobrar.id }}" tabindex="-1" aria-labelledby="cobrarModalLabel{{ cuenta_por_cobrar.id }}" aria-hidden="true" data-bs-backdrop="true">

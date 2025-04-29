@@ -26,6 +26,6 @@ class CuentaPorCobrar(models.Model):
         nombre_tercero = self.tercero.nombre if self.tercero and self.tercero.nombre else "Sin tercero"
         return nombre_tercero + " " + "$"+str(self.saldo) + " | " + self.estado
     def save(self, *args, **kwargs):
-        if self.saldo == 0:
+        if self.saldo <= 0:
             self.estado = 'PAGADO'
         super().save(*args, **kwargs)
